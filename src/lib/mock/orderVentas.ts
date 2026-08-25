@@ -97,7 +97,7 @@ export function orderToVentas(
   const cliente = order.userName || order.userEmail || "Cliente web";
 
   return order.items.map((item) => {
-    const articulo = itemLabel(item);
+    const articulo = itemLabel(item) || "";
     const unitPrice =
       order.paymentMethod === "transferencia"
         ? parseMoney(item.transfer)

@@ -41,7 +41,16 @@ export function normalizeShipping(
   };
 }
 
-export function normalizeBag(bag: Partial<AccountBag> | null | undefined): AccountBag {
+export function normalizeBag(
+  bag:
+    | {
+        cart?: CartItem[];
+        wishlist?: string[];
+        shipping?: CartShippingPref | null;
+      }
+    | null
+    | undefined
+): AccountBag {
   return {
     cart: Array.isArray(bag?.cart) ? bag.cart : [],
     wishlist: Array.isArray(bag?.wishlist)

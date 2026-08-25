@@ -2,6 +2,7 @@ import type { CatalogProduct, ColorVariant, ProductSize } from "@/data/catalog";
 import { fillEmptyVariantImages } from "@/data/catalog";
 import type {
   CartItem,
+  CartShippingPref,
   MockOrder,
   OrderStatus,
   SavedAddress,
@@ -672,7 +673,7 @@ export function hasApiAuth(): boolean {
 export type AccountBagPayload = {
   cart: CartItem[];
   wishlist: string[];
-  shipping: unknown | null;
+  shipping: CartShippingPref | null;
 };
 
 type ApiBagLine = {

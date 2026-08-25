@@ -57,6 +57,14 @@ export type OrderStatus =
 
 export type OrderItem = CartItem;
 
+export type TrackingCarrier =
+  | "andreani"
+  | "correo_argentino"
+  | "rastro"
+  | "otro";
+
+export type ShippingZone = "retiro" | "rosario" | "interior";
+
 export type SelectedShippingRate = {
   id: string;
   name: string;
@@ -77,12 +85,6 @@ export type CartShippingPref = {
   deliveryDate: string;
   deliverySlot: string;
 };
-
-export type TrackingCarrier =
-  | "andreani"
-  | "correo_argentino"
-  | "rastro"
-  | "otro";
 
 export type ShippingDetails = {
   zone: ShippingZone;

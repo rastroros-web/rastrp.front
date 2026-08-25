@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
+import { Check } from "lucide-react";
 import { ShopChrome } from "@/components/ShopChrome";
 import { PromoToast, type PromoToastPayload } from "@/components/PromoToast";
 import { useStore } from "@/components/store/StoreProvider";

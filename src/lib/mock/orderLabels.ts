@@ -58,7 +58,7 @@ export function itemLabel(item: {
   productName?: string | null;
   variantName?: string | null;
 }) {
-  return [item?.brand, item?.productName, item?.variantName].reduce(
+  return [item?.brand, item?.productName, item?.variantName].reduce<string>(
     (acc, part) => foldPart(acc, part),
     ""
   );
