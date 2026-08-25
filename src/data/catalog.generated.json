@@ -1,0 +1,5237 @@
+[
+  {
+    "slug": "nike-air-force-1",
+    "name": "Nike Air Force 1",
+    "brand": "Nike",
+    "category": "zapatillas",
+    "storeCategories": [
+      "nike",
+      "nike/air-force-1"
+    ],
+    "primaryCategory": "nike",
+    "description": "Te recomendamos que midas tu plantilla con centímetro o regla para elegir el talle más adecuado. Vienen del talle 34 al 43. LARGO DE PLANTILLA POR TALLE 34 23 cm 35 23,1 cm 37 24,3 cm 38 25,3 cm 39 25,4 cm 40 26,9 cm 41 27 cm 42 28,2 cm 43 28,3 cm Incluye caja personalizada",
+    "tags": [],
+    "sourceUrl": "https://rastrozapas.mitiendanube.com/productos/nike-air-force-1-total-black-1ywbo/",
+    "variants": [
+      {
+        "id": "total-black",
+        "name": "Total Black",
+        "color": "#0a0a0a",
+        "image": "/assets/products/drive/NIK-AF1-TBL/01.webp",
+        "images": [
+          "/assets/products/drive/NIK-AF1-TBL/01.webp",
+          "/assets/products/drive/NIK-AF1-TBL/02.webp",
+          "/assets/products/drive/NIK-AF1-TBL/03.webp",
+          "/assets/products/drive/NIK-AF1-TBL/04.webp",
+          "/assets/products/drive/NIK-AF1-TBL/05.webp",
+          "/assets/products/drive/NIK-AF1-TBL/06.webp",
+          "/assets/products/drive/NIK-AF1-TBL/07.webp"
+        ],
+        "price": "$64.000,00",
+        "transfer": "$48.000,00",
+        "installments": "$6.027,47",
+        "installmentsLabel": "24 cuotas de $6.027,47",
+        "sizes": [
+          {
+            "label": "34",
+            "inStock": true
+          },
+          {
+            "label": "35",
+            "inStock": true
+          },
+          {
+            "label": "36",
+            "inStock": true
+          },
+          {
+            "label": "37",
+            "inStock": true
+          },
+          {
+            "label": "38",
+            "inStock": true
+          },
+          {
+            "label": "39",
+            "inStock": true
+          },
+          {
+            "label": "40",
+            "inStock": true
+          },
+          {
+            "label": "41",
+            "inStock": true
+          },
+          {
+            "label": "42",
+            "inStock": true
+          },
+          {
+            "label": "43",
+            "inStock": true
+          }
+        ],
+        "legacySlug": "nike-air-force-1-total-black-1ywbo"
+      },
+      {
+        "id": "caramelo",
+        "name": "Caramelo",
+        "color": "#c68e4e",
+        "image": "/assets/products/drive/NIK-AF1-CAR/01.webp",
+        "images": [
+          "/assets/products/drive/NIK-AF1-CAR/01.webp",
+          "/assets/products/drive/NIK-AF1-CAR/02.webp",
+          "/assets/products/drive/NIK-AF1-CAR/03.webp",
+          "/assets/products/drive/NIK-AF1-CAR/04.webp",
+          "/assets/products/drive/NIK-AF1-CAR/05.webp",
+          "/assets/products/drive/NIK-AF1-CAR/06.webp",
+          "/assets/products/drive/NIK-AF1-CAR/07.webp",
+          "/assets/products/drive/NIK-AF1-CAR/08.webp"
+        ],
+        "price": "$73.350,00",
+        "transfer": "$55.012,50",
+        "installments": "$6.908,04",
+        "installmentsLabel": "24 cuotas de $6.908,04",
+        "sizes": [
+          {
+            "label": "34",
+            "inStock": true
+          },
+          {
+            "label": "35",
+            "inStock": true
+          },
+          {
+            "label": "36",
+            "inStock": true
+          },
+          {
+            "label": "37",
+            "inStock": true
+          },
+          {
+            "label": "38",
+            "inStock": true
+          },
+          {
+            "label": "39",
+            "inStock": true
+          },
+          {
+            "label": "40",
+            "inStock": true
+          },
+          {
+            "label": "41",
+            "inStock": true
+          },
+          {
+            "label": "42",
+            "inStock": true
+          },
+          {
+            "label": "43",
+            "inStock": true
+          }
+        ],
+        "legacySlug": "nike-air-force-1-caramelo"
+      },
+      {
+        "id": "gris",
+        "name": "Gris",
+        "color": "#8a8a8a",
+        "image": "/assets/products/drive/NIK-AF1-GRI/01.webp",
+        "images": [
+          "/assets/products/drive/NIK-AF1-GRI/01.webp",
+          "/assets/products/drive/NIK-AF1-GRI/02.webp",
+          "/assets/products/drive/NIK-AF1-GRI/03.webp",
+          "/assets/products/drive/NIK-AF1-GRI/04.webp",
+          "/assets/products/drive/NIK-AF1-GRI/05.webp",
+          "/assets/products/drive/NIK-AF1-GRI/06.webp",
+          "/assets/products/drive/NIK-AF1-GRI/07.webp",
+          "/assets/products/drive/NIK-AF1-GRI/08.webp"
+        ],
+        "price": "$64.000,00",
+        "transfer": "$48.000,00",
+        "installments": "$6.027,47",
+        "installmentsLabel": "24 cuotas de $6.027,47",
+        "sizes": [
+          {
+            "label": "34",
+            "inStock": true
+          },
+          {
+            "label": "35",
+            "inStock": true
+          },
+          {
+            "label": "36",
+            "inStock": true
+          },
+          {
+            "label": "37",
+            "inStock": true
+          },
+          {
+            "label": "38",
+            "inStock": true
+          },
+          {
+            "label": "39",
+            "inStock": true
+          },
+          {
+            "label": "40",
+            "inStock": true
+          },
+          {
+            "label": "41",
+            "inStock": true
+          },
+          {
+            "label": "42",
+            "inStock": true
+          },
+          {
+            "label": "43",
+            "inStock": true
+          }
+        ],
+        "legacySlug": "nike-air-force-1-gris"
+      },
+      {
+        "id": "white",
+        "name": "White",
+        "color": "#f5f5f5",
+        "image": "/assets/products/drive/NIK-AF1-WHI/01.webp",
+        "images": [
+          "/assets/products/drive/NIK-AF1-WHI/01.webp",
+          "/assets/products/drive/NIK-AF1-WHI/02.webp",
+          "/assets/products/drive/NIK-AF1-WHI/03.webp",
+          "/assets/products/drive/NIK-AF1-WHI/04.webp",
+          "/assets/products/drive/NIK-AF1-WHI/05.webp",
+          "/assets/products/drive/NIK-AF1-WHI/06.webp",
+          "/assets/products/drive/NIK-AF1-WHI/07.webp",
+          "/assets/products/drive/NIK-AF1-WHI/08.webp"
+        ],
+        "price": "$64.000,00",
+        "transfer": "$48.000,00",
+        "installments": "$6.027,47",
+        "installmentsLabel": "24 cuotas de $6.027,47",
+        "sizes": [
+          {
+            "label": "34",
+            "inStock": true
+          },
+          {
+            "label": "35",
+            "inStock": true
+          },
+          {
+            "label": "36",
+            "inStock": true
+          },
+          {
+            "label": "37",
+            "inStock": true
+          },
+          {
+            "label": "38",
+            "inStock": true
+          },
+          {
+            "label": "39",
+            "inStock": true
+          },
+          {
+            "label": "40",
+            "inStock": true
+          },
+          {
+            "label": "41",
+            "inStock": true
+          },
+          {
+            "label": "42",
+            "inStock": true
+          },
+          {
+            "label": "43",
+            "inStock": true
+          }
+        ],
+        "legacySlug": "nike-air-force-1-white"
+      }
+    ]
+  },
+  {
+    "slug": "nike-dunk-low",
+    "name": "Nike Dunk Low",
+    "brand": "Nike",
+    "category": "sale",
+    "storeCategories": [
+      "mega-sale"
+    ],
+    "primaryCategory": "nike",
+    "description": "Te recomendamos que midas tu plantilla con centímetro o regla para elegir el talle más adecuado. Vienen del talle 38 al 43. LARGO DE PLANTILLA POR TALLE 38 25,3 cm 39 25,4 cm 40 26,9 cm 41 27 cm 42 28,2 cm 43 28,3 cm Incluye caja personalizada, cordones extra y bolsa de la marca.",
+    "tags": [
+      "Mega Sale"
+    ],
+    "sourceUrl": "https://rastrozapas.mitiendanube.com/productos/nike-dunk-low-panda-qiem5/",
+    "variants": [
+      {
+        "id": "panda",
+        "name": "Panda",
+        "color": "#111",
+        "image": "/assets/products/drive/NIK-DNK-PAN/01.webp",
+        "images": [
+          "/assets/products/drive/NIK-DNK-PAN/01.webp",
+          "/assets/products/drive/NIK-DNK-PAN/02.webp",
+          "/assets/products/drive/NIK-DNK-PAN/03.webp",
+          "/assets/products/drive/NIK-DNK-PAN/04.webp",
+          "/assets/products/drive/NIK-DNK-PAN/05.webp",
+          "/assets/products/drive/NIK-DNK-PAN/06.webp",
+          "/assets/products/drive/NIK-DNK-PAN/07.webp"
+        ],
+        "price": "$42.666,00",
+        "transfer": "$31.999,50",
+        "installments": "$4.018,25",
+        "installmentsLabel": "24 cuotas de $4.018,25",
+        "sizes": [
+          {
+            "label": "34",
+            "inStock": true
+          },
+          {
+            "label": "35",
+            "inStock": true
+          },
+          {
+            "label": "36",
+            "inStock": true
+          },
+          {
+            "label": "37",
+            "inStock": true
+          },
+          {
+            "label": "38",
+            "inStock": true
+          },
+          {
+            "label": "39",
+            "inStock": true
+          },
+          {
+            "label": "40",
+            "inStock": true
+          },
+          {
+            "label": "41",
+            "inStock": true
+          },
+          {
+            "label": "42",
+            "inStock": true
+          },
+          {
+            "label": "43",
+            "inStock": true
+          }
+        ],
+        "legacySlug": "nike-dunk-low-panda-qiem5"
+      }
+    ]
+  },
+  {
+    "slug": "adidas-samba-xlg",
+    "name": "Adidas Samba XLG",
+    "brand": "Adidas",
+    "category": "sale",
+    "storeCategories": [
+      "mega-sale",
+      "adidas",
+      "adidas/samba-xlg"
+    ],
+    "primaryCategory": "adidas",
+    "description": "Te recomendamos que midas el largo de tu plantilla con centímetro o regla para elegir el talle más adecuado. Vienen del talle 38 al 43. LARGO DE PLANTILLA POR TALLE 34 23,3 cm 38 26 cm 39 26,3 cm 40 27,4 cm 41 27,8 cm 42 28,9 cm 43 29,1 cm Incluye caja personalizada y cordones extra de regalo",
+    "tags": [
+      "Mega Sale"
+    ],
+    "sourceUrl": "https://rastrozapas.mitiendanube.com/productos/adidas-samba-xlg-off-white/",
+    "variants": [
+      {
+        "id": "off-white",
+        "name": "Off White",
+        "color": "#f0ebe3",
+        "image": "/assets/products/drive/ADI-SXL-OFW/01.webp",
+        "images": [
+          "/assets/products/drive/ADI-SXL-OFW/01.webp",
+          "/assets/products/drive/ADI-SXL-OFW/02.webp",
+          "/assets/products/drive/ADI-SXL-OFW/03.webp",
+          "/assets/products/drive/ADI-SXL-OFW/04.webp",
+          "/assets/products/drive/ADI-SXL-OFW/05.webp",
+          "/assets/products/drive/ADI-SXL-OFW/06.webp",
+          "/assets/products/drive/ADI-SXL-OFW/07.webp",
+          "/assets/products/drive/ADI-SXL-OFW/08.webp"
+        ],
+        "price": "$64.000,00",
+        "transfer": "$48.000,00",
+        "installments": "$6.027,47",
+        "installmentsLabel": "24 cuotas de $6.027,47",
+        "sizes": [
+          {
+            "label": "34",
+            "inStock": true
+          },
+          {
+            "label": "35",
+            "inStock": true
+          },
+          {
+            "label": "36",
+            "inStock": true
+          },
+          {
+            "label": "37",
+            "inStock": true
+          },
+          {
+            "label": "38",
+            "inStock": true
+          },
+          {
+            "label": "39",
+            "inStock": true
+          },
+          {
+            "label": "40",
+            "inStock": true
+          },
+          {
+            "label": "41",
+            "inStock": true
+          },
+          {
+            "label": "42",
+            "inStock": true
+          },
+          {
+            "label": "43",
+            "inStock": true
+          }
+        ],
+        "legacySlug": "adidas-samba-xlg-off-white"
+      },
+      {
+        "id": "black",
+        "name": "Black",
+        "color": "#111",
+        "image": "/assets/products/drive/ADI-SXL-NEG/01.webp",
+        "images": [
+          "/assets/products/drive/ADI-SXL-NEG/01.webp",
+          "/assets/products/drive/ADI-SXL-NEG/02.webp",
+          "/assets/products/drive/ADI-SXL-NEG/03.webp",
+          "/assets/products/drive/ADI-SXL-NEG/04.webp",
+          "/assets/products/drive/ADI-SXL-NEG/05.webp",
+          "/assets/products/drive/ADI-SXL-NEG/06.webp",
+          "/assets/products/drive/ADI-SXL-NEG/07.webp",
+          "/assets/products/drive/ADI-SXL-NEG/08.webp"
+        ],
+        "price": "$64.000,00",
+        "transfer": "$48.000,00",
+        "installments": "$6.027,47",
+        "installmentsLabel": "24 cuotas de $6.027,47",
+        "sizes": [
+          {
+            "label": "34",
+            "inStock": true
+          },
+          {
+            "label": "35",
+            "inStock": true
+          },
+          {
+            "label": "36",
+            "inStock": true
+          },
+          {
+            "label": "37",
+            "inStock": true
+          },
+          {
+            "label": "38",
+            "inStock": true
+          },
+          {
+            "label": "39",
+            "inStock": true
+          },
+          {
+            "label": "40",
+            "inStock": true
+          },
+          {
+            "label": "41",
+            "inStock": true
+          },
+          {
+            "label": "42",
+            "inStock": true
+          },
+          {
+            "label": "43",
+            "inStock": true
+          }
+        ],
+        "legacySlug": "adidas-samba-xlg-black"
+      },
+      {
+        "id": "clasicas",
+        "name": "Clasicas",
+        "color": "#eee",
+        "image": "/assets/products/drive/ADI-SXL-CLA/01.webp",
+        "images": [
+          "/assets/products/drive/ADI-SXL-CLA/01.webp",
+          "/assets/products/drive/ADI-SXL-CLA/02.webp",
+          "/assets/products/drive/ADI-SXL-CLA/03.webp",
+          "/assets/products/drive/ADI-SXL-CLA/04.webp",
+          "/assets/products/drive/ADI-SXL-CLA/05.webp",
+          "/assets/products/drive/ADI-SXL-CLA/06.webp",
+          "/assets/products/drive/ADI-SXL-CLA/07.webp",
+          "/assets/products/drive/ADI-SXL-CLA/08.webp"
+        ],
+        "price": "$64.000,00",
+        "transfer": "$48.000,00",
+        "installments": "$6.027,47",
+        "installmentsLabel": "24 cuotas de $6.027,47",
+        "sizes": [
+          {
+            "label": "34",
+            "inStock": true
+          },
+          {
+            "label": "35",
+            "inStock": true
+          },
+          {
+            "label": "36",
+            "inStock": true
+          },
+          {
+            "label": "37",
+            "inStock": true
+          },
+          {
+            "label": "38",
+            "inStock": true
+          },
+          {
+            "label": "39",
+            "inStock": true
+          },
+          {
+            "label": "40",
+            "inStock": true
+          },
+          {
+            "label": "41",
+            "inStock": true
+          },
+          {
+            "label": "42",
+            "inStock": true
+          },
+          {
+            "label": "43",
+            "inStock": true
+          }
+        ],
+        "legacySlug": "adidas-samba-xlg-clasicas"
+      }
+    ]
+  },
+  {
+    "slug": "adidas-samba-ballet",
+    "name": "Adidas Samba Ballet",
+    "brand": "Adidas",
+    "category": "zapatillas",
+    "storeCategories": [
+      "adidas",
+      "adidas/samba"
+    ],
+    "primaryCategory": "adidas",
+    "description": "Tabla de medidas por talle TALLE 38 26 cm de plantilla 37 25,8 cm de plantilla 36 24,6 cm de plantilla 34 23,2 cm de plantilla",
+    "tags": [],
+    "sourceUrl": "https://rastrozapas.mitiendanube.com/productos/adidas-samba-ballet-black-179mx/",
+    "variants": [
+      {
+        "id": "black",
+        "name": "Black",
+        "color": "#111",
+        "image": "/assets/products/drive/ADI-SBL-NEG/01.webp",
+        "images": [
+          "/assets/products/drive/ADI-SBL-NEG/01.webp",
+          "/assets/products/drive/ADI-SBL-NEG/02.webp",
+          "/assets/products/drive/ADI-SBL-NEG/03.webp",
+          "/assets/products/drive/ADI-SBL-NEG/04.webp",
+          "/assets/products/drive/ADI-SBL-NEG/05.webp",
+          "/assets/products/drive/ADI-SBL-NEG/06.webp",
+          "/assets/products/drive/ADI-SBL-NEG/07.webp",
+          "/assets/products/drive/ADI-SBL-NEG/08.webp"
+        ],
+        "price": "$64.000,00",
+        "transfer": "$48.000,00",
+        "installments": "$6.027,47",
+        "installmentsLabel": "24 cuotas de $6.027,47",
+        "sizes": [
+          {
+            "label": "34",
+            "inStock": true
+          },
+          {
+            "label": "35",
+            "inStock": true
+          },
+          {
+            "label": "36",
+            "inStock": true
+          },
+          {
+            "label": "37",
+            "inStock": true
+          },
+          {
+            "label": "38",
+            "inStock": true
+          },
+          {
+            "label": "39",
+            "inStock": true
+          },
+          {
+            "label": "40",
+            "inStock": true
+          },
+          {
+            "label": "41",
+            "inStock": true
+          },
+          {
+            "label": "42",
+            "inStock": true
+          },
+          {
+            "label": "43",
+            "inStock": true
+          }
+        ],
+        "legacySlug": "adidas-samba-ballet-black-179mx"
+      },
+      {
+        "id": "nico",
+        "name": "Único",
+        "color": "#cccccc",
+        "image": "/assets/products/drive/ADI-SBL-CLA/01.webp",
+        "images": [
+          "/assets/products/drive/ADI-SBL-CLA/01.webp",
+          "/assets/products/drive/ADI-SBL-CLA/02.webp",
+          "/assets/products/drive/ADI-SBL-CLA/03.webp",
+          "/assets/products/drive/ADI-SBL-CLA/04.webp",
+          "/assets/products/drive/ADI-SBL-CLA/05.webp",
+          "/assets/products/drive/ADI-SBL-CLA/06.webp",
+          "/assets/products/drive/ADI-SBL-CLA/07.webp",
+          "/assets/products/drive/ADI-SBL-CLA/08.webp"
+        ],
+        "price": "$64.000,00",
+        "transfer": "$48.000,00",
+        "installments": "$6.027,47",
+        "installmentsLabel": "24 cuotas de $6.027,47",
+        "sizes": [
+          {
+            "label": "34",
+            "inStock": true
+          },
+          {
+            "label": "35",
+            "inStock": true
+          },
+          {
+            "label": "36",
+            "inStock": true
+          },
+          {
+            "label": "37",
+            "inStock": true
+          },
+          {
+            "label": "38",
+            "inStock": true
+          },
+          {
+            "label": "39",
+            "inStock": true
+          },
+          {
+            "label": "40",
+            "inStock": true
+          },
+          {
+            "label": "41",
+            "inStock": true
+          },
+          {
+            "label": "42",
+            "inStock": true
+          },
+          {
+            "label": "43",
+            "inStock": true
+          }
+        ],
+        "legacySlug": "adidas-samba-ballet-115qf"
+      }
+    ]
+  },
+  {
+    "slug": "adidas-sambae",
+    "name": "Adidas Sambae",
+    "brand": "Adidas",
+    "category": "sale",
+    "storeCategories": [
+      "mega-sale"
+    ],
+    "primaryCategory": "adidas",
+    "description": "Te recomendamos que midas tu plantilla con centímetro o regla para elegir el talle más adecuado. Vienen del talle 34 al 39. LARGO DE PLANTILLA POR TALLE 34 23,2 cm 35 23,4 cm 36 24,5 cm 37 24,7 cm 38 25,8 cm 39 26 cm Incluye caja personalizada y cordones extra de regalo.",
+    "tags": [
+      "Mega Sale"
+    ],
+    "sourceUrl": "https://rastrozapas.mitiendanube.com/productos/adidas-sambae-black/",
+    "variants": [
+      {
+        "id": "black",
+        "name": "Black",
+        "color": "#111",
+        "image": "/assets/products/drive/ADI-SME-NEG/01.webp",
+        "images": [
+          "/assets/products/drive/ADI-SME-NEG/01.webp",
+          "/assets/products/drive/ADI-SME-NEG/02.webp",
+          "/assets/products/drive/ADI-SME-NEG/03.webp",
+          "/assets/products/drive/ADI-SME-NEG/04.webp",
+          "/assets/products/drive/ADI-SME-NEG/05.webp",
+          "/assets/products/drive/ADI-SME-NEG/06.webp",
+          "/assets/products/drive/ADI-SME-NEG/07.webp",
+          "/assets/products/drive/ADI-SME-NEG/08.webp"
+        ],
+        "price": "$39.333,00",
+        "transfer": "$29.499,75",
+        "installments": "$3.704,35",
+        "installmentsLabel": "24 cuotas de $3.704,35",
+        "sizes": [
+          {
+            "label": "34",
+            "inStock": true
+          },
+          {
+            "label": "35",
+            "inStock": true
+          },
+          {
+            "label": "36",
+            "inStock": true
+          },
+          {
+            "label": "37",
+            "inStock": true
+          },
+          {
+            "label": "38",
+            "inStock": true
+          },
+          {
+            "label": "39",
+            "inStock": true
+          },
+          {
+            "label": "40",
+            "inStock": true
+          },
+          {
+            "label": "41",
+            "inStock": true
+          },
+          {
+            "label": "42",
+            "inStock": true
+          },
+          {
+            "label": "43",
+            "inStock": true
+          }
+        ],
+        "legacySlug": "adidas-sambae-black"
+      },
+      {
+        "id": "blanca-y-verde",
+        "name": "Blanca y verde",
+        "color": "#2f6b4f",
+        "image": "/assets/products/drive/ADI-SME-BVE/01.webp",
+        "images": [
+          "/assets/products/drive/ADI-SME-BVE/01.webp",
+          "/assets/products/drive/ADI-SME-BVE/02.webp",
+          "/assets/products/drive/ADI-SME-BVE/03.webp",
+          "/assets/products/drive/ADI-SME-BVE/04.webp",
+          "/assets/products/drive/ADI-SME-BVE/05.webp",
+          "/assets/products/drive/ADI-SME-BVE/06.webp",
+          "/assets/products/drive/ADI-SME-BVE/07.webp",
+          "/assets/products/drive/ADI-SME-BVE/08.webp"
+        ],
+        "price": "$39.333,00",
+        "transfer": "$29.499,75",
+        "installments": "$3.704,35",
+        "installmentsLabel": "24 cuotas de $3.704,35",
+        "sizes": [
+          {
+            "label": "34",
+            "inStock": true
+          },
+          {
+            "label": "35",
+            "inStock": true
+          },
+          {
+            "label": "36",
+            "inStock": true
+          },
+          {
+            "label": "37",
+            "inStock": true
+          },
+          {
+            "label": "38",
+            "inStock": true
+          },
+          {
+            "label": "39",
+            "inStock": true
+          },
+          {
+            "label": "40",
+            "inStock": true
+          },
+          {
+            "label": "41",
+            "inStock": true
+          },
+          {
+            "label": "42",
+            "inStock": true
+          },
+          {
+            "label": "43",
+            "inStock": true
+          }
+        ],
+        "legacySlug": "adidas-sambae-blanca-y-verde"
+      }
+    ]
+  },
+  {
+    "slug": "adidas-samba",
+    "name": "Adidas Samba",
+    "brand": "Adidas",
+    "category": "sale",
+    "storeCategories": [
+      "adidas",
+      "adidas/samba",
+      "mega-sale"
+    ],
+    "primaryCategory": "adidas",
+    "description": "Te recomendamos que midas tu plantilla con centímetro o regla para elegir el talle más adecuado. Vienen del talle 34 al 39. LARGO DE PLANTILLA POR TALLE 34 24,2 cm 35 24,3 cm 36 25,5 cm 37 25,6 cm 38 26,7 cm 39 26,8 cm Incluye caja personalizada y cordones extra de regalo.",
+    "tags": [
+      "Mega Sale"
+    ],
+    "sourceUrl": "https://rastrozapas.mitiendanube.com/productos/adidas-samba-chocolate-9e2fh/",
+    "variants": [
+      {
+        "id": "chocolate",
+        "name": "Chocolate",
+        "color": "#4a2c0a",
+        "image": "/assets/products/drive/ADI-SAM-CHO/01.webp",
+        "images": [
+          "/assets/products/drive/ADI-SAM-CHO/01.webp",
+          "/assets/products/drive/ADI-SAM-CHO/02.webp",
+          "/assets/products/drive/ADI-SAM-CHO/03.webp",
+          "/assets/products/drive/ADI-SAM-CHO/04.webp",
+          "/assets/products/drive/ADI-SAM-CHO/05.webp",
+          "/assets/products/drive/ADI-SAM-CHO/06.webp",
+          "/assets/products/drive/ADI-SAM-CHO/07.webp",
+          "/assets/products/drive/ADI-SAM-CHO/08.webp"
+        ],
+        "price": "$64.000,00",
+        "transfer": "$48.000,00",
+        "installments": "$6.027,47",
+        "installmentsLabel": "24 cuotas de $6.027,47",
+        "sizes": [
+          {
+            "label": "34",
+            "inStock": true
+          },
+          {
+            "label": "35",
+            "inStock": true
+          },
+          {
+            "label": "36",
+            "inStock": true
+          },
+          {
+            "label": "37",
+            "inStock": true
+          },
+          {
+            "label": "38",
+            "inStock": true
+          },
+          {
+            "label": "39",
+            "inStock": true
+          },
+          {
+            "label": "40",
+            "inStock": true
+          },
+          {
+            "label": "41",
+            "inStock": true
+          },
+          {
+            "label": "42",
+            "inStock": true
+          },
+          {
+            "label": "43",
+            "inStock": true
+          }
+        ],
+        "legacySlug": "adidas-samba-chocolate-9e2fh"
+      },
+      {
+        "id": "black-off",
+        "name": "Black Off",
+        "color": "#222",
+        "image": "/assets/products/drive/ADI-SAM-VNO/01.webp",
+        "images": [
+          "/assets/products/drive/ADI-SAM-VNO/01.webp",
+          "/assets/products/drive/ADI-SAM-VNO/02.webp",
+          "/assets/products/drive/ADI-SAM-VNO/03.webp",
+          "/assets/products/drive/ADI-SAM-VNO/04.webp",
+          "/assets/products/drive/ADI-SAM-VNO/05.webp",
+          "/assets/products/drive/ADI-SAM-VNO/06.webp",
+          "/assets/products/drive/ADI-SAM-VNO/07.webp",
+          "/assets/products/drive/ADI-SAM-VNO/08.webp"
+        ],
+        "price": "$64.000,00",
+        "transfer": "$48.000,00",
+        "installments": "$6.027,47",
+        "installmentsLabel": "24 cuotas de $6.027,47",
+        "sizes": [
+          {
+            "label": "34",
+            "inStock": true
+          },
+          {
+            "label": "35",
+            "inStock": true
+          },
+          {
+            "label": "36",
+            "inStock": true
+          },
+          {
+            "label": "37",
+            "inStock": true
+          },
+          {
+            "label": "38",
+            "inStock": true
+          },
+          {
+            "label": "39",
+            "inStock": true
+          }
+        ],
+        "legacySlug": "adidas-samba-black-off-rempi"
+      },
+      {
+        "id": "off-white",
+        "name": "Off White",
+        "color": "#f0ebe3",
+        "image": "/assets/products/store/adidas-samba-off-white-15s8w-2.webp",
+        "images": [
+          "/assets/products/store/adidas-samba-off-white-15s8w-2.webp",
+          "/assets/products/store/adidas-samba-off-white-15s8w-5.webp",
+          "/assets/products/store/adidas-samba-off-white-15s8w-6.webp"
+        ],
+        "price": "$64.000,00",
+        "transfer": "$48.000,00",
+        "installments": "$6.027,47",
+        "installmentsLabel": "24 cuotas de $6.027,47",
+        "sizes": [
+          {
+            "label": "34",
+            "inStock": true
+          },
+          {
+            "label": "35",
+            "inStock": true
+          },
+          {
+            "label": "36",
+            "inStock": true
+          },
+          {
+            "label": "37",
+            "inStock": true
+          },
+          {
+            "label": "38",
+            "inStock": true
+          },
+          {
+            "label": "39",
+            "inStock": true
+          },
+          {
+            "label": "40",
+            "inStock": true
+          },
+          {
+            "label": "41",
+            "inStock": true
+          },
+          {
+            "label": "42",
+            "inStock": true
+          },
+          {
+            "label": "43",
+            "inStock": true
+          }
+        ],
+        "legacySlug": "adidas-samba-off-white-15s8w"
+      },
+      {
+        "id": "v-chocolate",
+        "name": "V. Chocolate",
+        "color": "#4a2c0a",
+        "image": "/assets/products/drive/ADI-SAM-VCH/01.webp",
+        "images": [
+          "/assets/products/drive/ADI-SAM-VCH/01.webp",
+          "/assets/products/drive/ADI-SAM-VCH/02.webp",
+          "/assets/products/drive/ADI-SAM-VCH/03.webp",
+          "/assets/products/drive/ADI-SAM-VCH/04.webp",
+          "/assets/products/drive/ADI-SAM-VCH/05.webp",
+          "/assets/products/drive/ADI-SAM-VCH/06.webp",
+          "/assets/products/drive/ADI-SAM-VCH/07.webp",
+          "/assets/products/drive/ADI-SAM-VCH/08.webp"
+        ],
+        "price": "$64.000,00",
+        "transfer": "$48.000,00",
+        "installments": "$6.027,47",
+        "installmentsLabel": "24 cuotas de $6.027,47",
+        "sizes": [
+          {
+            "label": "34",
+            "inStock": true
+          },
+          {
+            "label": "35",
+            "inStock": true
+          },
+          {
+            "label": "36",
+            "inStock": true
+          },
+          {
+            "label": "37",
+            "inStock": true
+          },
+          {
+            "label": "38",
+            "inStock": true
+          },
+          {
+            "label": "39",
+            "inStock": true
+          }
+        ],
+        "legacySlug": "adidas-samba-chocolate-udtmh"
+      },
+      {
+        "id": "cherry",
+        "name": "Cherry",
+        "color": "#9b1b30",
+        "image": "/assets/products/drive/ADI-SAM-CHE/01.webp",
+        "images": [
+          "/assets/products/drive/ADI-SAM-CHE/01.webp",
+          "/assets/products/drive/ADI-SAM-CHE/02.webp",
+          "/assets/products/drive/ADI-SAM-CHE/03.webp",
+          "/assets/products/drive/ADI-SAM-CHE/04.webp",
+          "/assets/products/drive/ADI-SAM-CHE/05.webp",
+          "/assets/products/drive/ADI-SAM-CHE/06.webp",
+          "/assets/products/drive/ADI-SAM-CHE/07.webp",
+          "/assets/products/drive/ADI-SAM-CHE/08.webp"
+        ],
+        "price": "$46.666,00",
+        "transfer": "$34.999,50",
+        "installments": "$4.394,96",
+        "installmentsLabel": "24 cuotas de $4.394,96",
+        "sizes": [
+          {
+            "label": "34",
+            "inStock": true
+          },
+          {
+            "label": "35",
+            "inStock": true
+          },
+          {
+            "label": "36",
+            "inStock": true
+          },
+          {
+            "label": "37",
+            "inStock": true
+          },
+          {
+            "label": "38",
+            "inStock": true
+          },
+          {
+            "label": "39",
+            "inStock": true
+          }
+        ],
+        "legacySlug": "adidas-samba-cherry-1d0cp"
+      },
+      {
+        "id": "beige-tex",
+        "name": "Beige Tex",
+        "color": "#c4a574",
+        "image": "/assets/products/drive/ADI-SAM-TXB/01.webp",
+        "images": [
+          "/assets/products/drive/ADI-SAM-TXB/01.webp",
+          "/assets/products/drive/ADI-SAM-TXB/02.webp",
+          "/assets/products/drive/ADI-SAM-TXB/03.webp",
+          "/assets/products/drive/ADI-SAM-TXB/04.webp",
+          "/assets/products/drive/ADI-SAM-TXB/05.webp",
+          "/assets/products/drive/ADI-SAM-TXB/06.webp",
+          "/assets/products/drive/ADI-SAM-TXB/07.webp",
+          "/assets/products/drive/ADI-SAM-TXB/08.webp"
+        ],
+        "price": "$42.000,00",
+        "transfer": "$31.500,00",
+        "installments": "$3.955,53",
+        "installmentsLabel": "24 cuotas de $3.955,53",
+        "sizes": [
+          {
+            "label": "34",
+            "inStock": true
+          },
+          {
+            "label": "35",
+            "inStock": true
+          },
+          {
+            "label": "36",
+            "inStock": true
+          },
+          {
+            "label": "37",
+            "inStock": true
+          },
+          {
+            "label": "38",
+            "inStock": true
+          },
+          {
+            "label": "39",
+            "inStock": true
+          },
+          {
+            "label": "40",
+            "inStock": true
+          },
+          {
+            "label": "41",
+            "inStock": true
+          },
+          {
+            "label": "42",
+            "inStock": true
+          },
+          {
+            "label": "43",
+            "inStock": true
+          }
+        ],
+        "legacySlug": "adidas-samba-beige-tex-zcyu0"
+      },
+      {
+        "id": "green",
+        "name": "Green",
+        "color": "#3d7a4a",
+        "image": "/assets/products/drive/ADI-SAM-VVE/01.webp",
+        "images": [
+          "/assets/products/drive/ADI-SAM-VVE/01.webp",
+          "/assets/products/drive/ADI-SAM-VVE/02.webp",
+          "/assets/products/drive/ADI-SAM-VVE/03.webp",
+          "/assets/products/drive/ADI-SAM-VVE/04.webp",
+          "/assets/products/drive/ADI-SAM-VVE/05.webp",
+          "/assets/products/drive/ADI-SAM-VVE/06.webp",
+          "/assets/products/drive/ADI-SAM-VVE/07.webp",
+          "/assets/products/drive/ADI-SAM-VVE/08.webp"
+        ],
+        "price": "$39.333,00",
+        "transfer": "$29.499,75",
+        "installments": "$3.704,35",
+        "installmentsLabel": "24 cuotas de $3.704,35",
+        "sizes": [
+          {
+            "label": "34",
+            "inStock": true
+          },
+          {
+            "label": "35",
+            "inStock": true
+          },
+          {
+            "label": "36",
+            "inStock": true
+          },
+          {
+            "label": "37",
+            "inStock": true
+          },
+          {
+            "label": "38",
+            "inStock": true
+          },
+          {
+            "label": "39",
+            "inStock": true
+          },
+          {
+            "label": "40",
+            "inStock": true
+          },
+          {
+            "label": "41",
+            "inStock": true
+          },
+          {
+            "label": "42",
+            "inStock": true
+          },
+          {
+            "label": "43",
+            "inStock": true
+          }
+        ],
+        "legacySlug": "adidas-samba-green-b2zt3"
+      },
+      {
+        "id": "rosa-tex",
+        "name": "Rosa Tex",
+        "color": "#e8a0bf",
+        "image": "/assets/products/drive/ADI-SAM-TXR/01.webp",
+        "images": [
+          "/assets/products/drive/ADI-SAM-TXR/01.webp",
+          "/assets/products/drive/ADI-SAM-TXR/02.webp",
+          "/assets/products/drive/ADI-SAM-TXR/03.webp",
+          "/assets/products/drive/ADI-SAM-TXR/04.webp",
+          "/assets/products/drive/ADI-SAM-TXR/05.webp",
+          "/assets/products/drive/ADI-SAM-TXR/06.webp",
+          "/assets/products/drive/ADI-SAM-TXR/07.webp"
+        ],
+        "price": "$45.333,00",
+        "transfer": "$33.999,75",
+        "installments": "$4.269,42",
+        "installmentsLabel": "24 cuotas de $4.269,42",
+        "sizes": [
+          {
+            "label": "34",
+            "inStock": true
+          },
+          {
+            "label": "35",
+            "inStock": true
+          },
+          {
+            "label": "36",
+            "inStock": true
+          },
+          {
+            "label": "37",
+            "inStock": true
+          },
+          {
+            "label": "38",
+            "inStock": true
+          },
+          {
+            "label": "39",
+            "inStock": true
+          },
+          {
+            "label": "40",
+            "inStock": true
+          },
+          {
+            "label": "41",
+            "inStock": true
+          },
+          {
+            "label": "42",
+            "inStock": true
+          },
+          {
+            "label": "43",
+            "inStock": true
+          }
+        ],
+        "legacySlug": "adidas-samba-rosa-tex"
+      },
+      {
+        "id": "caramelo",
+        "name": "Caramelo",
+        "color": "#c68e4e",
+        "image": "/assets/products/drive/ADI-SAM-CAR/01.webp",
+        "images": [
+          "/assets/products/drive/ADI-SAM-CAR/01.webp",
+          "/assets/products/drive/ADI-SAM-CAR/02.webp",
+          "/assets/products/drive/ADI-SAM-CAR/03.webp",
+          "/assets/products/drive/ADI-SAM-CAR/04.webp",
+          "/assets/products/drive/ADI-SAM-CAR/05.webp",
+          "/assets/products/drive/ADI-SAM-CAR/06.webp",
+          "/assets/products/drive/ADI-SAM-CAR/07.webp",
+          "/assets/products/drive/ADI-SAM-CAR/08.webp"
+        ],
+        "price": "$64.000,00",
+        "transfer": "$48.000,00",
+        "installments": "$6.027,47",
+        "installmentsLabel": "24 cuotas de $6.027,47",
+        "sizes": [
+          {
+            "label": "34",
+            "inStock": true
+          },
+          {
+            "label": "35",
+            "inStock": true
+          },
+          {
+            "label": "36",
+            "inStock": true
+          },
+          {
+            "label": "37",
+            "inStock": true
+          },
+          {
+            "label": "38",
+            "inStock": true
+          },
+          {
+            "label": "39",
+            "inStock": true
+          },
+          {
+            "label": "40",
+            "inStock": true
+          },
+          {
+            "label": "41",
+            "inStock": true
+          },
+          {
+            "label": "42",
+            "inStock": true
+          },
+          {
+            "label": "43",
+            "inStock": true
+          }
+        ],
+        "legacySlug": "adidas-samba-caramelo"
+      },
+      {
+        "id": "classic",
+        "name": "Classic",
+        "color": "#f5f5f5",
+        "image": "/assets/products/drive/ADI-SAM-CLA/01.webp",
+        "images": [
+          "/assets/products/drive/ADI-SAM-CLA/01.webp",
+          "/assets/products/drive/ADI-SAM-CLA/02.webp",
+          "/assets/products/drive/ADI-SAM-CLA/03.webp",
+          "/assets/products/drive/ADI-SAM-CLA/04.webp",
+          "/assets/products/drive/ADI-SAM-CLA/05.webp",
+          "/assets/products/drive/ADI-SAM-CLA/06.webp",
+          "/assets/products/drive/ADI-SAM-CLA/07.webp",
+          "/assets/products/drive/ADI-SAM-CLA/08.webp"
+        ],
+        "price": "$64.000,00",
+        "transfer": "$48.000,00",
+        "installments": "$6.027,47",
+        "installmentsLabel": "24 cuotas de $6.027,47",
+        "sizes": [
+          {
+            "label": "34",
+            "inStock": true
+          },
+          {
+            "label": "35",
+            "inStock": true
+          },
+          {
+            "label": "36",
+            "inStock": true
+          },
+          {
+            "label": "37",
+            "inStock": true
+          },
+          {
+            "label": "38",
+            "inStock": true
+          },
+          {
+            "label": "39",
+            "inStock": true
+          },
+          {
+            "label": "40",
+            "inStock": true
+          },
+          {
+            "label": "41",
+            "inStock": true
+          },
+          {
+            "label": "42",
+            "inStock": true
+          },
+          {
+            "label": "43",
+            "inStock": true
+          }
+        ],
+        "legacySlug": "adidas-samba-white"
+      },
+      {
+        "id": "black",
+        "name": "Black",
+        "color": "#111",
+        "image": "/assets/products/drive/ADI-SAM-BLA/01.webp",
+        "images": [
+          "/assets/products/drive/ADI-SAM-BLA/01.webp",
+          "/assets/products/drive/ADI-SAM-BLA/02.webp",
+          "/assets/products/drive/ADI-SAM-BLA/03.webp",
+          "/assets/products/drive/ADI-SAM-BLA/04.webp",
+          "/assets/products/drive/ADI-SAM-BLA/05.webp",
+          "/assets/products/drive/ADI-SAM-BLA/06.webp",
+          "/assets/products/drive/ADI-SAM-BLA/07.webp",
+          "/assets/products/drive/ADI-SAM-BLA/08.webp"
+        ],
+        "price": "$64.000,00",
+        "transfer": "$48.000,00",
+        "installments": "$6.027,47",
+        "installmentsLabel": "24 cuotas de $6.027,47",
+        "sizes": [
+          {
+            "label": "34",
+            "inStock": true
+          },
+          {
+            "label": "35",
+            "inStock": true
+          },
+          {
+            "label": "36",
+            "inStock": true
+          },
+          {
+            "label": "37",
+            "inStock": true
+          },
+          {
+            "label": "38",
+            "inStock": true
+          },
+          {
+            "label": "39",
+            "inStock": true
+          },
+          {
+            "label": "40",
+            "inStock": true
+          },
+          {
+            "label": "41",
+            "inStock": true
+          },
+          {
+            "label": "42",
+            "inStock": true
+          },
+          {
+            "label": "43",
+            "inStock": true
+          }
+        ],
+        "legacySlug": "adidas-samba-black"
+      }
+    ]
+  },
+  {
+    "slug": "adidas-gazelle",
+    "name": "Adidas Gazelle",
+    "brand": "Adidas",
+    "category": "sale",
+    "storeCategories": [
+      "adidas",
+      "adidas/gazelle",
+      "mega-sale"
+    ],
+    "primaryCategory": "adidas",
+    "description": "Te recomendamos que midas el largo de tu plantilla con centímetro o regla para elegir el talle más adecuado. Vienen del talle 34 al 43. LARGO DE PLANTILLA POR TALLE 35 23,3 cm 36 24,6 cm 37 24,7 cm 38 25,9 cm 39 26 cm Incluye caja personalizada y cordones extra de regalo.",
+    "tags": [
+      "Mega Sale"
+    ],
+    "sourceUrl": "https://rastrozapas.mitiendanube.com/productos/adidas-gazelle-verde-ywnhc/",
+    "variants": [
+      {
+        "id": "verde",
+        "name": "Verde",
+        "color": "#2f6b4f",
+        "image": "/assets/products/drive/ADI-GAZ-DBL__verde/01.webp",
+        "images": [
+          "/assets/products/drive/ADI-GAZ-DBL__verde/01.webp",
+          "/assets/products/drive/ADI-GAZ-DBL__verde/02.webp",
+          "/assets/products/drive/ADI-GAZ-DBL__verde/03.webp",
+          "/assets/products/drive/ADI-GAZ-DBL__verde/04.webp",
+          "/assets/products/drive/ADI-GAZ-DBL__verde/05.webp",
+          "/assets/products/drive/ADI-GAZ-DBL__verde/06.webp",
+          "/assets/products/drive/ADI-GAZ-DBL__verde/07.webp",
+          "/assets/products/drive/ADI-GAZ-DBL__verde/08.webp"
+        ],
+        "price": "$64.000,00",
+        "transfer": "$48.000,00",
+        "installments": "$6.027,47",
+        "installmentsLabel": "24 cuotas de $6.027,47",
+        "sizes": [
+          {
+            "label": "34",
+            "inStock": true
+          },
+          {
+            "label": "35",
+            "inStock": true
+          },
+          {
+            "label": "36",
+            "inStock": true
+          },
+          {
+            "label": "37",
+            "inStock": true
+          },
+          {
+            "label": "38",
+            "inStock": true
+          },
+          {
+            "label": "39",
+            "inStock": true
+          },
+          {
+            "label": "40",
+            "inStock": true
+          },
+          {
+            "label": "41",
+            "inStock": true
+          },
+          {
+            "label": "42",
+            "inStock": true
+          },
+          {
+            "label": "43",
+            "inStock": true
+          }
+        ],
+        "legacySlug": "adidas-gazelle-verde-ywnhc"
+      },
+      {
+        "id": "dark-blue",
+        "name": "Dark Blue",
+        "color": "#1e3a5f",
+        "image": "/assets/products/drive/ADI-GAZ-DBL__dark-blue/01.webp",
+        "images": [
+          "/assets/products/drive/ADI-GAZ-DBL__dark-blue/01.webp",
+          "/assets/products/drive/ADI-GAZ-DBL__dark-blue/02.webp",
+          "/assets/products/drive/ADI-GAZ-DBL__dark-blue/03.webp",
+          "/assets/products/drive/ADI-GAZ-DBL__dark-blue/04.webp",
+          "/assets/products/drive/ADI-GAZ-DBL__dark-blue/05.webp",
+          "/assets/products/drive/ADI-GAZ-DBL__dark-blue/06.webp",
+          "/assets/products/drive/ADI-GAZ-DBL__dark-blue/07.webp",
+          "/assets/products/drive/ADI-GAZ-DBL__dark-blue/08.webp"
+        ],
+        "price": "$64.000,00",
+        "transfer": "$48.000,00",
+        "installments": "$6.027,47",
+        "installmentsLabel": "24 cuotas de $6.027,47",
+        "sizes": [
+          {
+            "label": "34",
+            "inStock": true
+          },
+          {
+            "label": "35",
+            "inStock": true
+          },
+          {
+            "label": "36",
+            "inStock": true
+          },
+          {
+            "label": "37",
+            "inStock": true
+          },
+          {
+            "label": "38",
+            "inStock": true
+          },
+          {
+            "label": "39",
+            "inStock": true
+          }
+        ],
+        "legacySlug": "adidas-gazelle-dark-blue-19gio"
+      },
+      {
+        "id": "blue",
+        "name": "Blue",
+        "color": "#1e3a5f",
+        "image": "/assets/products/store/adidas-gazelle-blue-t8pij-2.webp",
+        "images": [
+          "/assets/products/store/adidas-gazelle-blue-t8pij-2.webp",
+          "/assets/products/store/adidas-gazelle-blue-t8pij-4.webp"
+        ],
+        "price": "$64.000,00",
+        "transfer": "$48.000,00",
+        "installments": "$6.027,47",
+        "installmentsLabel": "24 cuotas de $6.027,47",
+        "sizes": [
+          {
+            "label": "34",
+            "inStock": true
+          },
+          {
+            "label": "35",
+            "inStock": true
+          },
+          {
+            "label": "36",
+            "inStock": true
+          },
+          {
+            "label": "37",
+            "inStock": true
+          },
+          {
+            "label": "38",
+            "inStock": true
+          },
+          {
+            "label": "39",
+            "inStock": true
+          }
+        ],
+        "legacySlug": "adidas-gazelle-blue-t8pij"
+      },
+      {
+        "id": "baby-blue",
+        "name": "Baby Blue",
+        "color": "#1e3a5f",
+        "image": "/assets/products/drive/ADI-GAZ-BBL/01.webp",
+        "images": [
+          "/assets/products/drive/ADI-GAZ-BBL/01.webp",
+          "/assets/products/drive/ADI-GAZ-BBL/02.webp",
+          "/assets/products/drive/ADI-GAZ-BBL/03.webp",
+          "/assets/products/drive/ADI-GAZ-BBL/04.webp",
+          "/assets/products/drive/ADI-GAZ-BBL/05.webp",
+          "/assets/products/drive/ADI-GAZ-BBL/06.webp",
+          "/assets/products/drive/ADI-GAZ-BBL/07.webp"
+        ],
+        "price": "$64.000,00",
+        "transfer": "$48.000,00",
+        "installments": "$6.027,47",
+        "installmentsLabel": "24 cuotas de $6.027,47",
+        "sizes": [
+          {
+            "label": "34",
+            "inStock": true
+          },
+          {
+            "label": "35",
+            "inStock": true
+          },
+          {
+            "label": "36",
+            "inStock": true
+          },
+          {
+            "label": "37",
+            "inStock": true
+          },
+          {
+            "label": "38",
+            "inStock": true
+          },
+          {
+            "label": "39",
+            "inStock": true
+          },
+          {
+            "label": "40",
+            "inStock": true
+          },
+          {
+            "label": "41",
+            "inStock": true
+          },
+          {
+            "label": "42",
+            "inStock": true
+          },
+          {
+            "label": "43",
+            "inStock": true
+          }
+        ],
+        "legacySlug": "adidas-gazelle-baby-blue"
+      },
+      {
+        "id": "cherry",
+        "name": "Cherry",
+        "color": "#9b1b30",
+        "image": "/assets/products/drive/ADI-GAZ-CHE/01.webp",
+        "images": [
+          "/assets/products/drive/ADI-GAZ-CHE/01.webp",
+          "/assets/products/drive/ADI-GAZ-CHE/02.webp",
+          "/assets/products/drive/ADI-GAZ-CHE/03.webp",
+          "/assets/products/drive/ADI-GAZ-CHE/04.webp",
+          "/assets/products/drive/ADI-GAZ-CHE/05.webp",
+          "/assets/products/drive/ADI-GAZ-CHE/06.webp",
+          "/assets/products/drive/ADI-GAZ-CHE/07.webp",
+          "/assets/products/drive/ADI-GAZ-CHE/08.webp"
+        ],
+        "price": "$64.000,00",
+        "transfer": "$48.000,00",
+        "installments": "$6.027,47",
+        "installmentsLabel": "24 cuotas de $6.027,47",
+        "sizes": [
+          {
+            "label": "34",
+            "inStock": true
+          },
+          {
+            "label": "35",
+            "inStock": true
+          },
+          {
+            "label": "36",
+            "inStock": true
+          },
+          {
+            "label": "37",
+            "inStock": true
+          },
+          {
+            "label": "38",
+            "inStock": true
+          },
+          {
+            "label": "39",
+            "inStock": true
+          }
+        ],
+        "legacySlug": "adidas-gazelle-cherry"
+      },
+      {
+        "id": "rosa-nude",
+        "name": "Rosa Nude",
+        "color": "#e8c4b8",
+        "image": "/assets/products/store/adidas-gazelle-rosa-nude-2.webp",
+        "images": [
+          "/assets/products/store/adidas-gazelle-rosa-nude-2.webp",
+          "/assets/products/store/adidas-gazelle-rosa-nude-5.webp",
+          "/assets/products/store/adidas-gazelle-rosa-nude-6.webp"
+        ],
+        "price": "$32.000,00",
+        "transfer": "$24.000,00",
+        "installments": "$3.013,73",
+        "installmentsLabel": "24 cuotas de $3.013,73",
+        "sizes": [
+          {
+            "label": "34",
+            "inStock": true
+          },
+          {
+            "label": "35",
+            "inStock": true
+          },
+          {
+            "label": "36",
+            "inStock": true
+          },
+          {
+            "label": "37",
+            "inStock": true
+          },
+          {
+            "label": "38",
+            "inStock": true
+          },
+          {
+            "label": "39",
+            "inStock": true
+          },
+          {
+            "label": "40",
+            "inStock": true
+          },
+          {
+            "label": "41",
+            "inStock": true
+          },
+          {
+            "label": "42",
+            "inStock": true
+          },
+          {
+            "label": "43",
+            "inStock": true
+          }
+        ],
+        "legacySlug": "adidas-gazelle-rosa-nude"
+      }
+    ]
+  },
+  {
+    "slug": "adidas-busenitz",
+    "name": "Adidas Busenitz",
+    "brand": "Adidas",
+    "category": "zapatillas",
+    "storeCategories": [
+      "adidas"
+    ],
+    "primaryCategory": "adidas",
+    "description": "Te recomendamos que midas el largo de tu plantilla con centímetro o regla para elegir el talle más adecuado. Vienen del talle 38 al 42. LARGO DE PLANTILLA POR TALLE 38 26,3 cm 39 26,6 cm 40 27,5 cm 41 27,8 cm 42 29 cm Incluye caja personalizada.",
+    "tags": [],
+    "sourceUrl": "https://rastrozapas.mitiendanube.com/productos/adidas-busenitz-total-black-1ud9s/",
+    "variants": [
+      {
+        "id": "total-black",
+        "name": "Total Black",
+        "color": "#0a0a0a",
+        "image": "/assets/products/drive/ADI-BUS-TBL/01.webp",
+        "images": [
+          "/assets/products/drive/ADI-BUS-TBL/01.webp",
+          "/assets/products/drive/ADI-BUS-TBL/02.webp",
+          "/assets/products/drive/ADI-BUS-TBL/03.webp",
+          "/assets/products/drive/ADI-BUS-TBL/04.webp",
+          "/assets/products/drive/ADI-BUS-TBL/05.webp",
+          "/assets/products/drive/ADI-BUS-TBL/06.webp",
+          "/assets/products/drive/ADI-BUS-TBL/07.webp",
+          "/assets/products/drive/ADI-BUS-TBL/08.webp"
+        ],
+        "price": "$78.670,00",
+        "transfer": "$59.002,50",
+        "installments": "$7.409,08",
+        "installmentsLabel": "24 cuotas de $7.409,08",
+        "sizes": [
+          {
+            "label": "34",
+            "inStock": true
+          },
+          {
+            "label": "35",
+            "inStock": true
+          },
+          {
+            "label": "36",
+            "inStock": true
+          },
+          {
+            "label": "37",
+            "inStock": true
+          },
+          {
+            "label": "38",
+            "inStock": true
+          },
+          {
+            "label": "39",
+            "inStock": true
+          },
+          {
+            "label": "40",
+            "inStock": true
+          },
+          {
+            "label": "41",
+            "inStock": true
+          },
+          {
+            "label": "42",
+            "inStock": true
+          },
+          {
+            "label": "43",
+            "inStock": true
+          }
+        ],
+        "legacySlug": "adidas-busenitz-total-black-1ud9s"
+      },
+      {
+        "id": "adidas-busenitz-total-black-il90f",
+        "name": "Total Black",
+        "color": "#0a0a0a",
+        "image": "/assets/products/store/adidas-busenitz-total-black-il90f-2.webp",
+        "images": [
+          "/assets/products/store/adidas-busenitz-total-black-il90f-2.webp",
+          "/assets/products/store/adidas-busenitz-total-black-il90f-5.webp",
+          "/assets/products/store/adidas-busenitz-total-black-il90f-6.webp"
+        ],
+        "price": "$78.666,00",
+        "transfer": "$58.999,50",
+        "installments": "$7.408,70",
+        "installmentsLabel": "24 cuotas de $7.408,70",
+        "sizes": [
+          {
+            "label": "34",
+            "inStock": true
+          },
+          {
+            "label": "35",
+            "inStock": true
+          },
+          {
+            "label": "36",
+            "inStock": true
+          },
+          {
+            "label": "37",
+            "inStock": true
+          },
+          {
+            "label": "38",
+            "inStock": true
+          },
+          {
+            "label": "39",
+            "inStock": true
+          },
+          {
+            "label": "40",
+            "inStock": true
+          },
+          {
+            "label": "41",
+            "inStock": true
+          },
+          {
+            "label": "42",
+            "inStock": true
+          },
+          {
+            "label": "43",
+            "inStock": true
+          }
+        ],
+        "legacySlug": "adidas-busenitz-total-black-il90f"
+      }
+    ]
+  },
+  {
+    "slug": "adidas-spezial",
+    "name": "Adidas Spezial",
+    "brand": "Adidas",
+    "category": "zapatillas",
+    "storeCategories": [
+      "adidas"
+    ],
+    "primaryCategory": "adidas",
+    "description": "Adidas Spezial: Capellada en gamuza sintetica de alta calidad con puntera reforzada. Tiras y talón en cuero sintético, con la característica suela de goma caramelo.",
+    "tags": [],
+    "sourceUrl": "https://rastrozapas.mitiendanube.com/productos/adidas-spezial-verde-12zio/",
+    "variants": [
+      {
+        "id": "verde",
+        "name": "Verde",
+        "color": "#2f6b4f",
+        "image": "/assets/products/drive/ADI-SPE-VER/01.webp",
+        "images": [
+          "/assets/products/drive/ADI-SPE-VER/01.webp",
+          "/assets/products/drive/ADI-SPE-VER/02.webp",
+          "/assets/products/drive/ADI-SPE-VER/03.webp",
+          "/assets/products/drive/ADI-SPE-VER/04.webp",
+          "/assets/products/drive/ADI-SPE-VER/05.webp",
+          "/assets/products/drive/ADI-SPE-VER/06.webp",
+          "/assets/products/drive/ADI-SPE-VER/07.webp",
+          "/assets/products/drive/ADI-SPE-VER/08.webp"
+        ],
+        "price": "$64.000,00",
+        "transfer": "$48.000,00",
+        "installments": "$6.027,47",
+        "installmentsLabel": "24 cuotas de $6.027,47",
+        "sizes": [
+          {
+            "label": "34",
+            "inStock": true
+          },
+          {
+            "label": "35",
+            "inStock": true
+          },
+          {
+            "label": "36",
+            "inStock": true
+          },
+          {
+            "label": "37",
+            "inStock": true
+          },
+          {
+            "label": "38",
+            "inStock": true
+          },
+          {
+            "label": "39",
+            "inStock": true
+          },
+          {
+            "label": "40",
+            "inStock": true
+          },
+          {
+            "label": "41",
+            "inStock": true
+          },
+          {
+            "label": "42",
+            "inStock": true
+          },
+          {
+            "label": "43",
+            "inStock": true
+          }
+        ],
+        "legacySlug": "adidas-spezial-verde-12zio"
+      },
+      {
+        "id": "off-white",
+        "name": "Off White",
+        "color": "#f0ebe3",
+        "image": "/assets/products/drive/ADI-SPE-OFW/01.webp",
+        "images": [
+          "/assets/products/drive/ADI-SPE-OFW/01.webp",
+          "/assets/products/drive/ADI-SPE-OFW/02.webp",
+          "/assets/products/drive/ADI-SPE-OFW/03.webp",
+          "/assets/products/drive/ADI-SPE-OFW/04.webp",
+          "/assets/products/drive/ADI-SPE-OFW/05.webp",
+          "/assets/products/drive/ADI-SPE-OFW/06.webp",
+          "/assets/products/drive/ADI-SPE-OFW/07.webp",
+          "/assets/products/drive/ADI-SPE-OFW/08.webp"
+        ],
+        "price": "$64.000,00",
+        "transfer": "$48.000,00",
+        "installments": "$6.027,47",
+        "installmentsLabel": "24 cuotas de $6.027,47",
+        "sizes": [
+          {
+            "label": "34",
+            "inStock": true
+          },
+          {
+            "label": "35",
+            "inStock": true
+          },
+          {
+            "label": "36",
+            "inStock": true
+          },
+          {
+            "label": "37",
+            "inStock": true
+          },
+          {
+            "label": "38",
+            "inStock": true
+          },
+          {
+            "label": "39",
+            "inStock": true
+          },
+          {
+            "label": "40",
+            "inStock": true
+          },
+          {
+            "label": "41",
+            "inStock": true
+          },
+          {
+            "label": "42",
+            "inStock": true
+          },
+          {
+            "label": "43",
+            "inStock": true
+          }
+        ],
+        "legacySlug": "adidas-spezial-off-white-qel4p"
+      }
+    ]
+  },
+  {
+    "slug": "adidas-campus",
+    "name": "Adidas Campus",
+    "brand": "Adidas",
+    "category": "sale",
+    "storeCategories": [
+      "adidas",
+      "mega-sale"
+    ],
+    "primaryCategory": "adidas",
+    "description": "Te recomendamos que midas el largo de tu plantilla con centímetro o regla para elegir el talle más adecuado. Vienen del talle 39 al 43. LARGO DE PLANTILLA POR TALLE 39 26 cm 40 27,4 cm 41 27,4 cm 42 28,8 cm 43 28,8 cm Incluye caja y cordones extra de regalo.",
+    "tags": [
+      "Mega Sale"
+    ],
+    "sourceUrl": "https://rastrozapas.mitiendanube.com/productos/adidas-campus-gris-19zdv/",
+    "variants": [
+      {
+        "id": "gris",
+        "name": "Gris",
+        "color": "#8a8a8a",
+        "image": "/assets/products/drive/ADI-CMP-GRI/01.webp",
+        "images": [
+          "/assets/products/drive/ADI-CMP-GRI/01.webp",
+          "/assets/products/drive/ADI-CMP-GRI/02.webp",
+          "/assets/products/drive/ADI-CMP-GRI/03.webp",
+          "/assets/products/drive/ADI-CMP-GRI/04.webp",
+          "/assets/products/drive/ADI-CMP-GRI/05.webp",
+          "/assets/products/drive/ADI-CMP-GRI/06.webp",
+          "/assets/products/drive/ADI-CMP-GRI/07.webp",
+          "/assets/products/drive/ADI-CMP-GRI/08.webp"
+        ],
+        "price": "$78.670,00",
+        "transfer": "$59.002,50",
+        "installments": "$7.409,08",
+        "installmentsLabel": "24 cuotas de $7.409,08",
+        "sizes": [
+          {
+            "label": "34",
+            "inStock": true
+          },
+          {
+            "label": "35",
+            "inStock": true
+          },
+          {
+            "label": "36",
+            "inStock": true
+          },
+          {
+            "label": "37",
+            "inStock": true
+          },
+          {
+            "label": "38",
+            "inStock": true
+          },
+          {
+            "label": "39",
+            "inStock": true
+          },
+          {
+            "label": "40",
+            "inStock": true
+          },
+          {
+            "label": "41",
+            "inStock": true
+          },
+          {
+            "label": "42",
+            "inStock": true
+          },
+          {
+            "label": "43",
+            "inStock": true
+          }
+        ],
+        "legacySlug": "adidas-campus-gris-19zdv"
+      },
+      {
+        "id": "chocolate",
+        "name": "Chocolate",
+        "color": "#4a2c0a",
+        "image": "/assets/products/drive/ADI-CMP-CHO/01.webp",
+        "images": [
+          "/assets/products/drive/ADI-CMP-CHO/01.webp",
+          "/assets/products/drive/ADI-CMP-CHO/02.webp",
+          "/assets/products/drive/ADI-CMP-CHO/03.webp",
+          "/assets/products/drive/ADI-CMP-CHO/04.webp",
+          "/assets/products/drive/ADI-CMP-CHO/05.webp",
+          "/assets/products/drive/ADI-CMP-CHO/06.webp",
+          "/assets/products/drive/ADI-CMP-CHO/07.webp",
+          "/assets/products/drive/ADI-CMP-CHO/08.webp"
+        ],
+        "price": "$39.333,00",
+        "transfer": "$29.499,75",
+        "installments": "$3.704,35",
+        "installmentsLabel": "24 cuotas de $3.704,35",
+        "sizes": [
+          {
+            "label": "34",
+            "inStock": true
+          },
+          {
+            "label": "35",
+            "inStock": true
+          },
+          {
+            "label": "36",
+            "inStock": true
+          },
+          {
+            "label": "37",
+            "inStock": true
+          },
+          {
+            "label": "38",
+            "inStock": true
+          },
+          {
+            "label": "39",
+            "inStock": true
+          },
+          {
+            "label": "40",
+            "inStock": true
+          },
+          {
+            "label": "41",
+            "inStock": true
+          },
+          {
+            "label": "42",
+            "inStock": true
+          },
+          {
+            "label": "43",
+            "inStock": true
+          }
+        ],
+        "legacySlug": "adidas-campus-chocolate"
+      }
+    ]
+  },
+  {
+    "slug": "adidas-sl-72",
+    "name": "Adidas SL 72",
+    "brand": "Adidas",
+    "category": "sale",
+    "storeCategories": [
+      "mega-sale"
+    ],
+    "primaryCategory": "adidas",
+    "description": "e recomendamos que midas tu plantilla con centímetro o regla para elegir el talle más adecuado. Vienen del talle 34 al 39. LARGO DE PLANTILLA POR TALLE 34 24 cm 35 24,2 cm 36 25,5 cm 37 25,5 cm 38 26,8 cm 39 27 cm Incluye caja personalizada y cordones extra de regalo.",
+    "tags": [
+      "Mega Sale"
+    ],
+    "sourceUrl": "https://rastrozapas.mitiendanube.com/productos/adidas-sl-72-chocolate/",
+    "variants": [
+      {
+        "id": "chocolate",
+        "name": "Chocolate",
+        "color": "#4a2c0a",
+        "image": "/assets/products/drive/ADI-SL7-CHO/01.webp",
+        "images": [
+          "/assets/products/drive/ADI-SL7-CHO/01.webp",
+          "/assets/products/drive/ADI-SL7-CHO/02.webp",
+          "/assets/products/drive/ADI-SL7-CHO/03.webp",
+          "/assets/products/drive/ADI-SL7-CHO/04.webp",
+          "/assets/products/drive/ADI-SL7-CHO/05.webp",
+          "/assets/products/drive/ADI-SL7-CHO/06.webp",
+          "/assets/products/drive/ADI-SL7-CHO/07.webp"
+        ],
+        "price": "$39.333,00",
+        "transfer": "$29.499,75",
+        "installments": "$3.704,35",
+        "installmentsLabel": "24 cuotas de $3.704,35",
+        "sizes": [
+          {
+            "label": "34",
+            "inStock": true
+          },
+          {
+            "label": "35",
+            "inStock": true
+          },
+          {
+            "label": "36",
+            "inStock": true
+          },
+          {
+            "label": "37",
+            "inStock": true
+          },
+          {
+            "label": "38",
+            "inStock": true
+          },
+          {
+            "label": "39",
+            "inStock": true
+          },
+          {
+            "label": "40",
+            "inStock": true
+          },
+          {
+            "label": "41",
+            "inStock": true
+          },
+          {
+            "label": "42",
+            "inStock": true
+          },
+          {
+            "label": "43",
+            "inStock": true
+          }
+        ],
+        "legacySlug": "adidas-sl-72-chocolate"
+      }
+    ]
+  },
+  {
+    "slug": "vans-old-skool",
+    "name": "Vans Old Skool",
+    "brand": "Vans",
+    "category": "zapatillas",
+    "storeCategories": [
+      "vans",
+      "vans/old-skool"
+    ],
+    "primaryCategory": "vans",
+    "description": "Te recomendamos que midas tu plantilla con centímetro o regla para elegir el talle más adecuado. Vienen del talle 34 al 43. LARGO DE PLANTILLA POR TALLE 34 23,2 cm 35 23,8 cm 36 24,7 cm 37 25,3 cm 38 26,1 cm 39 26,7 cm 40 27,3 cm 41 27,9 cm 42 28,7 cm 43 29,4 cm Incluye caja personalizada",
+    "tags": [],
+    "sourceUrl": "https://rastrozapas.mitiendanube.com/productos/vans-old-skool-total-black-1h597/",
+    "variants": [
+      {
+        "id": "total-black",
+        "name": "Total Black",
+        "color": "#0a0a0a",
+        "image": "/assets/products/drive/VAN-OSK-TBL/01.webp",
+        "images": [
+          "/assets/products/drive/VAN-OSK-TBL/01.webp",
+          "/assets/products/drive/VAN-OSK-TBL/02.webp",
+          "/assets/products/drive/VAN-OSK-TBL/03.webp",
+          "/assets/products/drive/VAN-OSK-TBL/04.webp",
+          "/assets/products/drive/VAN-OSK-TBL/05.webp",
+          "/assets/products/drive/VAN-OSK-TBL/06.webp",
+          "/assets/products/drive/VAN-OSK-TBL/07.webp",
+          "/assets/products/drive/VAN-OSK-TBL/08.webp"
+        ],
+        "price": "$64.000,00",
+        "transfer": "$48.000,00",
+        "installments": "$6.027,47",
+        "installmentsLabel": "24 cuotas de $6.027,47",
+        "sizes": [
+          {
+            "label": "34",
+            "inStock": true
+          },
+          {
+            "label": "35",
+            "inStock": true
+          },
+          {
+            "label": "36",
+            "inStock": true
+          },
+          {
+            "label": "37",
+            "inStock": true
+          },
+          {
+            "label": "38",
+            "inStock": true
+          },
+          {
+            "label": "39",
+            "inStock": true
+          },
+          {
+            "label": "40",
+            "inStock": true
+          },
+          {
+            "label": "41",
+            "inStock": true
+          },
+          {
+            "label": "42",
+            "inStock": true
+          },
+          {
+            "label": "43",
+            "inStock": true
+          }
+        ],
+        "legacySlug": "vans-old-skool-total-black-1h597"
+      },
+      {
+        "id": "blanck",
+        "name": "Blanck",
+        "color": "#cccccc",
+        "image": "/assets/products/drive/VAN-OSK-NEG/01.webp",
+        "images": [
+          "/assets/products/drive/VAN-OSK-NEG/01.webp",
+          "/assets/products/drive/VAN-OSK-NEG/02.webp",
+          "/assets/products/drive/VAN-OSK-NEG/03.webp",
+          "/assets/products/drive/VAN-OSK-NEG/04.webp",
+          "/assets/products/drive/VAN-OSK-NEG/05.webp",
+          "/assets/products/drive/VAN-OSK-NEG/06.webp",
+          "/assets/products/drive/VAN-OSK-NEG/07.webp",
+          "/assets/products/drive/VAN-OSK-NEG/08.webp"
+        ],
+        "price": "$64.000,00",
+        "transfer": "$48.000,00",
+        "installments": "$6.027,47",
+        "installmentsLabel": "24 cuotas de $6.027,47",
+        "sizes": [
+          {
+            "label": "34",
+            "inStock": true
+          },
+          {
+            "label": "35",
+            "inStock": true
+          },
+          {
+            "label": "36",
+            "inStock": true
+          },
+          {
+            "label": "37",
+            "inStock": true
+          },
+          {
+            "label": "38",
+            "inStock": true
+          },
+          {
+            "label": "39",
+            "inStock": true
+          },
+          {
+            "label": "40",
+            "inStock": true
+          },
+          {
+            "label": "41",
+            "inStock": true
+          },
+          {
+            "label": "42",
+            "inStock": true
+          },
+          {
+            "label": "43",
+            "inStock": true
+          }
+        ],
+        "legacySlug": "vans-old-skool-blanck"
+      },
+      {
+        "id": "arena",
+        "name": "Arena",
+        "color": "#c2b280",
+        "image": "/assets/products/drive/VAN-OSK-ARE/01.webp",
+        "images": [
+          "/assets/products/drive/VAN-OSK-ARE/01.webp",
+          "/assets/products/drive/VAN-OSK-ARE/02.webp",
+          "/assets/products/drive/VAN-OSK-ARE/03.webp",
+          "/assets/products/drive/VAN-OSK-ARE/04.webp",
+          "/assets/products/drive/VAN-OSK-ARE/05.webp",
+          "/assets/products/drive/VAN-OSK-ARE/06.webp"
+        ],
+        "price": "$64.000,00",
+        "transfer": "$48.000,00",
+        "installments": "$6.027,47",
+        "installmentsLabel": "24 cuotas de $6.027,47",
+        "sizes": [
+          {
+            "label": "34",
+            "inStock": true
+          },
+          {
+            "label": "35",
+            "inStock": true
+          },
+          {
+            "label": "36",
+            "inStock": true
+          },
+          {
+            "label": "37",
+            "inStock": true
+          },
+          {
+            "label": "38",
+            "inStock": true
+          },
+          {
+            "label": "39",
+            "inStock": true
+          },
+          {
+            "label": "40",
+            "inStock": true
+          },
+          {
+            "label": "41",
+            "inStock": true
+          },
+          {
+            "label": "42",
+            "inStock": true
+          },
+          {
+            "label": "43",
+            "inStock": true
+          }
+        ],
+        "legacySlug": "vans-old-skool-arena"
+      }
+    ]
+  },
+  {
+    "slug": "vans-ultrarange",
+    "name": "Vans Ultrarange",
+    "brand": "Vans",
+    "category": "sale",
+    "storeCategories": [
+      "vans",
+      "vans/ultrarange",
+      "mega-sale"
+    ],
+    "primaryCategory": "vans",
+    "description": "Nuestras hormas son grandes, por eso te recomendamos pedir un talle menos o bien corroborar tu plantilla con las nuestras. Medida de plantilla por talle 39 26,8 cm 40 27,8 cm 41 28,5 cm 42 29,4 cm 43 30,2 cm Incluye caja personalizada y cordones extra de regalo.",
+    "tags": [
+      "Mega Sale"
+    ],
+    "sourceUrl": "https://rastrozapas.mitiendanube.com/productos/vans-ultrarange-black-87ju8/",
+    "variants": [
+      {
+        "id": "black",
+        "name": "Black",
+        "color": "#111",
+        "image": "/assets/products/drive/VAN-ULT-NEG/01.webp",
+        "images": [
+          "/assets/products/drive/VAN-ULT-NEG/01.webp",
+          "/assets/products/drive/VAN-ULT-NEG/02.webp",
+          "/assets/products/drive/VAN-ULT-NEG/03.webp",
+          "/assets/products/drive/VAN-ULT-NEG/04.webp",
+          "/assets/products/drive/VAN-ULT-NEG/05.webp",
+          "/assets/products/drive/VAN-ULT-NEG/06.webp",
+          "/assets/products/drive/VAN-ULT-NEG/07.webp",
+          "/assets/products/drive/VAN-ULT-NEG/08.webp"
+        ],
+        "price": "$64.000,00",
+        "transfer": "$48.000,00",
+        "installments": "$6.027,47",
+        "installmentsLabel": "24 cuotas de $6.027,47",
+        "sizes": [
+          {
+            "label": "34",
+            "inStock": true
+          },
+          {
+            "label": "35",
+            "inStock": true
+          },
+          {
+            "label": "37",
+            "inStock": true
+          },
+          {
+            "label": "38",
+            "inStock": true
+          },
+          {
+            "label": "39",
+            "inStock": true
+          },
+          {
+            "label": "40",
+            "inStock": true
+          },
+          {
+            "label": "41",
+            "inStock": true
+          },
+          {
+            "label": "42",
+            "inStock": true
+          },
+          {
+            "label": "43",
+            "inStock": true
+          }
+        ],
+        "legacySlug": "vans-ultrarange-black-87ju8"
+      },
+      {
+        "id": "verde-militar",
+        "name": "Verde Militar",
+        "color": "#4b5320",
+        "image": "/assets/products/drive/VAN-ULT-VMI/01.webp",
+        "images": [
+          "/assets/products/drive/VAN-ULT-VMI/01.webp",
+          "/assets/products/drive/VAN-ULT-VMI/02.webp",
+          "/assets/products/drive/VAN-ULT-VMI/03.webp",
+          "/assets/products/drive/VAN-ULT-VMI/04.webp",
+          "/assets/products/drive/VAN-ULT-VMI/05.webp",
+          "/assets/products/drive/VAN-ULT-VMI/06.webp",
+          "/assets/products/drive/VAN-ULT-VMI/07.webp",
+          "/assets/products/drive/VAN-ULT-VMI/08.webp"
+        ],
+        "price": "$32.000,00",
+        "transfer": "$24.000,00",
+        "installments": "$3.013,73",
+        "installmentsLabel": "24 cuotas de $3.013,73",
+        "sizes": [
+          {
+            "label": "34",
+            "inStock": true
+          },
+          {
+            "label": "35",
+            "inStock": true
+          },
+          {
+            "label": "36",
+            "inStock": true
+          },
+          {
+            "label": "37",
+            "inStock": true
+          },
+          {
+            "label": "38",
+            "inStock": true
+          },
+          {
+            "label": "39",
+            "inStock": true
+          },
+          {
+            "label": "40",
+            "inStock": true
+          },
+          {
+            "label": "41",
+            "inStock": true
+          },
+          {
+            "label": "42",
+            "inStock": true
+          },
+          {
+            "label": "43",
+            "inStock": true
+          }
+        ],
+        "legacySlug": "vans-ultrarange-verde-militar"
+      }
+    ]
+  },
+  {
+    "slug": "vans-vr3",
+    "name": "Vans VR3",
+    "brand": "Vans",
+    "category": "zapatillas",
+    "storeCategories": [
+      "vans",
+      "vans/vr3"
+    ],
+    "primaryCategory": "vans",
+    "description": "Vans VR3: Lona de algodón orgánico de tejido firme con apliques de gamuza suave al tacto. Materiales sustentables de primera calidad sobre una plantilla mullida y suela de goma natural.",
+    "tags": [],
+    "sourceUrl": "https://rastrozapas.mitiendanube.com/productos/vans-vr3-beige-ra1c8/",
+    "variants": [
+      {
+        "id": "beige",
+        "name": "Beige",
+        "color": "#d2b48c",
+        "image": "/assets/products/drive/VAN-VR3-BEI/01.webp",
+        "images": [
+          "/assets/products/drive/VAN-VR3-BEI/01.webp",
+          "/assets/products/drive/VAN-VR3-BEI/02.webp",
+          "/assets/products/drive/VAN-VR3-BEI/03.webp",
+          "/assets/products/drive/VAN-VR3-BEI/04.webp",
+          "/assets/products/drive/VAN-VR3-BEI/05.webp",
+          "/assets/products/drive/VAN-VR3-BEI/06.webp",
+          "/assets/products/drive/VAN-VR3-BEI/07.webp",
+          "/assets/products/drive/VAN-VR3-BEI/08.webp"
+        ],
+        "price": "$64.000,00",
+        "transfer": "$48.000,00",
+        "installments": "$6.027,47",
+        "installmentsLabel": "24 cuotas de $6.027,47",
+        "sizes": [
+          {
+            "label": "34",
+            "inStock": true
+          },
+          {
+            "label": "35",
+            "inStock": true
+          },
+          {
+            "label": "36",
+            "inStock": true
+          },
+          {
+            "label": "37",
+            "inStock": true
+          },
+          {
+            "label": "38",
+            "inStock": true
+          },
+          {
+            "label": "39",
+            "inStock": true
+          }
+        ],
+        "legacySlug": "vans-vr3-beige-ra1c8"
+      },
+      {
+        "id": "black",
+        "name": "Black",
+        "color": "#111",
+        "image": "/assets/products/drive/VAN-VR3-NEG/01.webp",
+        "images": [
+          "/assets/products/drive/VAN-VR3-NEG/01.webp",
+          "/assets/products/drive/VAN-VR3-NEG/02.webp",
+          "/assets/products/drive/VAN-VR3-NEG/03.webp",
+          "/assets/products/drive/VAN-VR3-NEG/04.webp",
+          "/assets/products/drive/VAN-VR3-NEG/05.webp",
+          "/assets/products/drive/VAN-VR3-NEG/06.webp",
+          "/assets/products/drive/VAN-VR3-NEG/07.webp",
+          "/assets/products/drive/VAN-VR3-NEG/08.webp"
+        ],
+        "price": "$64.000,00",
+        "transfer": "$48.000,00",
+        "installments": "$6.027,47",
+        "installmentsLabel": "24 cuotas de $6.027,47",
+        "sizes": [
+          {
+            "label": "34",
+            "inStock": true
+          },
+          {
+            "label": "35",
+            "inStock": true
+          },
+          {
+            "label": "36",
+            "inStock": true
+          },
+          {
+            "label": "37",
+            "inStock": true
+          },
+          {
+            "label": "38",
+            "inStock": true
+          },
+          {
+            "label": "39",
+            "inStock": true
+          }
+        ],
+        "legacySlug": "vans-vr3-black-1471m"
+      }
+    ]
+  },
+  {
+    "slug": "vans-hylane",
+    "name": "Vans Hylane",
+    "brand": "Vans",
+    "category": "zapatillas",
+    "storeCategories": [
+      "vans"
+    ],
+    "primaryCategory": "vans",
+    "description": "Te recomendamos que midas el largo de tu plantilla con centímetro o regla para elegir el talle más adecuado. Vienen del talle 40EUR al 44EUR LARGO DE PLANTILLA POR TALLE 40 26,7 cm 41 26,7 cm 42 28,1 cm 43 28,2 cm 44 29,5 cm Incluye caja personalizada",
+    "tags": [],
+    "sourceUrl": "https://rastrozapas.mitiendanube.com/productos/vans-hylane-black-1k2e0/",
+    "variants": [
+      {
+        "id": "black",
+        "name": "Black",
+        "color": "#111",
+        "image": "/assets/products/drive/VAN-HYL-NEG/01.webp",
+        "images": [
+          "/assets/products/drive/VAN-HYL-NEG/01.webp",
+          "/assets/products/drive/VAN-HYL-NEG/02.webp",
+          "/assets/products/drive/VAN-HYL-NEG/03.webp",
+          "/assets/products/drive/VAN-HYL-NEG/04.webp",
+          "/assets/products/drive/VAN-HYL-NEG/05.webp",
+          "/assets/products/drive/VAN-HYL-NEG/06.webp",
+          "/assets/products/drive/VAN-HYL-NEG/07.webp",
+          "/assets/products/drive/VAN-HYL-NEG/08.webp"
+        ],
+        "price": "$78.666,00",
+        "transfer": "$58.999,50",
+        "installments": "$7.408,70",
+        "installmentsLabel": "24 cuotas de $7.408,70",
+        "sizes": [
+          {
+            "label": "34",
+            "inStock": true
+          },
+          {
+            "label": "35",
+            "inStock": true
+          },
+          {
+            "label": "36",
+            "inStock": true
+          },
+          {
+            "label": "37",
+            "inStock": true
+          },
+          {
+            "label": "38",
+            "inStock": true
+          },
+          {
+            "label": "39",
+            "inStock": true
+          },
+          {
+            "label": "40",
+            "inStock": true
+          },
+          {
+            "label": "41",
+            "inStock": true
+          },
+          {
+            "label": "42",
+            "inStock": true
+          },
+          {
+            "label": "43",
+            "inStock": true
+          },
+          {
+            "label": "44",
+            "inStock": true
+          }
+        ],
+        "legacySlug": "vans-hylane-black-1k2e0"
+      }
+    ]
+  },
+  {
+    "slug": "new-balance-574",
+    "name": "New Balance 574",
+    "brand": "New Balance",
+    "category": "sale",
+    "storeCategories": [
+      "mega-sale"
+    ],
+    "primaryCategory": "new-balance",
+    "description": "Te recomendamos que midas el largo de tu plantilla con centímetro o regla para elegir el talle más adecuado. Vienen del talle 38 al 43. LARGO DE PLANTILLA POR TALLE 38 25,8 cm 39 25,9 cm 40 27,1 cm 41 27,2 cm 42 28,6 cm 43 28,7 cm Incluye caja y bolsita personalizada, cordones extra y llavero de regalo.",
+    "tags": [
+      "Mega Sale"
+    ],
+    "sourceUrl": "https://rastrozapas.mitiendanube.com/productos/new-balance-574-beige/",
+    "variants": [
+      {
+        "id": "beige",
+        "name": "Beige",
+        "color": "#d2b48c",
+        "image": "/assets/products/drive/NBA-574-BEI/01.webp",
+        "images": [
+          "/assets/products/drive/NBA-574-BEI/01.webp",
+          "/assets/products/drive/NBA-574-BEI/02.webp",
+          "/assets/products/drive/NBA-574-BEI/03.webp",
+          "/assets/products/drive/NBA-574-BEI/04.webp",
+          "/assets/products/drive/NBA-574-BEI/05.webp",
+          "/assets/products/drive/NBA-574-BEI/06.webp",
+          "/assets/products/drive/NBA-574-BEI/07.webp",
+          "/assets/products/drive/NBA-574-BEI/08.webp"
+        ],
+        "price": "$36.666,00",
+        "transfer": "$27.499,50",
+        "installments": "$3.453,17",
+        "installmentsLabel": "24 cuotas de $3.453,17",
+        "sizes": [
+          {
+            "label": "34",
+            "inStock": true
+          },
+          {
+            "label": "35",
+            "inStock": true
+          },
+          {
+            "label": "36",
+            "inStock": true
+          },
+          {
+            "label": "37",
+            "inStock": true
+          },
+          {
+            "label": "38",
+            "inStock": true
+          },
+          {
+            "label": "39",
+            "inStock": true
+          },
+          {
+            "label": "40",
+            "inStock": true
+          },
+          {
+            "label": "41",
+            "inStock": true
+          },
+          {
+            "label": "42",
+            "inStock": true
+          },
+          {
+            "label": "43",
+            "inStock": true
+          }
+        ],
+        "legacySlug": "new-balance-574-beige"
+      },
+      {
+        "id": "gris",
+        "name": "Gris",
+        "color": "#8a8a8a",
+        "image": "/assets/products/drive/NBA-574-GRI/01.webp",
+        "images": [
+          "/assets/products/drive/NBA-574-GRI/01.webp",
+          "/assets/products/drive/NBA-574-GRI/02.webp",
+          "/assets/products/drive/NBA-574-GRI/03.webp",
+          "/assets/products/drive/NBA-574-GRI/04.webp",
+          "/assets/products/drive/NBA-574-GRI/05.webp",
+          "/assets/products/drive/NBA-574-GRI/06.webp",
+          "/assets/products/drive/NBA-574-GRI/07.webp",
+          "/assets/products/drive/NBA-574-GRI/08.webp"
+        ],
+        "price": "$36.666,00",
+        "transfer": "$27.499,50",
+        "installments": "$3.453,17",
+        "installmentsLabel": "24 cuotas de $3.453,17",
+        "sizes": [
+          {
+            "label": "34",
+            "inStock": true
+          },
+          {
+            "label": "35",
+            "inStock": true
+          },
+          {
+            "label": "36",
+            "inStock": true
+          },
+          {
+            "label": "37",
+            "inStock": true
+          },
+          {
+            "label": "38",
+            "inStock": true
+          },
+          {
+            "label": "39",
+            "inStock": true
+          },
+          {
+            "label": "40",
+            "inStock": true
+          },
+          {
+            "label": "41",
+            "inStock": true
+          },
+          {
+            "label": "42",
+            "inStock": true
+          },
+          {
+            "label": "43",
+            "inStock": true
+          }
+        ],
+        "legacySlug": "new-balance-574-gris"
+      }
+    ]
+  },
+  {
+    "slug": "new-balance-327",
+    "name": "New Balance 327",
+    "brand": "New Balance",
+    "category": "sale",
+    "storeCategories": [
+      "mega-sale"
+    ],
+    "primaryCategory": "new-balance",
+    "description": "Te recomendamos que midas tu plantilla con centímetro o regla para elegir el talle más adecuado. Vienen del talle 34 al 39. LARGO DE PLANTILLA POR TALLE 34 23,9 cm 35 24,2 cm 36 25,2 cm 37 25,5 cm 38 26,7 cm 39 27 cm Incluye caja personalizada y cordones extra de regalo.",
+    "tags": [
+      "Mega Sale"
+    ],
+    "sourceUrl": "https://rastrozapas.mitiendanube.com/productos/new-balance-327-beige/",
+    "variants": [
+      {
+        "id": "beige",
+        "name": "Beige",
+        "color": "#d2b48c",
+        "image": "/assets/products/drive/NBA-327-BEI/01.webp",
+        "images": [
+          "/assets/products/drive/NBA-327-BEI/01.webp",
+          "/assets/products/drive/NBA-327-BEI/02.webp",
+          "/assets/products/drive/NBA-327-BEI/03.webp",
+          "/assets/products/drive/NBA-327-BEI/04.webp",
+          "/assets/products/drive/NBA-327-BEI/05.webp",
+          "/assets/products/drive/NBA-327-BEI/06.webp"
+        ],
+        "price": "$39.333,00",
+        "transfer": "$29.499,75",
+        "installments": "$3.704,35",
+        "installmentsLabel": "24 cuotas de $3.704,35",
+        "sizes": [
+          {
+            "label": "34",
+            "inStock": true
+          },
+          {
+            "label": "35",
+            "inStock": true
+          },
+          {
+            "label": "36",
+            "inStock": true
+          },
+          {
+            "label": "37",
+            "inStock": true
+          },
+          {
+            "label": "38",
+            "inStock": true
+          },
+          {
+            "label": "39",
+            "inStock": true
+          },
+          {
+            "label": "40",
+            "inStock": true
+          },
+          {
+            "label": "41",
+            "inStock": true
+          },
+          {
+            "label": "42",
+            "inStock": true
+          },
+          {
+            "label": "43",
+            "inStock": true
+          }
+        ],
+        "legacySlug": "new-balance-327-beige"
+      }
+    ]
+  },
+  {
+    "slug": "sandalia-birk",
+    "name": "Sandalia Birk",
+    "brand": "Rastro",
+    "category": "sandalias",
+    "storeCategories": [
+      "summer",
+      "summer/zuecos"
+    ],
+    "primaryCategory": "summer",
+    "description": "CUERO VACUNO",
+    "tags": [
+      "Summer"
+    ],
+    "sourceUrl": "https://rastrozapas.mitiendanube.com/productos/sandalia-birk-black-1ampg/",
+    "variants": [
+      {
+        "id": "black",
+        "name": "Black",
+        "color": "#111",
+        "image": "/assets/products/drive/BOU-BRK-NEG/01.webp",
+        "images": [
+          "/assets/products/drive/BOU-BRK-NEG/01.webp",
+          "/assets/products/drive/BOU-BRK-NEG/02.webp",
+          "/assets/products/drive/BOU-BRK-NEG/03.webp",
+          "/assets/products/drive/BOU-BRK-NEG/04.webp",
+          "/assets/products/drive/BOU-BRK-NEG/05.webp",
+          "/assets/products/drive/BOU-BRK-NEG/06.webp",
+          "/assets/products/drive/BOU-BRK-NEG/07.webp",
+          "/assets/products/drive/BOU-BRK-NEG/08.webp"
+        ],
+        "price": "$80.000,00",
+        "transfer": "$60.000,00",
+        "installments": "$7.534,33",
+        "installmentsLabel": "24 cuotas de $7.534,33",
+        "sizes": [
+          {
+            "label": "35",
+            "inStock": true
+          },
+          {
+            "label": "36",
+            "inStock": true
+          },
+          {
+            "label": "37",
+            "inStock": true
+          },
+          {
+            "label": "38",
+            "inStock": true
+          },
+          {
+            "label": "39",
+            "inStock": true
+          },
+          {
+            "label": "40",
+            "inStock": true
+          },
+          {
+            "label": "41",
+            "inStock": true
+          },
+          {
+            "label": "42",
+            "inStock": true
+          },
+          {
+            "label": "43",
+            "inStock": true
+          },
+          {
+            "label": "44",
+            "inStock": true
+          }
+        ],
+        "legacySlug": "sandalia-birk-black-1ampg"
+      },
+      {
+        "id": "habano",
+        "name": "Habano",
+        "color": "#8b5a2b",
+        "image": "/assets/products/drive/BOU-BRK-HAB/01.webp",
+        "images": [
+          "/assets/products/drive/BOU-BRK-HAB/01.webp",
+          "/assets/products/drive/BOU-BRK-HAB/02.webp",
+          "/assets/products/drive/BOU-BRK-HAB/03.webp",
+          "/assets/products/drive/BOU-BRK-HAB/04.webp",
+          "/assets/products/drive/BOU-BRK-HAB/05.webp",
+          "/assets/products/drive/BOU-BRK-HAB/06.webp",
+          "/assets/products/drive/BOU-BRK-HAB/07.webp",
+          "/assets/products/drive/BOU-BRK-HAB/08.webp"
+        ],
+        "price": "$80.000,00",
+        "transfer": "$60.000,00",
+        "installments": "$7.534,33",
+        "installmentsLabel": "24 cuotas de $7.534,33",
+        "sizes": [
+          {
+            "label": "35",
+            "inStock": true
+          },
+          {
+            "label": "36",
+            "inStock": true
+          },
+          {
+            "label": "37",
+            "inStock": true
+          },
+          {
+            "label": "38",
+            "inStock": true
+          },
+          {
+            "label": "39",
+            "inStock": true
+          },
+          {
+            "label": "40",
+            "inStock": true
+          },
+          {
+            "label": "41",
+            "inStock": true
+          },
+          {
+            "label": "42",
+            "inStock": true
+          },
+          {
+            "label": "43",
+            "inStock": true
+          },
+          {
+            "label": "44",
+            "inStock": true
+          }
+        ],
+        "legacySlug": "sandalia-birk-habano-1qxxj"
+      }
+    ]
+  },
+  {
+    "slug": "sandalia-flex",
+    "name": "Sandalia Flex",
+    "brand": "Rastro",
+    "category": "sandalias",
+    "storeCategories": [
+      "summer"
+    ],
+    "primaryCategory": "summer",
+    "description": "Talles35/36 37/38 39/40Aclarar al final de la compra el talle escogido.",
+    "tags": [
+      "Summer"
+    ],
+    "sourceUrl": "https://rastrozapas.mitiendanube.com/productos/sandalia-flex-beige-5jzml/",
+    "variants": [
+      {
+        "id": "beige",
+        "name": "Beige",
+        "color": "#d2b48c",
+        "image": "/assets/products/store/sandalia-flex-beige-5jzml-2.webp",
+        "images": [
+          "/assets/products/store/sandalia-flex-beige-5jzml-2.webp",
+          "/assets/products/store/sandalia-flex-beige-5jzml-5.webp",
+          "/assets/products/store/sandalia-flex-beige-5jzml-6.webp"
+        ],
+        "price": "$20.000,00",
+        "transfer": "$15.000,00",
+        "installments": "$1.883,58",
+        "installmentsLabel": "24 cuotas de $1.883,58",
+        "sizes": [
+          {
+            "label": "35",
+            "inStock": true
+          },
+          {
+            "label": "36",
+            "inStock": true
+          },
+          {
+            "label": "37",
+            "inStock": true
+          },
+          {
+            "label": "38",
+            "inStock": true
+          },
+          {
+            "label": "39",
+            "inStock": true
+          },
+          {
+            "label": "40",
+            "inStock": true
+          }
+        ],
+        "legacySlug": "sandalia-flex-beige-5jzml"
+      },
+      {
+        "id": "black",
+        "name": "Black",
+        "color": "#111",
+        "image": "/assets/products/store/sandalia-flex-black-kbldi-2.webp",
+        "images": [
+          "/assets/products/store/sandalia-flex-black-kbldi-2.webp",
+          "/assets/products/store/sandalia-flex-black-kbldi-5.webp",
+          "/assets/products/store/sandalia-flex-black-kbldi-6.webp"
+        ],
+        "price": "$37.500,00",
+        "transfer": "$28.125,00",
+        "installments": "$3.531,72",
+        "installmentsLabel": "24 cuotas de $3.531,72",
+        "sizes": [
+          {
+            "label": "35",
+            "inStock": true
+          },
+          {
+            "label": "36",
+            "inStock": true
+          },
+          {
+            "label": "37",
+            "inStock": true
+          },
+          {
+            "label": "38",
+            "inStock": true
+          },
+          {
+            "label": "39",
+            "inStock": true
+          },
+          {
+            "label": "40",
+            "inStock": true
+          }
+        ],
+        "legacySlug": "sandalia-flex-black-kbldi"
+      }
+    ]
+  },
+  {
+    "slug": "sandalia-h",
+    "name": "Sandalia H",
+    "brand": "Rastro",
+    "category": "sandalias",
+    "storeCategories": [
+      "mega-sale"
+    ],
+    "primaryCategory": "mega-sale",
+    "description": "El valor con descuento es a través de transferencia bancaria o depósito.Goma inyectada, 100% impermeables.",
+    "tags": [
+      "Mega Sale"
+    ],
+    "sourceUrl": "https://rastrozapas.mitiendanube.com/productos/sandalia-goma-hebilla/",
+    "variants": [
+      {
+        "id": "hebi",
+        "name": "Hebi",
+        "color": "#cccccc",
+        "image": "/assets/products/store/sandalia-goma-hebilla-2.webp",
+        "images": [
+          "/assets/products/store/sandalia-goma-hebilla-2.webp",
+          "/assets/products/store/sandalia-goma-hebilla-5.webp",
+          "/assets/products/store/sandalia-goma-hebilla-6.webp"
+        ],
+        "price": "$18.666,00",
+        "transfer": "$13.999,50",
+        "installments": "$1.757,95",
+        "installmentsLabel": "24 cuotas de $1.757,95",
+        "sizes": [
+          {
+            "label": "34",
+            "inStock": true
+          },
+          {
+            "label": "35",
+            "inStock": true
+          },
+          {
+            "label": "36",
+            "inStock": true
+          },
+          {
+            "label": "37",
+            "inStock": true
+          },
+          {
+            "label": "38",
+            "inStock": true
+          },
+          {
+            "label": "39",
+            "inStock": true
+          },
+          {
+            "label": "40",
+            "inStock": true
+          },
+          {
+            "label": "41",
+            "inStock": true
+          },
+          {
+            "label": "42",
+            "inStock": true
+          },
+          {
+            "label": "43",
+            "inStock": true
+          }
+        ],
+        "legacySlug": "sandalia-goma-hebilla"
+      },
+      {
+        "id": "off-white",
+        "name": "Off White",
+        "color": "#f0ebe3",
+        "image": "/assets/products/store/sandalia-h-off-white-ryr3h-2.webp",
+        "images": [
+          "/assets/products/store/sandalia-h-off-white-ryr3h-2.webp",
+          "/assets/products/store/sandalia-h-off-white-ryr3h-5.webp",
+          "/assets/products/store/sandalia-h-off-white-ryr3h-6.webp"
+        ],
+        "price": "$16.000,00",
+        "transfer": "$12.000,00",
+        "installments": "$1.506,87",
+        "installmentsLabel": "24 cuotas de $1.506,87",
+        "sizes": [
+          {
+            "label": "34",
+            "inStock": true
+          },
+          {
+            "label": "35",
+            "inStock": true
+          },
+          {
+            "label": "36",
+            "inStock": true
+          },
+          {
+            "label": "37",
+            "inStock": true
+          },
+          {
+            "label": "38",
+            "inStock": true
+          },
+          {
+            "label": "39",
+            "inStock": true
+          },
+          {
+            "label": "40",
+            "inStock": true
+          },
+          {
+            "label": "41",
+            "inStock": true
+          },
+          {
+            "label": "42",
+            "inStock": true
+          },
+          {
+            "label": "43",
+            "inStock": true
+          }
+        ],
+        "legacySlug": "sandalia-h-off-white-ryr3h"
+      },
+      {
+        "id": "total-black",
+        "name": "Total Black",
+        "color": "#0a0a0a",
+        "image": "/assets/products/store/sandalia-h-total-black-kcqk2-2.webp",
+        "images": [
+          "/assets/products/store/sandalia-h-total-black-kcqk2-2.webp",
+          "/assets/products/store/sandalia-h-total-black-kcqk2-5.webp",
+          "/assets/products/store/sandalia-h-total-black-kcqk2-6.webp"
+        ],
+        "price": "$17.000,00",
+        "transfer": "$12.750,00",
+        "installments": "$1.601,05",
+        "installmentsLabel": "24 cuotas de $1.601,05",
+        "sizes": [
+          {
+            "label": "34",
+            "inStock": true
+          },
+          {
+            "label": "35",
+            "inStock": true
+          },
+          {
+            "label": "36",
+            "inStock": true
+          },
+          {
+            "label": "37",
+            "inStock": true
+          },
+          {
+            "label": "38",
+            "inStock": true
+          },
+          {
+            "label": "39",
+            "inStock": true
+          },
+          {
+            "label": "40",
+            "inStock": true
+          },
+          {
+            "label": "41",
+            "inStock": true
+          },
+          {
+            "label": "42",
+            "inStock": true
+          },
+          {
+            "label": "43",
+            "inStock": true
+          }
+        ],
+        "legacySlug": "sandalia-h-total-black-kcqk2"
+      }
+    ]
+  },
+  {
+    "slug": "zueco-bour",
+    "name": "Zueco Bour",
+    "brand": "Rastro",
+    "category": "sandalias",
+    "storeCategories": [
+      "summer",
+      "summer/zuecos"
+    ],
+    "primaryCategory": "summer",
+    "description": "CUERO VACUNO",
+    "tags": [
+      "Summer"
+    ],
+    "sourceUrl": "https://rastrozapas.mitiendanube.com/productos/zueco-bour-beige-uincp/",
+    "variants": [
+      {
+        "id": "beige",
+        "name": "Beige",
+        "color": "#d2b48c",
+        "image": "/assets/products/drive/BOU-ZUE-VIS/01.webp",
+        "images": [
+          "/assets/products/drive/BOU-ZUE-VIS/01.webp",
+          "/assets/products/drive/BOU-ZUE-VIS/02.webp",
+          "/assets/products/drive/BOU-ZUE-VIS/03.webp",
+          "/assets/products/drive/BOU-ZUE-VIS/04.webp",
+          "/assets/products/drive/BOU-ZUE-VIS/05.webp",
+          "/assets/products/drive/BOU-ZUE-VIS/06.webp",
+          "/assets/products/drive/BOU-ZUE-VIS/07.webp",
+          "/assets/products/drive/BOU-ZUE-VIS/08.webp"
+        ],
+        "price": "$80.000,00",
+        "transfer": "$60.000,00",
+        "installments": "$7.534,33",
+        "installmentsLabel": "24 cuotas de $7.534,33",
+        "sizes": [
+          {
+            "label": "35",
+            "inStock": true
+          },
+          {
+            "label": "36",
+            "inStock": true
+          },
+          {
+            "label": "37",
+            "inStock": true
+          },
+          {
+            "label": "38",
+            "inStock": true
+          },
+          {
+            "label": "39",
+            "inStock": true
+          },
+          {
+            "label": "41",
+            "inStock": true
+          },
+          {
+            "label": "42",
+            "inStock": true
+          },
+          {
+            "label": "43",
+            "inStock": true
+          },
+          {
+            "label": "44",
+            "inStock": true
+          }
+        ],
+        "legacySlug": "zueco-bour-beige-uincp"
+      },
+      {
+        "id": "black",
+        "name": "Black",
+        "color": "#111",
+        "image": "/assets/products/drive/BOU-ZUE-NEG/01.webp",
+        "images": [
+          "/assets/products/drive/BOU-ZUE-NEG/01.webp",
+          "/assets/products/drive/BOU-ZUE-NEG/02.webp",
+          "/assets/products/drive/BOU-ZUE-NEG/03.webp",
+          "/assets/products/drive/BOU-ZUE-NEG/04.webp",
+          "/assets/products/drive/BOU-ZUE-NEG/05.webp",
+          "/assets/products/drive/BOU-ZUE-NEG/06.webp",
+          "/assets/products/drive/BOU-ZUE-NEG/07.webp",
+          "/assets/products/drive/BOU-ZUE-NEG/08.webp"
+        ],
+        "price": "$80.000,00",
+        "transfer": "$60.000,00",
+        "installments": "$7.534,33",
+        "installmentsLabel": "24 cuotas de $7.534,33",
+        "sizes": [
+          {
+            "label": "35",
+            "inStock": true
+          },
+          {
+            "label": "36",
+            "inStock": true
+          },
+          {
+            "label": "37",
+            "inStock": true
+          },
+          {
+            "label": "38",
+            "inStock": true
+          },
+          {
+            "label": "39",
+            "inStock": true
+          },
+          {
+            "label": "40",
+            "inStock": true
+          },
+          {
+            "label": "41",
+            "inStock": true
+          },
+          {
+            "label": "42",
+            "inStock": true
+          },
+          {
+            "label": "43",
+            "inStock": true
+          },
+          {
+            "label": "44",
+            "inStock": true
+          }
+        ],
+        "legacySlug": "zueco-bour-black-1horz"
+      }
+    ]
+  },
+  {
+    "slug": "zueco-kala",
+    "name": "Zueco Kala",
+    "brand": "Rastro",
+    "category": "sandalias",
+    "storeCategories": [
+      "summer",
+      "summer/zuecos"
+    ],
+    "primaryCategory": "summer",
+    "description": "El valor con descuento es a través de transferencia bancaria o depósito. Cuero vacuno Hebilla regulable",
+    "tags": [
+      "Summer"
+    ],
+    "sourceUrl": "https://rastrozapas.mitiendanube.com/productos/zueco-kala-hielo/",
+    "variants": [
+      {
+        "id": "hielo",
+        "name": "Hielo",
+        "color": "#dfe9f2",
+        "image": "/assets/products/drive/MGR-KAL-HIE/01.webp",
+        "images": [
+          "/assets/products/drive/MGR-KAL-HIE/01.webp",
+          "/assets/products/drive/MGR-KAL-HIE/02.webp",
+          "/assets/products/drive/MGR-KAL-HIE/03.webp",
+          "/assets/products/drive/MGR-KAL-HIE/04.webp",
+          "/assets/products/drive/MGR-KAL-HIE/05.webp",
+          "/assets/products/drive/MGR-KAL-HIE/06.webp",
+          "/assets/products/drive/MGR-KAL-HIE/07.webp",
+          "/assets/products/drive/MGR-KAL-HIE/08.webp"
+        ],
+        "price": "$74.533,00",
+        "transfer": "$55.899,75",
+        "installments": "$7.019,46",
+        "installmentsLabel": "24 cuotas de $7.019,46",
+        "sizes": [
+          {
+            "label": "35",
+            "inStock": true
+          },
+          {
+            "label": "36",
+            "inStock": true
+          },
+          {
+            "label": "37",
+            "inStock": true
+          },
+          {
+            "label": "38",
+            "inStock": true
+          },
+          {
+            "label": "39",
+            "inStock": true
+          },
+          {
+            "label": "40",
+            "inStock": true
+          },
+          {
+            "label": "41",
+            "inStock": true
+          },
+          {
+            "label": "42",
+            "inStock": true
+          },
+          {
+            "label": "43",
+            "inStock": true
+          },
+          {
+            "label": "44",
+            "inStock": true
+          }
+        ],
+        "legacySlug": "zueco-kala-hielo"
+      },
+      {
+        "id": "vison",
+        "name": "Vison",
+        "color": "#8b7355",
+        "image": "/assets/products/drive/MGR-KAL-VIS/01.webp",
+        "images": [
+          "/assets/products/drive/MGR-KAL-VIS/01.webp",
+          "/assets/products/drive/MGR-KAL-VIS/02.webp",
+          "/assets/products/drive/MGR-KAL-VIS/03.webp",
+          "/assets/products/drive/MGR-KAL-VIS/04.webp",
+          "/assets/products/drive/MGR-KAL-VIS/05.webp",
+          "/assets/products/drive/MGR-KAL-VIS/06.webp",
+          "/assets/products/drive/MGR-KAL-VIS/07.webp",
+          "/assets/products/drive/MGR-KAL-VIS/08.webp"
+        ],
+        "price": "$74.533,00",
+        "transfer": "$55.899,75",
+        "installments": "$7.019,46",
+        "installmentsLabel": "24 cuotas de $7.019,46",
+        "sizes": [
+          {
+            "label": "35",
+            "inStock": true
+          },
+          {
+            "label": "36",
+            "inStock": true
+          },
+          {
+            "label": "37",
+            "inStock": true
+          },
+          {
+            "label": "38",
+            "inStock": true
+          },
+          {
+            "label": "39",
+            "inStock": true
+          },
+          {
+            "label": "40",
+            "inStock": true
+          },
+          {
+            "label": "41",
+            "inStock": true
+          },
+          {
+            "label": "42",
+            "inStock": true
+          },
+          {
+            "label": "43",
+            "inStock": true
+          },
+          {
+            "label": "44",
+            "inStock": true
+          }
+        ],
+        "legacySlug": "zueco-kala-vison-1aca6"
+      }
+    ]
+  },
+  {
+    "slug": "zueco-india",
+    "name": "Zueco India",
+    "brand": "Rastro",
+    "category": "sandalias",
+    "storeCategories": [
+      "summer",
+      "summer/zuecos"
+    ],
+    "primaryCategory": "summer",
+    "description": "El valor con descuento es a través de transferencia bancaria o depósito. Cuero vacuno Hebilla regulable",
+    "tags": [
+      "Summer"
+    ],
+    "sourceUrl": "https://rastrozapas.mitiendanube.com/productos/zueco-india-suela/",
+    "variants": [
+      {
+        "id": "suela",
+        "name": "Suela",
+        "color": "#c4a574",
+        "image": "/assets/products/drive/MGR-IND-SUE/01.webp",
+        "images": [
+          "/assets/products/drive/MGR-IND-SUE/01.webp",
+          "/assets/products/drive/MGR-IND-SUE/02.webp",
+          "/assets/products/drive/MGR-IND-SUE/03.webp",
+          "/assets/products/drive/MGR-IND-SUE/04.webp",
+          "/assets/products/drive/MGR-IND-SUE/05.webp",
+          "/assets/products/drive/MGR-IND-SUE/06.webp",
+          "/assets/products/drive/MGR-IND-SUE/07.webp",
+          "/assets/products/drive/MGR-IND-SUE/08.webp"
+        ],
+        "price": "$74.533,00",
+        "transfer": "$55.899,75",
+        "installments": "$7.019,46",
+        "installmentsLabel": "24 cuotas de $7.019,46",
+        "sizes": [
+          {
+            "label": "35",
+            "inStock": true
+          },
+          {
+            "label": "36",
+            "inStock": true
+          },
+          {
+            "label": "37",
+            "inStock": true
+          },
+          {
+            "label": "38",
+            "inStock": true
+          },
+          {
+            "label": "39",
+            "inStock": true
+          },
+          {
+            "label": "41",
+            "inStock": true
+          },
+          {
+            "label": "42",
+            "inStock": true
+          },
+          {
+            "label": "43",
+            "inStock": true
+          },
+          {
+            "label": "44",
+            "inStock": true
+          }
+        ],
+        "legacySlug": "zueco-india-suela"
+      },
+      {
+        "id": "black",
+        "name": "Black",
+        "color": "#111",
+        "image": "/assets/products/drive/MGR-IND-NEG/01.webp",
+        "images": [
+          "/assets/products/drive/MGR-IND-NEG/01.webp",
+          "/assets/products/drive/MGR-IND-NEG/02.webp",
+          "/assets/products/drive/MGR-IND-NEG/03.webp",
+          "/assets/products/drive/MGR-IND-NEG/04.webp",
+          "/assets/products/drive/MGR-IND-NEG/05.webp",
+          "/assets/products/drive/MGR-IND-NEG/06.webp",
+          "/assets/products/drive/MGR-IND-NEG/07.webp",
+          "/assets/products/drive/MGR-IND-NEG/08.webp"
+        ],
+        "price": "$74.533,00",
+        "transfer": "$55.899,75",
+        "installments": "$7.019,46",
+        "installmentsLabel": "24 cuotas de $7.019,46",
+        "sizes": [
+          {
+            "label": "35",
+            "inStock": true
+          },
+          {
+            "label": "36",
+            "inStock": true
+          },
+          {
+            "label": "37",
+            "inStock": true
+          },
+          {
+            "label": "38",
+            "inStock": true
+          },
+          {
+            "label": "39",
+            "inStock": true
+          },
+          {
+            "label": "40",
+            "inStock": true
+          },
+          {
+            "label": "41",
+            "inStock": true
+          },
+          {
+            "label": "42",
+            "inStock": true
+          },
+          {
+            "label": "43",
+            "inStock": true
+          },
+          {
+            "label": "44",
+            "inStock": true
+          }
+        ],
+        "legacySlug": "zueco-india-black"
+      }
+    ]
+  },
+  {
+    "slug": "zueco-birk",
+    "name": "Zueco Birk",
+    "brand": "Rastro",
+    "category": "sandalias",
+    "storeCategories": [
+      "summer",
+      "summer/zuecos"
+    ],
+    "primaryCategory": "summer",
+    "description": "El valor con descuento es a través de transferencia bancaria o depósito. Cuero vacuno Hebillas regulable",
+    "tags": [
+      "Summer"
+    ],
+    "sourceUrl": "https://rastrozapas.mitiendanube.com/productos/zueco-birk-choco/",
+    "variants": [
+      {
+        "id": "choco",
+        "name": "Choco",
+        "color": "#cccccc",
+        "image": "/assets/products/drive/MGR-BRK-CHO/01.webp",
+        "images": [
+          "/assets/products/drive/MGR-BRK-CHO/01.webp",
+          "/assets/products/drive/MGR-BRK-CHO/02.webp",
+          "/assets/products/drive/MGR-BRK-CHO/03.webp",
+          "/assets/products/drive/MGR-BRK-CHO/04.webp",
+          "/assets/products/drive/MGR-BRK-CHO/05.webp"
+        ],
+        "price": "$74.533,00",
+        "transfer": "$55.899,75",
+        "installments": "$7.019,46",
+        "installmentsLabel": "24 cuotas de $7.019,46",
+        "sizes": [
+          {
+            "label": "35",
+            "inStock": true
+          },
+          {
+            "label": "36",
+            "inStock": true
+          },
+          {
+            "label": "37",
+            "inStock": true
+          },
+          {
+            "label": "38",
+            "inStock": true
+          },
+          {
+            "label": "39",
+            "inStock": true
+          },
+          {
+            "label": "40",
+            "inStock": true
+          },
+          {
+            "label": "41",
+            "inStock": true
+          },
+          {
+            "label": "42",
+            "inStock": true
+          },
+          {
+            "label": "43",
+            "inStock": true
+          },
+          {
+            "label": "44",
+            "inStock": true
+          }
+        ],
+        "legacySlug": "zueco-birk-choco"
+      },
+      {
+        "id": "zueco-india-coco",
+        "name": "Zueco India Coco",
+        "color": "#cccccc",
+        "image": "/assets/products/drive/MGR-IND-COC/01.webp",
+        "images": [
+          "/assets/products/drive/MGR-IND-COC/01.webp",
+          "/assets/products/drive/MGR-IND-COC/02.webp",
+          "/assets/products/drive/MGR-IND-COC/03.webp",
+          "/assets/products/drive/MGR-IND-COC/04.webp",
+          "/assets/products/drive/MGR-IND-COC/05.webp",
+          "/assets/products/drive/MGR-IND-COC/06.webp",
+          "/assets/products/drive/MGR-IND-COC/07.webp",
+          "/assets/products/drive/MGR-IND-COC/08.webp"
+        ],
+        "price": "$74.533,00",
+        "transfer": "$55.899,75",
+        "installments": "$7.019,46",
+        "installmentsLabel": "24 cuotas de $7.019,46",
+        "sizes": [
+          {
+            "label": "35",
+            "inStock": true
+          },
+          {
+            "label": "36",
+            "inStock": true
+          },
+          {
+            "label": "37",
+            "inStock": true
+          },
+          {
+            "label": "38",
+            "inStock": true
+          },
+          {
+            "label": "39",
+            "inStock": true
+          },
+          {
+            "label": "40",
+            "inStock": true
+          },
+          {
+            "label": "41",
+            "inStock": true
+          },
+          {
+            "label": "42",
+            "inStock": true
+          },
+          {
+            "label": "43",
+            "inStock": true
+          },
+          {
+            "label": "44",
+            "inStock": true
+          }
+        ],
+        "legacySlug": "zueco-birk-cuero"
+      }
+    ]
+  },
+  {
+    "slug": "eva",
+    "name": "Eva",
+    "brand": "Rastro",
+    "category": "sale",
+    "storeCategories": [
+      "summer",
+      "mega-sale"
+    ],
+    "primaryCategory": "summer",
+    "description": "Cuero PU con tejido de refuerzo, bondeado.Base de eva.",
+    "tags": [
+      "Mega Sale",
+      "Summer"
+    ],
+    "sourceUrl": "https://rastrozapas.mitiendanube.com/productos/eva-white-w4rd6/",
+    "variants": [
+      {
+        "id": "white",
+        "name": "White",
+        "color": "#f5f5f5",
+        "image": "/assets/products/store/eva-white-w4rd6-2.webp",
+        "images": [
+          "/assets/products/store/eva-white-w4rd6-2.webp",
+          "/assets/products/store/eva-white-w4rd6-5.webp",
+          "/assets/products/store/eva-white-w4rd6-6.webp"
+        ],
+        "price": "$20.000,00",
+        "transfer": "$15.000,00",
+        "installments": "$1.883,58",
+        "installmentsLabel": "24 cuotas de $1.883,58",
+        "sizes": [
+          {
+            "label": "35",
+            "inStock": true
+          },
+          {
+            "label": "36",
+            "inStock": true
+          },
+          {
+            "label": "37",
+            "inStock": true
+          },
+          {
+            "label": "38",
+            "inStock": true
+          },
+          {
+            "label": "39",
+            "inStock": true
+          },
+          {
+            "label": "40",
+            "inStock": true
+          }
+        ],
+        "legacySlug": "eva-white-w4rd6"
+      },
+      {
+        "id": "black",
+        "name": "Black",
+        "color": "#111",
+        "image": "/assets/products/store/eva-black-xazhg-2.webp",
+        "images": [
+          "/assets/products/store/eva-black-xazhg-2.webp",
+          "/assets/products/store/eva-black-xazhg-5.webp",
+          "/assets/products/store/eva-black-xazhg-6.webp"
+        ],
+        "price": "$20.000,00",
+        "transfer": "$15.000,00",
+        "installments": "$1.883,58",
+        "installmentsLabel": "24 cuotas de $1.883,58",
+        "sizes": [
+          {
+            "label": "35",
+            "inStock": true
+          },
+          {
+            "label": "36",
+            "inStock": true
+          },
+          {
+            "label": "37",
+            "inStock": true
+          },
+          {
+            "label": "38",
+            "inStock": true
+          },
+          {
+            "label": "39",
+            "inStock": true
+          },
+          {
+            "label": "40",
+            "inStock": true
+          }
+        ],
+        "legacySlug": "eva-black-xazhg"
+      },
+      {
+        "id": "camel",
+        "name": "Camel",
+        "color": "#b08968",
+        "image": "/assets/products/store/eva-camel-7258a-2.webp",
+        "images": [
+          "/assets/products/store/eva-camel-7258a-2.webp",
+          "/assets/products/store/eva-camel-7258a-5.webp",
+          "/assets/products/store/eva-camel-7258a-6.webp"
+        ],
+        "price": "$20.000,00",
+        "transfer": "$15.000,00",
+        "installments": "$1.883,58",
+        "installmentsLabel": "24 cuotas de $1.883,58",
+        "sizes": [
+          {
+            "label": "34",
+            "inStock": true
+          },
+          {
+            "label": "35",
+            "inStock": true
+          },
+          {
+            "label": "36",
+            "inStock": true
+          },
+          {
+            "label": "37",
+            "inStock": true
+          },
+          {
+            "label": "38",
+            "inStock": true
+          },
+          {
+            "label": "39",
+            "inStock": true
+          },
+          {
+            "label": "40",
+            "inStock": true
+          },
+          {
+            "label": "41",
+            "inStock": true
+          },
+          {
+            "label": "42",
+            "inStock": true
+          },
+          {
+            "label": "43",
+            "inStock": true
+          }
+        ],
+        "legacySlug": "eva-camel-7258a"
+      }
+    ]
+  },
+  {
+    "slug": "cira",
+    "name": "Cira",
+    "brand": "Rastro",
+    "category": "sale",
+    "storeCategories": [
+      "mega-sale"
+    ],
+    "primaryCategory": "mega-sale",
+    "description": "Cuero PU con tejido de refuerzo, bondeado.Base de eva.",
+    "tags": [
+      "Mega Sale"
+    ],
+    "sourceUrl": "https://rastrozapas.mitiendanube.com/productos/cira-beige-h2vuc/",
+    "variants": [
+      {
+        "id": "beige",
+        "name": "Beige",
+        "color": "#d2b48c",
+        "image": "/assets/products/store/cira-beige-h2vuc-2.webp",
+        "images": [
+          "/assets/products/store/cira-beige-h2vuc-2.webp",
+          "/assets/products/store/cira-beige-h2vuc-5.webp",
+          "/assets/products/store/cira-beige-h2vuc-6.webp"
+        ],
+        "price": "$20.000,00",
+        "transfer": "$15.000,00",
+        "installments": "$1.883,58",
+        "installmentsLabel": "24 cuotas de $1.883,58",
+        "sizes": [
+          {
+            "label": "34",
+            "inStock": true
+          },
+          {
+            "label": "35",
+            "inStock": true
+          },
+          {
+            "label": "36",
+            "inStock": true
+          },
+          {
+            "label": "37",
+            "inStock": true
+          },
+          {
+            "label": "38",
+            "inStock": true
+          },
+          {
+            "label": "39",
+            "inStock": true
+          },
+          {
+            "label": "40",
+            "inStock": true
+          },
+          {
+            "label": "41",
+            "inStock": true
+          },
+          {
+            "label": "42",
+            "inStock": true
+          },
+          {
+            "label": "43",
+            "inStock": true
+          }
+        ],
+        "legacySlug": "cira-beige-h2vuc"
+      },
+      {
+        "id": "black",
+        "name": "Black",
+        "color": "#111",
+        "image": "/assets/products/store/cira-black-hxo5n-2.webp",
+        "images": [
+          "/assets/products/store/cira-black-hxo5n-2.webp",
+          "/assets/products/store/cira-black-hxo5n-5.webp",
+          "/assets/products/store/cira-black-hxo5n-6.webp"
+        ],
+        "price": "$20.000,00",
+        "transfer": "$15.000,00",
+        "installments": "$1.883,58",
+        "installmentsLabel": "24 cuotas de $1.883,58",
+        "sizes": [
+          {
+            "label": "34",
+            "inStock": true
+          },
+          {
+            "label": "35",
+            "inStock": true
+          },
+          {
+            "label": "36",
+            "inStock": true
+          },
+          {
+            "label": "37",
+            "inStock": true
+          },
+          {
+            "label": "38",
+            "inStock": true
+          },
+          {
+            "label": "39",
+            "inStock": true
+          },
+          {
+            "label": "40",
+            "inStock": true
+          },
+          {
+            "label": "41",
+            "inStock": true
+          },
+          {
+            "label": "42",
+            "inStock": true
+          },
+          {
+            "label": "43",
+            "inStock": true
+          }
+        ],
+        "legacySlug": "cira-black-hxo5n"
+      }
+    ]
+  },
+  {
+    "slug": "zoe",
+    "name": "Zoe",
+    "brand": "Rastro",
+    "category": "sale",
+    "storeCategories": [
+      "mega-sale"
+    ],
+    "primaryCategory": "mega-sale",
+    "description": "Cuero PU con tejido de refuerzo, bondeado.Base de eva.",
+    "tags": [
+      "Mega Sale"
+    ],
+    "sourceUrl": "https://rastrozapas.mitiendanube.com/productos/zoe-white-vbaqm/",
+    "variants": [
+      {
+        "id": "white",
+        "name": "White",
+        "color": "#f5f5f5",
+        "image": "/assets/products/store/zoe-white-vbaqm-2.webp",
+        "images": [
+          "/assets/products/store/zoe-white-vbaqm-2.webp",
+          "/assets/products/store/zoe-white-vbaqm-5.webp",
+          "/assets/products/store/zoe-white-vbaqm-6.webp"
+        ],
+        "price": "$20.000,00",
+        "transfer": "$15.000,00",
+        "installments": "$1.883,58",
+        "installmentsLabel": "24 cuotas de $1.883,58",
+        "sizes": [
+          {
+            "label": "34",
+            "inStock": true
+          },
+          {
+            "label": "35",
+            "inStock": true
+          },
+          {
+            "label": "36",
+            "inStock": true
+          },
+          {
+            "label": "37",
+            "inStock": true
+          },
+          {
+            "label": "38",
+            "inStock": true
+          },
+          {
+            "label": "39",
+            "inStock": true
+          },
+          {
+            "label": "40",
+            "inStock": true
+          },
+          {
+            "label": "41",
+            "inStock": true
+          },
+          {
+            "label": "42",
+            "inStock": true
+          },
+          {
+            "label": "43",
+            "inStock": true
+          }
+        ],
+        "legacySlug": "zoe-white-vbaqm"
+      }
+    ]
+  },
+  {
+    "slug": "nike-jordan-1-low-azul",
+    "name": "Nike Jordan 1 Low Azul",
+    "brand": "Nike",
+    "category": "zapatillas",
+    "storeCategories": [
+      "nike"
+    ],
+    "primaryCategory": "nike",
+    "description": "Nike Jordan Air 1 Low: Paneles de cuero sintético y microfibra de alta calidad. Detalles bordados, forro interior acolchado de malla y suela de goma cocida con perfil firme.",
+    "tags": [],
+    "sourceUrl": "https://rastrozapas.mitiendanube.com/productos/nike-jordan-1-low-azul-1ats9/",
+    "variants": [
+      {
+        "id": "nico",
+        "name": "Único",
+        "color": "#cccccc",
+        "image": "/assets/products/drive/NIK-J1L-AZL/01.webp",
+        "images": [
+          "/assets/products/drive/NIK-J1L-AZL/01.webp",
+          "/assets/products/drive/NIK-J1L-AZL/02.webp",
+          "/assets/products/drive/NIK-J1L-AZL/03.webp",
+          "/assets/products/drive/NIK-J1L-AZL/04.webp",
+          "/assets/products/drive/NIK-J1L-AZL/05.webp",
+          "/assets/products/drive/NIK-J1L-AZL/06.webp"
+        ],
+        "price": "$78.670,00",
+        "transfer": "$59.002,50",
+        "installments": "$7.409,08",
+        "installmentsLabel": "24 cuotas de $7.409,08",
+        "sizes": [
+          {
+            "label": "34",
+            "inStock": true
+          },
+          {
+            "label": "35",
+            "inStock": true
+          },
+          {
+            "label": "36",
+            "inStock": true
+          },
+          {
+            "label": "37",
+            "inStock": true
+          },
+          {
+            "label": "38",
+            "inStock": true
+          },
+          {
+            "label": "39",
+            "inStock": true
+          },
+          {
+            "label": "40",
+            "inStock": true
+          },
+          {
+            "label": "41",
+            "inStock": true
+          },
+          {
+            "label": "42",
+            "inStock": true
+          },
+          {
+            "label": "43",
+            "inStock": true
+          }
+        ],
+        "legacySlug": "nike-jordan-1-low-azul-1ats9"
+      }
+    ]
+  },
+  {
+    "slug": "nike-sb-black",
+    "name": "Nike SB Black",
+    "brand": "Nike",
+    "category": "zapatillas",
+    "storeCategories": [
+      "nike"
+    ],
+    "primaryCategory": "nike",
+    "description": "Medida de plantilla por talle 39 26,3 cm 40 26,9 cm 41 27,6 cm",
+    "tags": [],
+    "sourceUrl": "https://rastrozapas.mitiendanube.com/productos/nike-sb-black-xl6cy/",
+    "variants": [
+      {
+        "id": "nico",
+        "name": "Único",
+        "color": "#cccccc",
+        "image": "/assets/products/drive/NIK-CSB-NEG/01.webp",
+        "images": [
+          "/assets/products/drive/NIK-CSB-NEG/01.webp",
+          "/assets/products/drive/NIK-CSB-NEG/02.webp",
+          "/assets/products/drive/NIK-CSB-NEG/03.webp",
+          "/assets/products/drive/NIK-CSB-NEG/04.webp",
+          "/assets/products/drive/NIK-CSB-NEG/05.webp"
+        ],
+        "price": "$64.000,00",
+        "transfer": "$48.000,00",
+        "installments": "$6.027,47",
+        "installmentsLabel": "24 cuotas de $6.027,47",
+        "sizes": [
+          {
+            "label": "34",
+            "inStock": true
+          },
+          {
+            "label": "35",
+            "inStock": true
+          },
+          {
+            "label": "36",
+            "inStock": true
+          },
+          {
+            "label": "37",
+            "inStock": true
+          },
+          {
+            "label": "38",
+            "inStock": true
+          },
+          {
+            "label": "39",
+            "inStock": true
+          },
+          {
+            "label": "40",
+            "inStock": true
+          },
+          {
+            "label": "41",
+            "inStock": true
+          },
+          {
+            "label": "42",
+            "inStock": true
+          },
+          {
+            "label": "43",
+            "inStock": true
+          }
+        ],
+        "legacySlug": "nike-sb-black-xl6cy"
+      }
+    ]
+  },
+  {
+    "slug": "converse-all-star",
+    "name": "Converse All Star",
+    "brand": "Converse",
+    "category": "zapatillas",
+    "storeCategories": [
+      "converse"
+    ],
+    "primaryCategory": "converse",
+    "description": "Tabla de medidas por talle TALLE 39 26 cm de plantilla 38 25,5 cm de plantilla 37 25 cm de plantilla 36 24 cm de plantilla 35 23,8 cm de plantilla 34 23 cm de plantilla",
+    "tags": [],
+    "sourceUrl": "https://rastrozapas.mitiendanube.com/productos/converse-all-star-toru6/",
+    "variants": [
+      {
+        "id": "nico",
+        "name": "Único",
+        "color": "#cccccc",
+        "image": "/assets/products/drive/CON-ALS-NEG/01.webp",
+        "images": [
+          "/assets/products/drive/CON-ALS-NEG/01.webp",
+          "/assets/products/drive/CON-ALS-NEG/02.webp",
+          "/assets/products/drive/CON-ALS-NEG/03.webp",
+          "/assets/products/drive/CON-ALS-NEG/04.webp",
+          "/assets/products/drive/CON-ALS-NEG/05.webp",
+          "/assets/products/drive/CON-ALS-NEG/06.webp",
+          "/assets/products/drive/CON-ALS-NEG/07.webp",
+          "/assets/products/drive/CON-ALS-NEG/08.webp"
+        ],
+        "price": "$53.333,00",
+        "transfer": "$39.999,75",
+        "installments": "$5.022,86",
+        "installmentsLabel": "24 cuotas de $5.022,86",
+        "sizes": [
+          {
+            "label": "34",
+            "inStock": true
+          },
+          {
+            "label": "35",
+            "inStock": true
+          },
+          {
+            "label": "36",
+            "inStock": true
+          },
+          {
+            "label": "37",
+            "inStock": true
+          },
+          {
+            "label": "38",
+            "inStock": true
+          },
+          {
+            "label": "39",
+            "inStock": true
+          }
+        ],
+        "legacySlug": "converse-all-star-toru6"
+      }
+    ]
+  },
+  {
+    "slug": "sandalia-teva-ni-a",
+    "name": "Sandalia Teva Niña",
+    "brand": "Teva",
+    "category": "sandalias",
+    "storeCategories": [
+      "mega-sale"
+    ],
+    "primaryCategory": "teva",
+    "description": "El valor con descuento es a través de transferencia bancaria o depósito.Goma inyectada, 100% impermeables.",
+    "tags": [
+      "Mega Sale"
+    ],
+    "sourceUrl": "https://rastrozapas.mitiendanube.com/productos/sandalia-teva-nina-ugjlj/",
+    "variants": [
+      {
+        "id": "nina",
+        "name": "Nina",
+        "color": "#cccccc",
+        "image": "/assets/products/store/sandalia-teva-nina-ugjlj-2.webp",
+        "images": [
+          "/assets/products/store/sandalia-teva-nina-ugjlj-2.webp",
+          "/assets/products/store/sandalia-teva-nina-ugjlj-4.webp"
+        ],
+        "price": "$16.000,00",
+        "transfer": "$12.000,00",
+        "installments": "$1.506,87",
+        "installmentsLabel": "24 cuotas de $1.506,87",
+        "sizes": [
+          {
+            "label": "34",
+            "inStock": true
+          },
+          {
+            "label": "35",
+            "inStock": true
+          },
+          {
+            "label": "36",
+            "inStock": true
+          },
+          {
+            "label": "37",
+            "inStock": true
+          },
+          {
+            "label": "38",
+            "inStock": true
+          },
+          {
+            "label": "39",
+            "inStock": true
+          },
+          {
+            "label": "40",
+            "inStock": true
+          },
+          {
+            "label": "41",
+            "inStock": true
+          },
+          {
+            "label": "42",
+            "inStock": true
+          },
+          {
+            "label": "43",
+            "inStock": true
+          }
+        ],
+        "legacySlug": "sandalia-teva-nina-ugjlj"
+      }
+    ]
+  },
+  {
+    "slug": "sandalia-teva",
+    "name": "Sandalia Teva",
+    "brand": "Teva",
+    "category": "sandalias",
+    "storeCategories": [
+      "mega-sale"
+    ],
+    "primaryCategory": "teva",
+    "description": "El valor con descuento es a través de transferencia bancaria o depósito. Goma, 100% impermeables.",
+    "tags": [
+      "Mega Sale"
+    ],
+    "sourceUrl": "https://rastrozapas.mitiendanube.com/productos/sandalia-goma/",
+    "variants": [
+      {
+        "id": "nico",
+        "name": "Único",
+        "color": "#cccccc",
+        "image": "/assets/products/store/sandalia-goma-2.webp",
+        "images": [
+          "/assets/products/store/sandalia-goma-2.webp",
+          "/assets/products/store/sandalia-goma-4.webp"
+        ],
+        "price": "$21.333,00",
+        "transfer": "$15.999,75",
+        "installments": "$2.009,12",
+        "installmentsLabel": "24 cuotas de $2.009,12",
+        "sizes": [
+          {
+            "label": "34",
+            "inStock": true
+          },
+          {
+            "label": "35",
+            "inStock": true
+          },
+          {
+            "label": "36",
+            "inStock": true
+          },
+          {
+            "label": "37",
+            "inStock": true
+          },
+          {
+            "label": "38",
+            "inStock": true
+          },
+          {
+            "label": "39",
+            "inStock": true
+          },
+          {
+            "label": "40",
+            "inStock": true
+          },
+          {
+            "label": "41",
+            "inStock": true
+          },
+          {
+            "label": "42",
+            "inStock": true
+          },
+          {
+            "label": "43",
+            "inStock": true
+          }
+        ],
+        "legacySlug": "sandalia-goma"
+      }
+    ]
+  },
+  {
+    "slug": "sandalia-ryder",
+    "name": "Sandalia Ryder",
+    "brand": "Rastro",
+    "category": "sandalias",
+    "storeCategories": [
+      "mega-sale"
+    ],
+    "primaryCategory": "mega-sale",
+    "description": "El valor con descuento es a través de transferencia bancaria o depósito. Goma, 100% impermeables y regulables.",
+    "tags": [
+      "Mega Sale"
+    ],
+    "sourceUrl": "https://rastrozapas.mitiendanube.com/productos/sandalia-ryder-k6iav/",
+    "variants": [
+      {
+        "id": "nico",
+        "name": "Único",
+        "color": "#cccccc",
+        "image": "/assets/products/store/sandalia-ryder-k6iav-2.webp",
+        "images": [
+          "/assets/products/store/sandalia-ryder-k6iav-2.webp",
+          "/assets/products/store/sandalia-ryder-k6iav-5.webp",
+          "/assets/products/store/sandalia-ryder-k6iav-6.webp"
+        ],
+        "price": "$18.666,00",
+        "transfer": "$13.999,50",
+        "installments": "$1.757,95",
+        "installmentsLabel": "24 cuotas de $1.757,95",
+        "sizes": [
+          {
+            "label": "34",
+            "inStock": true
+          },
+          {
+            "label": "35",
+            "inStock": true
+          },
+          {
+            "label": "36",
+            "inStock": true
+          },
+          {
+            "label": "37",
+            "inStock": true
+          },
+          {
+            "label": "38",
+            "inStock": true
+          },
+          {
+            "label": "39",
+            "inStock": true
+          },
+          {
+            "label": "40",
+            "inStock": true
+          },
+          {
+            "label": "41",
+            "inStock": true
+          },
+          {
+            "label": "42",
+            "inStock": true
+          },
+          {
+            "label": "43",
+            "inStock": true
+          }
+        ],
+        "legacySlug": "sandalia-ryder-k6iav"
+      }
+    ]
+  },
+  {
+    "slug": "sandalia-birk-hebi",
+    "name": "Sandalia Birk Hebi",
+    "brand": "Rastro",
+    "category": "sandalias",
+    "storeCategories": [
+      "mega-sale"
+    ],
+    "primaryCategory": "mega-sale",
+    "description": "El valor con descuento es a través de transferencia bancaria o depósito.Goma inyectada, 100% impermeables.",
+    "tags": [
+      "Mega Sale"
+    ],
+    "sourceUrl": "https://rastrozapas.mitiendanube.com/productos/sandalia-goma-birkenstock/",
+    "variants": [
+      {
+        "id": "goma-birkenstock",
+        "name": "Goma Birkenstock",
+        "color": "#cccccc",
+        "image": "/assets/products/store/sandalia-goma-birkenstock-2.webp",
+        "images": [
+          "/assets/products/store/sandalia-goma-birkenstock-2.webp",
+          "/assets/products/store/sandalia-goma-birkenstock-5.webp",
+          "/assets/products/store/sandalia-goma-birkenstock-6.webp"
+        ],
+        "price": "$18.666,00",
+        "transfer": "$13.999,50",
+        "installments": "$1.757,95",
+        "installmentsLabel": "24 cuotas de $1.757,95",
+        "sizes": [
+          {
+            "label": "34",
+            "inStock": true
+          },
+          {
+            "label": "35",
+            "inStock": true
+          },
+          {
+            "label": "36",
+            "inStock": true
+          },
+          {
+            "label": "37",
+            "inStock": true
+          },
+          {
+            "label": "38",
+            "inStock": true
+          },
+          {
+            "label": "39",
+            "inStock": true
+          },
+          {
+            "label": "40",
+            "inStock": true
+          },
+          {
+            "label": "41",
+            "inStock": true
+          },
+          {
+            "label": "42",
+            "inStock": true
+          },
+          {
+            "label": "43",
+            "inStock": true
+          }
+        ],
+        "legacySlug": "sandalia-goma-birkenstock"
+      }
+    ]
+  },
+  {
+    "slug": "ojota-tacha-black",
+    "name": "Ojota Tacha Black",
+    "brand": "Rastro",
+    "category": "sandalias",
+    "storeCategories": [
+      "mega-sale"
+    ],
+    "primaryCategory": "mega-sale",
+    "description": "El valor con descuento es a través de transferencia bancaria o depósito.Goma inyectada, binumerales.",
+    "tags": [
+      "Mega Sale"
+    ],
+    "sourceUrl": "https://rastrozapas.mitiendanube.com/productos/ojota-goma/",
+    "variants": [
+      {
+        "id": "nico",
+        "name": "Único",
+        "color": "#cccccc",
+        "image": "/assets/products/store/ojota-goma-2.webp",
+        "images": [
+          "/assets/products/store/ojota-goma-2.webp",
+          "/assets/products/store/ojota-goma-5.webp",
+          "/assets/products/store/ojota-goma-6.webp"
+        ],
+        "price": "$13.333,00",
+        "transfer": "$9.999,75",
+        "installments": "$1.255,69",
+        "installmentsLabel": "24 cuotas de $1.255,69",
+        "sizes": [
+          {
+            "label": "34",
+            "inStock": true
+          },
+          {
+            "label": "35",
+            "inStock": true
+          },
+          {
+            "label": "36",
+            "inStock": true
+          },
+          {
+            "label": "37",
+            "inStock": true
+          },
+          {
+            "label": "38",
+            "inStock": true
+          },
+          {
+            "label": "39",
+            "inStock": true
+          },
+          {
+            "label": "40",
+            "inStock": true
+          },
+          {
+            "label": "41",
+            "inStock": true
+          },
+          {
+            "label": "42",
+            "inStock": true
+          },
+          {
+            "label": "43",
+            "inStock": true
+          }
+        ],
+        "legacySlug": "ojota-goma"
+      }
+    ]
+  },
+  {
+    "slug": "ed-n-beige",
+    "name": "Edén Beige",
+    "brand": "Adidas",
+    "category": "sale",
+    "storeCategories": [
+      "mega-sale"
+    ],
+    "primaryCategory": "adidas",
+    "description": "Cuero PU con tejido de refuerzo, bondeado.",
+    "tags": [
+      "Mega Sale"
+    ],
+    "sourceUrl": "https://rastrozapas.mitiendanube.com/productos/eden-beige-5g0tp/",
+    "variants": [
+      {
+        "id": "eden",
+        "name": "Eden",
+        "color": "#cccccc",
+        "image": "/assets/products/store/eden-beige-5g0tp-2.webp",
+        "images": [
+          "/assets/products/store/eden-beige-5g0tp-2.webp",
+          "/assets/products/store/eden-beige-5g0tp-5.webp",
+          "/assets/products/store/eden-beige-5g0tp-6.webp"
+        ],
+        "price": "$20.000,00",
+        "transfer": "$15.000,00",
+        "installments": "$1.883,58",
+        "installmentsLabel": "24 cuotas de $1.883,58",
+        "sizes": [
+          {
+            "label": "34",
+            "inStock": true
+          },
+          {
+            "label": "35",
+            "inStock": true
+          },
+          {
+            "label": "36",
+            "inStock": true
+          },
+          {
+            "label": "37",
+            "inStock": true
+          },
+          {
+            "label": "38",
+            "inStock": true
+          },
+          {
+            "label": "39",
+            "inStock": true
+          },
+          {
+            "label": "40",
+            "inStock": true
+          },
+          {
+            "label": "41",
+            "inStock": true
+          },
+          {
+            "label": "42",
+            "inStock": true
+          }
+        ],
+        "legacySlug": "eden-beige-5g0tp"
+      }
+    ]
+  },
+  {
+    "slug": "slipper-nike-off-white",
+    "name": "Slipper Nike Off White",
+    "brand": "Nike",
+    "category": "zapatillas",
+    "storeCategories": [
+      "summer"
+    ],
+    "primaryCategory": "nike",
+    "description": "Con abrojo. Talles binumerales.",
+    "tags": [
+      "Summer"
+    ],
+    "sourceUrl": "https://rastrozapas.mitiendanube.com/productos/slipper-nike-off-white-44e6k/",
+    "variants": [
+      {
+        "id": "nico",
+        "name": "Único",
+        "color": "#cccccc",
+        "image": "/assets/products/store/slipper-nike-off-white-44e6k-2.webp",
+        "images": [
+          "/assets/products/store/slipper-nike-off-white-44e6k-2.webp",
+          "/assets/products/store/slipper-nike-off-white-44e6k-4.webp"
+        ],
+        "price": "$20.000,00",
+        "transfer": "$15.000,00",
+        "installments": "$1.883,58",
+        "installmentsLabel": "24 cuotas de $1.883,58",
+        "sizes": [
+          {
+            "label": "35",
+            "inStock": true
+          },
+          {
+            "label": "36",
+            "inStock": true
+          },
+          {
+            "label": "37",
+            "inStock": true
+          },
+          {
+            "label": "38",
+            "inStock": true
+          },
+          {
+            "label": "39",
+            "inStock": true
+          },
+          {
+            "label": "40",
+            "inStock": true
+          }
+        ],
+        "legacySlug": "slipper-nike-off-white-44e6k"
+      }
+    ]
+  },
+  {
+    "slug": "ojota-adidas-off-white",
+    "name": "Ojota Adidas Off White",
+    "brand": "Adidas",
+    "category": "sandalias",
+    "storeCategories": [
+      "summer"
+    ],
+    "primaryCategory": "adidas",
+    "description": "Regulables. Talles binumerales.",
+    "tags": [
+      "Summer"
+    ],
+    "sourceUrl": "https://rastrozapas.mitiendanube.com/productos/ojota-adidas-off-white-8tow8/",
+    "variants": [
+      {
+        "id": "nico",
+        "name": "Único",
+        "color": "#cccccc",
+        "image": "/assets/products/store/ojota-adidas-off-white-8tow8-2.webp",
+        "images": [
+          "/assets/products/store/ojota-adidas-off-white-8tow8-2.webp",
+          "/assets/products/store/ojota-adidas-off-white-8tow8-5.webp",
+          "/assets/products/store/ojota-adidas-off-white-8tow8-6.webp"
+        ],
+        "price": "$29.900,00",
+        "transfer": "$22.425,00",
+        "installments": "$2.815,96",
+        "installmentsLabel": "24 cuotas de $2.815,96",
+        "sizes": [
+          {
+            "label": "35",
+            "inStock": true
+          },
+          {
+            "label": "36",
+            "inStock": true
+          },
+          {
+            "label": "37",
+            "inStock": true
+          },
+          {
+            "label": "38",
+            "inStock": true
+          },
+          {
+            "label": "39",
+            "inStock": true
+          },
+          {
+            "label": "40",
+            "inStock": true
+          }
+        ],
+        "legacySlug": "ojota-adidas-off-white-8tow8"
+      }
+    ]
+  }
+]

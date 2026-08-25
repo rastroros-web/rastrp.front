@@ -1,0 +1,318 @@
+{
+  "nike-air-force-1-total-black-1ywbo": {
+    "slug": "nike-air-force-1",
+    "color": "total-black"
+  },
+  "nike-air-force-1-caramelo": {
+    "slug": "nike-air-force-1",
+    "color": "caramelo"
+  },
+  "nike-air-force-1-gris": {
+    "slug": "nike-air-force-1",
+    "color": "gris"
+  },
+  "nike-air-force-1-white": {
+    "slug": "nike-air-force-1",
+    "color": "white"
+  },
+  "nike-dunk-low-panda-qiem5": {
+    "slug": "nike-dunk-low",
+    "color": "panda"
+  },
+  "adidas-samba-xlg-off-white": {
+    "slug": "adidas-samba-xlg",
+    "color": "off-white"
+  },
+  "adidas-samba-xlg-black": {
+    "slug": "adidas-samba-xlg",
+    "color": "black"
+  },
+  "adidas-samba-xlg-clasicas": {
+    "slug": "adidas-samba-xlg",
+    "color": "clasicas"
+  },
+  "adidas-samba-ballet-black-179mx": {
+    "slug": "adidas-samba-ballet",
+    "color": "black"
+  },
+  "adidas-samba-ballet-115qf": {
+    "slug": "adidas-samba-ballet",
+    "color": "nico"
+  },
+  "adidas-sambae-black": {
+    "slug": "adidas-sambae",
+    "color": "black"
+  },
+  "adidas-sambae-blanca-y-verde": {
+    "slug": "adidas-sambae",
+    "color": "blanca-y-verde"
+  },
+  "adidas-samba-chocolate-9e2fh": {
+    "slug": "adidas-samba",
+    "color": "chocolate"
+  },
+  "adidas-samba-black-off-rempi": {
+    "slug": "adidas-samba",
+    "color": "black-off"
+  },
+  "adidas-samba-off-white-15s8w": {
+    "slug": "adidas-samba",
+    "color": "off-white"
+  },
+  "adidas-samba-chocolate-udtmh": {
+    "slug": "adidas-samba",
+    "color": "v-chocolate"
+  },
+  "adidas-samba-cherry-1d0cp": {
+    "slug": "adidas-samba",
+    "color": "cherry"
+  },
+  "adidas-samba-beige-tex-zcyu0": {
+    "slug": "adidas-samba",
+    "color": "beige-tex"
+  },
+  "adidas-samba-green-b2zt3": {
+    "slug": "adidas-samba",
+    "color": "green"
+  },
+  "adidas-samba-rosa-tex": {
+    "slug": "adidas-samba",
+    "color": "rosa-tex"
+  },
+  "adidas-samba-caramelo": {
+    "slug": "adidas-samba",
+    "color": "caramelo"
+  },
+  "adidas-samba-white": {
+    "slug": "adidas-samba",
+    "color": "classic"
+  },
+  "adidas-samba-black": {
+    "slug": "adidas-samba",
+    "color": "black"
+  },
+  "adidas-gazelle-verde-ywnhc": {
+    "slug": "adidas-gazelle",
+    "color": "verde"
+  },
+  "adidas-gazelle-dark-blue-19gio": {
+    "slug": "adidas-gazelle",
+    "color": "dark-blue"
+  },
+  "adidas-gazelle-blue-t8pij": {
+    "slug": "adidas-gazelle",
+    "color": "blue"
+  },
+  "adidas-gazelle-baby-blue": {
+    "slug": "adidas-gazelle",
+    "color": "baby-blue"
+  },
+  "adidas-gazelle-cherry": {
+    "slug": "adidas-gazelle",
+    "color": "cherry"
+  },
+  "adidas-gazelle-rosa-nude": {
+    "slug": "adidas-gazelle",
+    "color": "rosa-nude"
+  },
+  "adidas-busenitz-total-black-1ud9s": {
+    "slug": "adidas-busenitz",
+    "color": "total-black"
+  },
+  "adidas-busenitz-total-black-il90f": {
+    "slug": "adidas-busenitz",
+    "color": "adidas-busenitz-total-black-il90f"
+  },
+  "adidas-spezial-verde-12zio": {
+    "slug": "adidas-spezial",
+    "color": "verde"
+  },
+  "adidas-spezial-off-white-qel4p": {
+    "slug": "adidas-spezial",
+    "color": "off-white"
+  },
+  "adidas-campus-gris-19zdv": {
+    "slug": "adidas-campus",
+    "color": "gris"
+  },
+  "adidas-campus-chocolate": {
+    "slug": "adidas-campus",
+    "color": "chocolate"
+  },
+  "adidas-sl-72-chocolate": {
+    "slug": "adidas-sl-72",
+    "color": "chocolate"
+  },
+  "vans-old-skool-total-black-1h597": {
+    "slug": "vans-old-skool",
+    "color": "total-black"
+  },
+  "vans-old-skool-blanck": {
+    "slug": "vans-old-skool",
+    "color": "blanck"
+  },
+  "vans-old-skool-arena": {
+    "slug": "vans-old-skool",
+    "color": "arena"
+  },
+  "vans-ultrarange-black-87ju8": {
+    "slug": "vans-ultrarange",
+    "color": "black"
+  },
+  "vans-ultrarange-verde-militar": {
+    "slug": "vans-ultrarange",
+    "color": "verde-militar"
+  },
+  "vans-vr3-beige-ra1c8": {
+    "slug": "vans-vr3",
+    "color": "beige"
+  },
+  "vans-vr3-black-1471m": {
+    "slug": "vans-vr3",
+    "color": "black"
+  },
+  "vans-hylane-black-1k2e0": {
+    "slug": "vans-hylane",
+    "color": "black"
+  },
+  "new-balance-574-beige": {
+    "slug": "new-balance-574",
+    "color": "beige"
+  },
+  "new-balance-574-gris": {
+    "slug": "new-balance-574",
+    "color": "gris"
+  },
+  "new-balance-327-beige": {
+    "slug": "new-balance-327",
+    "color": "beige"
+  },
+  "sandalia-birk-black-1ampg": {
+    "slug": "sandalia-birk",
+    "color": "black"
+  },
+  "sandalia-birk-habano-1qxxj": {
+    "slug": "sandalia-birk",
+    "color": "habano"
+  },
+  "sandalia-flex-beige-5jzml": {
+    "slug": "sandalia-flex",
+    "color": "beige"
+  },
+  "sandalia-flex-black-kbldi": {
+    "slug": "sandalia-flex",
+    "color": "black"
+  },
+  "sandalia-goma-hebilla": {
+    "slug": "sandalia-h",
+    "color": "hebi"
+  },
+  "sandalia-h-off-white-ryr3h": {
+    "slug": "sandalia-h",
+    "color": "off-white"
+  },
+  "sandalia-h-total-black-kcqk2": {
+    "slug": "sandalia-h",
+    "color": "total-black"
+  },
+  "zueco-bour-beige-uincp": {
+    "slug": "zueco-bour",
+    "color": "beige"
+  },
+  "zueco-bour-black-1horz": {
+    "slug": "zueco-bour",
+    "color": "black"
+  },
+  "zueco-kala-hielo": {
+    "slug": "zueco-kala",
+    "color": "hielo"
+  },
+  "zueco-kala-vison-1aca6": {
+    "slug": "zueco-kala",
+    "color": "vison"
+  },
+  "zueco-india-suela": {
+    "slug": "zueco-india",
+    "color": "suela"
+  },
+  "zueco-india-black": {
+    "slug": "zueco-india",
+    "color": "black"
+  },
+  "zueco-birk-choco": {
+    "slug": "zueco-birk",
+    "color": "choco"
+  },
+  "zueco-birk-cuero": {
+    "slug": "zueco-birk",
+    "color": "zueco-india-coco"
+  },
+  "eva-white-w4rd6": {
+    "slug": "eva",
+    "color": "white"
+  },
+  "eva-black-xazhg": {
+    "slug": "eva",
+    "color": "black"
+  },
+  "eva-camel-7258a": {
+    "slug": "eva",
+    "color": "camel"
+  },
+  "cira-beige-h2vuc": {
+    "slug": "cira",
+    "color": "beige"
+  },
+  "cira-black-hxo5n": {
+    "slug": "cira",
+    "color": "black"
+  },
+  "zoe-white-vbaqm": {
+    "slug": "zoe",
+    "color": "white"
+  },
+  "nike-jordan-1-low-azul-1ats9": {
+    "slug": "nike-jordan-1-low-azul",
+    "color": "nico"
+  },
+  "nike-sb-black-xl6cy": {
+    "slug": "nike-sb-black",
+    "color": "nico"
+  },
+  "converse-all-star-toru6": {
+    "slug": "converse-all-star",
+    "color": "nico"
+  },
+  "sandalia-teva-nina-ugjlj": {
+    "slug": "sandalia-teva-ni-a",
+    "color": "nina"
+  },
+  "sandalia-goma": {
+    "slug": "sandalia-teva",
+    "color": "nico"
+  },
+  "sandalia-ryder-k6iav": {
+    "slug": "sandalia-ryder",
+    "color": "nico"
+  },
+  "sandalia-goma-birkenstock": {
+    "slug": "sandalia-birk-hebi",
+    "color": "goma-birkenstock"
+  },
+  "ojota-goma": {
+    "slug": "ojota-tacha-black",
+    "color": "nico"
+  },
+  "eden-beige-5g0tp": {
+    "slug": "ed-n-beige",
+    "color": "eden"
+  },
+  "slipper-nike-off-white-44e6k": {
+    "slug": "slipper-nike-off-white",
+    "color": "nico"
+  },
+  "ojota-adidas-off-white-8tow8": {
+    "slug": "ojota-adidas-off-white",
+    "color": "nico"
+  }
+}
