@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { Search } from "lucide-react";
 import { formatMoney } from "@/lib/mock/money";
@@ -64,7 +64,6 @@ export function ShippingMethodPicker({
   onPostalCodeChange,
   onSelectRate,
   className = "",
-  enabled = true,
 }: {
   postalCode: string;
   packages?: number;
@@ -72,8 +71,6 @@ export function ShippingMethodPicker({
   onPostalCodeChange: (cp: string) => void;
   onSelectRate: (rate: QuotedRate | null) => void;
   className?: string;
-  /** Evita cotizar cuando el picker está oculto (p. ej. otra zona en el carrito). */
-  enabled?: boolean;
 }) {
   const qty = Math.min(30, Math.max(1, Math.floor(Number(packages) || 1)));
   const [draft, setDraft] = useState(postalCode);
@@ -82,13 +79,6 @@ export function ShippingMethodPicker({
   const [quote, setQuote] = useState<ShippingQuoteResult | null>(null);
   const [quotedCp, setQuotedCp] = useState("");
   const requestId = useRef(0);
-  const selectedRateIdRef = useRef(selectedRateId);
-  const quotedKeyRef = useRef("");
-  const inFlightKeyRef = useRef("");
-
-  useEffect(() => {
-    selectedRateIdRef.current = selectedRateId;
-  }, [selectedRateId]);
 
   useEffect(() => {
     const cp = postalCode.replace(/\D/g, "").slice(0, 4);
@@ -97,79 +87,44 @@ export function ShippingMethodPicker({
       setQuote(null);
       setQuotedCp("");
       setError("");
-      quotedKeyRef.current = "";
-      inFlightKeyRef.current = "";
     }
   }, [postalCode]);
 
-  useEffect(() => {
-    if (!enabled) {
-      quotedKeyRef.current = "";
-      inFlightKeyRef.current = "";
+  const runQuote = async (raw: string) => {
+    const cp = raw.replace(/\D/g, "").slice(0, 4);
+    onPostalCodeChange(cp);
+    if (cp.length !== 4) {
+      setError("Ingresá un código postal de 4 dígitos.");
+      setQuote(null);
+      setQuotedCp("");
+      onSelectRate(null);
+      return;
     }
-  }, [enabled]);
-
-  const runQuote = useCallback(
-    async (
-      raw: string,
-      options?: { preserveRate?: boolean; force?: boolean }
-    ) => {
-      const cp = raw.replace(/\D/g, "").slice(0, 4);
-      const key = `${cp}:${qty}`;
-      onPostalCodeChange(cp);
-      if (cp.length !== 4) {
-        setError("Ingresá un código postal de 4 dígitos.");
-        setQuote(null);
-        setQuotedCp("");
-        quotedKeyRef.current = "";
-        if (!options?.preserveRate) onSelectRate(null);
-        return;
+    const id = ++requestId.current;
+    setLoading(true);
+    setError("");
+    setQuote(null);
+    onSelectRate(null);
+    try {
+      const data = await quoteCorreoShipping(cp, qty);
+      if (id !== requestId.current) return;
+      setQuote(data);
+      setQuotedCp(cp);
+      if (selectedRateId) {
+        const next = data.rates.find((r) => r.id === selectedRateId) || null;
+        if (next) onSelectRate(withQuote(next, data));
       }
-      if (!options?.force && quotedKeyRef.current === key) return;
-
-      const id = ++requestId.current;
-      const rateIdToRestore = options?.preserveRate
-        ? selectedRateIdRef.current
-        : null;
-      inFlightKeyRef.current = key;
-      setLoading(true);
-      setError("");
-      if (!options?.preserveRate) onSelectRate(null);
-      try {
-        const data = await quoteCorreoShipping(cp, qty);
-        if (id !== requestId.current) return;
-        setQuote(data);
-        setQuotedCp(cp);
-        quotedKeyRef.current = key;
-        if (rateIdToRestore) {
-          const next =
-            data.rates.find((r) => r.id === rateIdToRestore) || null;
-          onSelectRate(withQuote(next, data));
-        }
-      } catch (err) {
-        if (id !== requestId.current) return;
-        setQuote(null);
-        setQuotedCp("");
-        quotedKeyRef.current = "";
-        setError(
-          err instanceof Error ? err.message : "No se pudo cotizar el envío."
-        );
-      } finally {
-        if (inFlightKeyRef.current === key) inFlightKeyRef.current = "";
-        if (id === requestId.current) setLoading(false);
-      }
-    },
-    [onPostalCodeChange, onSelectRate, qty]
-  );
-
-  useEffect(() => {
-    if (!enabled) return;
-    const cp = postalCode.replace(/\D/g, "").slice(0, 4);
-    if (cp.length !== 4) return;
-    const key = `${cp}:${qty}`;
-    if (quotedKeyRef.current === key || inFlightKeyRef.current === key) return;
-    void runQuote(cp, { preserveRate: Boolean(selectedRateIdRef.current) });
-  }, [postalCode, qty, enabled, runQuote]);
+    } catch (err) {
+      if (id !== requestId.current) return;
+      setQuote(null);
+      setQuotedCp("");
+      setError(
+        err instanceof Error ? err.message : "No se pudo cotizar el envío."
+      );
+    } finally {
+      if (id === requestId.current) setLoading(false);
+    }
+  };
 
   return (
     <div className={className || undefined}>
@@ -189,14 +144,13 @@ export function ShippingMethodPicker({
             if (next !== quotedCp) {
               setQuote(null);
               setError("");
-              quotedKeyRef.current = "";
               onSelectRate(null);
             }
           }}
           onKeyDown={(e) => {
             if (e.key === "Enter") {
               e.preventDefault();
-              void runQuote(draft, { force: true });
+              void runQuote(draft);
             }
           }}
           placeholder="Ej. 5000"
@@ -205,7 +159,7 @@ export function ShippingMethodPicker({
         />
         <button
           type="button"
-          onClick={() => void runQuote(draft, { force: true })}
+          onClick={() => void runQuote(draft)}
           disabled={loading || draft.replace(/\D/g, "").length !== 4}
           aria-label="Calcular envío"
           className="btn-press flex h-11 w-11 shrink-0 items-center justify-center border border-[#222222] bg-[#222222] text-white disabled:cursor-not-allowed disabled:opacity-40"
