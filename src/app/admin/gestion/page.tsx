@@ -24,6 +24,7 @@ import {
   topModelos,
   valuarStock,
 } from "@/lib/mock/businessStats";
+import { FancySelect } from "@/components/ui/FancySelect";
 
 const LINKS = [
   { href: "/admin/gestion/ventas", label: "Ventas", desc: "Historial de ventas y carga manual" },
@@ -87,19 +88,16 @@ export default function GestionHubPage() {
         description="Mismas hojas que el Excel · se carga todo desde acá · las ventas de la tienda se agregan solas"
         actions={
           <>
-            <select
+            <FancySelect
+              label="Período"
               value={period}
-              onChange={(e) => setPeriod(e.target.value)}
-              className="btn-press border border-[#222222] bg-white px-4 py-2.5 text-[11px] font-semibold tracking-[0.14em] uppercase"
-              aria-label="Período"
-            >
-              <option value={ALL}>Todo el histórico</option>
-              {months.map((m) => (
-                <option key={m} value={m}>
-                  {monthLabel(m)}
-                </option>
-              ))}
-            </select>
+              options={[
+                { value: ALL, label: "Todo el histórico" },
+                ...months.map((m) => ({ value: m, label: monthLabel(m) })),
+              ]}
+              onChange={setPeriod}
+              className="w-full sm:w-52"
+            />
             <Link
               href="/admin/gestion/ecommerce"
               className="btn-press bg-brand px-4 py-2.5 text-[11px] font-semibold tracking-[0.14em] text-white uppercase"

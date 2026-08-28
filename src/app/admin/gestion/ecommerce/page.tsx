@@ -16,6 +16,7 @@ import type { EcommerceRow } from "@/lib/mock/business";
 import type { SyncEcommerceResult } from "@/lib/mock/syncEcommerce";
 import { stockPairs } from "@/lib/mock/syncEcommerce";
 import { SHEET_SIZES, cell } from "@/lib/mock/sheetCols";
+import { FancySelect } from "@/components/ui/FancySelect";
 
 const SIZES = [...SHEET_SIZES];
 
@@ -370,19 +371,15 @@ export default function GestionEcommercePage() {
                 className="mt-1 w-full border border-black/10 px-3 py-2 text-sm text-[#222222]"
               />
             </label>
-            <label className="text-[11px] text-soft">
-              Tipo
-              <select
-                value={edit.tipo}
-                onChange={(e) =>
-                  setEdit({ ...edit, tipo: e.target.value })
-                }
-                className="mt-1 w-full border border-black/10 px-3 py-2 text-sm text-[#222222]"
-              >
-                <option value="zapatilla">Zapatillas</option>
-                <option value="otro">Otros</option>
-              </select>
-            </label>
+            <FancySelect
+              label="Tipo"
+              value={edit.tipo}
+              options={[
+                { value: "zapatilla", label: "Zapatillas" },
+                { value: "otro", label: "Otros" },
+              ]}
+              onChange={(value) => setEdit({ ...edit, tipo: value })}
+            />
           </div>
           <div className="grid grid-cols-5 gap-2 sm:grid-cols-10">
             {SIZES.map((s) => (

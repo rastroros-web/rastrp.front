@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import { InfoPage } from "@/components/InfoPage";
 import { BRAND, INSTAGRAM_HANDLE, WHATSAPP_DISPLAY } from "@/data/brand";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Quiénes somos | RASTRO",
+export const metadata: Metadata = pageMetadata({
+  title: "Quiénes somos",
   description: `${BRAND.bio}. Conocé la historia de Rastro, tienda online de zapatillas desde Rosario.`,
-};
+  path: "/quienes-somos",
+});
 
 export default function QuienesSomosPage() {
   return (

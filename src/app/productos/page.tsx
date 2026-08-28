@@ -2,11 +2,14 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { ShopChrome } from "@/components/ShopChrome";
 import { CatalogGrid } from "@/components/catalog/CatalogGrid";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Catálogo | RASTRO",
-  description: "Zapatillas y sandalias Nike, Adidas y más. Mega Sale con envíos a todo el país.",
-};
+export const metadata: Metadata = pageMetadata({
+  title: "Catálogo",
+  description:
+    "Catálogo de zapatillas y sandalias Nike, Adidas, Vans, New Balance y más. 25% OFF por transferencia y envíos a todo el país.",
+  path: "/productos",
+});
 
 export default function ProductosPage() {
   return (

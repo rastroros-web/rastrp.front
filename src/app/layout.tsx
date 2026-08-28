@@ -4,7 +4,14 @@ import "./globals.css";
 import { cn } from "@/lib/utils";
 import { CookieBanner } from "@/components/CookieBanner";
 import { WelcomePopup } from "@/components/WelcomePopup";
+import { WhatsAppButton } from "@/components/WhatsAppButton";
 import { StoreProvider } from "@/components/store/StoreProvider";
+import { JsonLd } from "@/components/seo/JsonLd";
+import {
+  organizationJsonLd,
+  rootMetadata,
+  websiteJsonLd,
+} from "@/lib/seo";
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -14,11 +21,7 @@ const poppins = Poppins({
   weight: ["400", "500", "600", "700"],
 });
 
-export const metadata: Metadata = {
-  title: "RASTRO | Zapatillas",
-  description:
-    "Calzado en tendencia al alcance de todos. Tienda online con envíos a todo el país. WhatsApp 341 351-5773 · @rastro.ros",
-};
+export const metadata: Metadata = rootMetadata;
 
 export default function RootLayout({
   children,
@@ -37,6 +40,7 @@ export default function RootLayout({
       )}
     >
       <head>
+        <JsonLd data={[organizationJsonLd, websiteJsonLd]} />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
           rel="preconnect"
@@ -53,6 +57,7 @@ export default function RootLayout({
           {children}
           <WelcomePopup />
           <CookieBanner />
+          <WhatsAppButton />
         </StoreProvider>
       </body>
     </html>

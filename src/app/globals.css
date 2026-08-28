@@ -456,6 +456,30 @@ a.border.btn-press:hover {
   }
 }
 
+@keyframes shipping-logo-drive {
+  0% {
+    left: 0;
+    transform: translateX(-110%);
+  }
+  100% {
+    left: 100%;
+    transform: translateX(10%);
+  }
+}
+
+.shipping-logo-loader .shipping-logo {
+  left: 0;
+  animation: shipping-logo-drive 4.2s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shipping-logo-loader .shipping-logo {
+    animation: none;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+}
+
 .product-cta {
   transition:
     transform 0.2s cubic-bezier(0.22, 1, 0.36, 1),

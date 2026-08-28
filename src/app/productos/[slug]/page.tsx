@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { ShopChrome } from "@/components/ShopChrome";
 import { ProductDetail } from "@/components/catalog/ProductDetail";
+import { JsonLd } from "@/components/seo/JsonLd";
 import {
   catalog,
   catalogAliases,
@@ -10,6 +11,8 @@ import {
   resolveInitialVariantId,
 } from "@/data/catalog";
 import { fetchShopProducts, findShopProduct } from "@/lib/api/backend";
+import { parseMoney } from "@/lib/mock/money";
+import { pageMetadata, productJsonLd } from "@/lib/seo";
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -34,13 +37,18 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
   const { slug } = await params;
   const { color } = await searchParams;
   const product = await resolveProduct(slug);
-  if (!product) return { title: "Producto | RASTRO" };
+  if (!product) return { title: "Producto" };
   const variantId = resolveInitialVariantId(product, slug, color);
   const variant = getVariant(product, variantId);
-  return {
-    title: `${product.name} ${variant.name} | RASTRO`,
+  const title = `${product.name} ${variant.name}`;
+  return pageMetadata({
+    title,
     description: product.description,
-  };
+    path: `/productos/${product.slug}`,
+    image: variant.image || product.variants[0]?.image,
+    imageAlt: title,
+    keywords: [product.brand, product.name, "zapatillas", "Rastro", ...product.tags],
+  });
 }
 
 export default async function ProductPage({ params, searchParams }: Props) {
@@ -50,9 +58,21 @@ export default async function ProductPage({ params, searchParams }: Props) {
   if (!product) notFound();
 
   const initialColor = resolveInitialVariantId(product, slug, color);
+  const variant = getVariant(product, initialColor);
+  const inStock = variant.sizes.some((size) => size.inStock);
+  const structuredData = productJsonLd({
+    name: `${product.name} ${variant.name}`,
+    description: product.description,
+    slug: product.slug,
+    brand: product.brand,
+    image: variant.image,
+    price: parseMoney(variant.price),
+    inStock,
+  });
 
   return (
     <ShopChrome>
+      <JsonLd data={structuredData} />
       <main className="flex-1">
         <ProductDetail
           key={product.slug}

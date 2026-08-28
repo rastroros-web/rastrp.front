@@ -6,15 +6,11 @@ import { Search } from "lucide-react";
 import { useStore } from "@/components/store/StoreProvider";
 import { formatMoney } from "@/lib/mock/money";
 import type { OrderStatus } from "@/lib/mock/types";
-
-const STATUSES: OrderStatus[] = [
-  "pendiente",
-  "pagado",
-  "preparando",
-  "enviado",
-  "entregado",
-  "cancelado",
-];
+import { FancySelect } from "@/components/ui/FancySelect";
+import {
+  orderStatusFilterOptions,
+  orderStatusOptions,
+} from "@/lib/admin/select-options";
 
 export default function AdminOrdersPage() {
   const { orders, updateOrderStatus } = useStore();
@@ -65,25 +61,13 @@ export default function AdminOrdersPage() {
           />
         </label>
 
-        <label className="sm:w-44">
-          <span className="mb-1 block text-[10px] font-semibold tracking-[0.14em] text-soft uppercase">
-            Estado
-          </span>
-          <select
-            value={status}
-            onChange={(e) =>
-              setStatus(e.target.value as "all" | OrderStatus)
-            }
-            className="w-full border border-black/10 bg-white px-3 py-2.5 text-sm capitalize outline-none focus:border-[#222222]"
-          >
-            <option value="all">Todos</option>
-            {STATUSES.map((s) => (
-              <option key={s} value={s}>
-                {s}
-              </option>
-            ))}
-          </select>
-        </label>
+        <FancySelect
+          label="Estado"
+          value={status}
+          options={orderStatusFilterOptions}
+          onChange={(value) => setStatus(value as "all" | OrderStatus)}
+          className="sm:w-44"
+        />
 
         {(q || status !== "all") && (
           <button
@@ -125,19 +109,15 @@ export default function AdminOrdersPage() {
               <span>·</span>
               <span>{new Date(o.createdAt).toLocaleDateString("es-AR")}</span>
             </div>
-            <select
+            <FancySelect
+              label="Estado"
               value={o.status}
-              onChange={(e) =>
-                updateOrderStatus(o.id, e.target.value as OrderStatus)
+              options={orderStatusOptions}
+              onChange={(value) =>
+                updateOrderStatus(o.id, value as OrderStatus)
               }
-              className="mt-3 w-full border border-black/10 bg-white px-2 py-2 text-xs capitalize"
-            >
-              {STATUSES.map((s) => (
-                <option key={s} value={s}>
-                  {s}
-                </option>
-              ))}
-            </select>
+              className="mt-3"
+            />
             <Link
               href={`/admin/pedidos/${o.id}`}
               className="mt-3 flex w-full items-center justify-center border border-[#222222] px-3 py-2 text-[11px] font-semibold tracking-[0.12em] uppercase"
@@ -199,19 +179,16 @@ export default function AdminOrdersPage() {
                 <td className="px-4 py-3">{formatMoney(o.total)}</td>
                 <td className="px-4 py-3 capitalize">{o.paymentMethod}</td>
                 <td className="px-4 py-3">
-                  <select
+                  <FancySelect
+                    label="Estado"
                     value={o.status}
-                    onChange={(e) =>
-                      updateOrderStatus(o.id, e.target.value as OrderStatus)
+                    options={orderStatusOptions}
+                    onChange={(value) =>
+                      updateOrderStatus(o.id, value as OrderStatus)
                     }
-                    className="border border-black/10 bg-white px-2 py-1.5 text-xs capitalize"
-                  >
-                    {STATUSES.map((s) => (
-                      <option key={s} value={s}>
-                        {s}
-                      </option>
-                    ))}
-                  </select>
+                    hideLabel
+                    className="min-w-[148px]"
+                  />
                 </td>
                 <td className="px-4 py-3 text-soft">
                   {new Date(o.createdAt).toLocaleString("es-AR")}

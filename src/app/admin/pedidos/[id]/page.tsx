@@ -8,19 +8,14 @@ import { useStore } from "@/components/store/StoreProvider";
 import { formatMoney, parseMoney } from "@/lib/mock/money";
 import {
   carrierLabel,
-  TRACKING_CARRIERS,
   trackingUrl,
 } from "@/lib/mock/tracking";
 import type { OrderStatus, TrackingCarrier } from "@/lib/mock/types";
-
-const STATUSES: OrderStatus[] = [
-  "pendiente",
-  "pagado",
-  "preparando",
-  "enviado",
-  "entregado",
-  "cancelado",
-];
+import { FancySelect } from "@/components/ui/FancySelect";
+import {
+  orderStatusOptions,
+  trackingCarrierOptions,
+} from "@/lib/admin/select-options";
 
 export default function AdminOrderDetailPage({
   params,
@@ -80,23 +75,15 @@ export default function AdminOrderDetailPage({
             Actualizado {new Date(order.updatedAt).toLocaleString("es-AR")}
           </p>
         </div>
-        <div className="flex flex-col items-stretch gap-2 sm:items-end">
-          <label className="text-[10px] font-semibold tracking-[0.14em] text-soft uppercase">
-            Estado
-            <select
-              value={order.status}
-              onChange={(e) =>
-                updateOrderStatus(order.id, e.target.value as OrderStatus)
-              }
-              className="mt-1 block min-w-[160px] border border-black/10 bg-white px-3 py-2 text-sm capitalize"
-            >
-              {STATUSES.map((s) => (
-                <option key={s} value={s}>
-                  {s}
-                </option>
-              ))}
-            </select>
-          </label>
+        <div className="w-full sm:w-48">
+          <FancySelect
+            label="Estado"
+            value={order.status}
+            options={orderStatusOptions}
+            onChange={(value) =>
+              updateOrderStatus(order.id, value as OrderStatus)
+            }
+          />
         </div>
       </div>
 
@@ -253,22 +240,12 @@ export default function AdminOrderDetailPage({
         </div>
 
         <form onSubmit={saveTracking} className="mt-5 grid gap-3 sm:grid-cols-2">
-          <label className="block text-sm">
-            <span className="mb-1 block text-[11px] font-semibold tracking-[0.12em] uppercase">
-              Transportista
-            </span>
-            <select
-              value={carrier}
-              onChange={(e) => setCarrier(e.target.value as TrackingCarrier)}
-              className="w-full border border-black/10 bg-white px-3 py-2.5 text-sm outline-none"
-            >
-              {TRACKING_CARRIERS.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.label}
-                </option>
-              ))}
-            </select>
-          </label>
+          <FancySelect
+            label="Transportista"
+            value={carrier}
+            options={trackingCarrierOptions}
+            onChange={(value) => setCarrier(value as TrackingCarrier)}
+          />
           <label className="block text-sm">
             <span className="mb-1 block text-[11px] font-semibold tracking-[0.12em] uppercase">
               Número de seguimiento

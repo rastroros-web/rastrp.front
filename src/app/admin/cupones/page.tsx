@@ -8,6 +8,7 @@ import {
   promoRulesText,
   type PromoCode,
 } from "@/lib/mock/promos";
+import { FancySelect } from "@/components/ui/FancySelect";
 
 const emptyForm = {
   code: "",
@@ -103,24 +104,20 @@ export default function AdminCuponesPage() {
               placeholder="VERANO15"
             />
           </label>
-          <label className="block text-sm">
-            <span className="mb-1 block text-[11px] font-semibold tracking-[0.12em] uppercase">
-              Tipo *
-            </span>
-            <select
-              value={form.type}
-              onChange={(e) =>
-                setForm((f) => ({
-                  ...f,
-                  type: e.target.value as PromoCode["type"],
-                }))
-              }
-              className="w-full border border-black/10 bg-white px-3 py-2.5 text-sm outline-none"
-            >
-              <option value="percent">Porcentaje %</option>
-              <option value="fixed">Monto fijo $</option>
-            </select>
-          </label>
+          <FancySelect
+            label="Tipo *"
+            value={form.type}
+            options={[
+              { value: "percent", label: "Porcentaje %" },
+              { value: "fixed", label: "Monto fijo $" },
+            ]}
+            onChange={(value) =>
+              setForm((f) => ({
+                ...f,
+                type: value as PromoCode["type"],
+              }))
+            }
+          />
           <label className="block text-sm sm:col-span-2">
             <span className="mb-1 block text-[11px] font-semibold tracking-[0.12em] uppercase">
               Descripción *

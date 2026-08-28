@@ -23,6 +23,7 @@ import {
   uploadShopImages,
   upsertShopVariant,
 } from "@/lib/api/backend";
+import { FancySelect } from "@/components/ui/FancySelect";
 
 const BASE_BRANDS = [
   "Nike",
@@ -615,44 +616,29 @@ export function ProductForm({
           />
         </label>
         ) : (
-        <label className="block text-sm">
-          <span className="mb-1 block text-[11px] font-semibold tracking-[0.14em] uppercase">
-            Género
-          </span>
-          <select
-            value={genero}
-            onChange={(e) =>
-              setGenero(e.target.value as (typeof GENEROS)[number])
-            }
-            className="w-full border border-black/10 bg-white px-3 py-2.5 outline-none focus:border-[#222222]"
-          >
-            {GENEROS.map((g) => (
-              <option key={g} value={g}>
-                {g === "NINOS" ? "NIÑOS" : g}
-              </option>
-            ))}
-          </select>
-        </label>
+        <FancySelect
+          label="Género"
+          value={genero}
+          options={GENEROS.map((g) => ({
+            value: g,
+            label: g === "NINOS" ? "NIÑOS" : g,
+          }))}
+          onChange={(value) =>
+            setGenero(value as (typeof GENEROS)[number])
+          }
+        />
         )}
 
         <div className="block text-sm">
-          <span className="mb-1 block text-[11px] font-semibold tracking-[0.14em] uppercase">
-            Marca
-          </span>
-          <select
+          <FancySelect
+            label="Marca"
             value={product.brand}
-            onChange={(e) => {
+            options={brandOptions.map((b) => ({ value: b, label: b }))}
+            onChange={(value) => {
               setAddingBrand(false);
-              setProduct((p) => ({ ...p, brand: e.target.value }));
+              setProduct((p) => ({ ...p, brand: value }));
             }}
-            className="w-full border border-black/10 bg-white px-3 py-2.5 outline-none focus:border-[#222222]"
-          >
-            {brandOptions.map((b) => (
-              <option key={b} value={b}>
-                {b}
-              </option>
-            ))}
-          </select>
+          />
           {!addingBrand ? (
             <button
               type="button"
@@ -699,25 +685,21 @@ export function ProductForm({
           )}
         </div>
 
-        <label className="block text-sm">
-          <span className="mb-1 block text-[11px] font-semibold tracking-[0.14em] uppercase">
-            Categoría
-          </span>
-          <select
-            value={product.category}
-            onChange={(e) =>
-              setProduct((p) => ({
-                ...p,
-                category: e.target.value as ShopProduct["category"],
-              }))
-            }
-            className="w-full border border-black/10 bg-white px-3 py-2.5 outline-none focus:border-[#222222]"
-          >
-            <option value="zapatillas">Zapatillas</option>
-            <option value="sandalias">Sandalias</option>
-            <option value="sale">Sale</option>
-          </select>
-        </label>
+        <FancySelect
+          label="Categoría"
+          value={product.category}
+          options={[
+            { value: "zapatillas", label: "Zapatillas" },
+            { value: "sandalias", label: "Sandalias" },
+            { value: "sale", label: "Sale" },
+          ]}
+          onChange={(value) =>
+            setProduct((p) => ({
+              ...p,
+              category: value as ShopProduct["category"],
+            }))
+          }
+        />
 
         <div className="space-y-3 md:col-span-2">
           <label className="flex items-center gap-3 text-sm">

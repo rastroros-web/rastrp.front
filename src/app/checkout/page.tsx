@@ -148,7 +148,9 @@ export default function CheckoutPage() {
       rate: value === "interior" ? cartShipping.rate : null,
     });
   };
-  const [storeId, setStoreId] = useState(STORES[0].id);
+  const [storeId, setStoreId] = useState(
+    () => cartShipping.storeId || STORES[0].id
+  );
   const [done, setDone] = useState<MockOrder | null>(null);
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -338,6 +340,13 @@ export default function CheckoutPage() {
       }
     }
   }, [zone, postalCode, setCartShipping]);
+
+  useEffect(() => {
+    if (!done) return;
+    requestAnimationFrame(() => {
+      window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+    });
+  }, [done]);
 
   if (!ready) {
     return (
@@ -655,7 +664,10 @@ export default function CheckoutPage() {
                       <button
                         key={store.id}
                         type="button"
-                        onClick={() => setStoreId(store.id)}
+                        onClick={() => {
+                          setStoreId(store.id);
+                          setCartShipping({ storeId: store.id });
+                        }}
                         className={`chip-press w-full border px-4 py-3 text-left ${
                           storeId === store.id
                             ? "border-[#222222] bg-[#222222] text-white"
@@ -733,6 +745,7 @@ export default function CheckoutPage() {
                     Ver política de envíos
                   </Link>
                   <RosarioDeliveryFields
+                    className="mt-4"
                     date={cartShipping.deliveryDate}
                     slot={cartShipping.deliverySlot}
                     onChange={(next) => setCartShipping(next)}
@@ -749,6 +762,7 @@ export default function CheckoutPage() {
                     Argentino o Andreani.
                   </p>
                   <ShippingMethodPicker
+                    className="mt-4"
                     postalCode={postalCode}
                     packages={cartCount}
                     selectedRateId={cartShipping.rate?.id}
@@ -1058,7 +1072,6 @@ export default function CheckoutPage() {
                       applyPromo();
                     }
                   }}
-                  placeholder="RASTRO10, MEGA20…"
                   className={fieldClass}
                 />
                 <button

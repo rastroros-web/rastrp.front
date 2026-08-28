@@ -749,7 +749,13 @@ export function StoreProvider({ children }: { children: ReactNode }) {
             ? next.deliverySlot
             : prev.deliverySlot
           : "";
-      return { zone, postalCode, rate, deliveryDate, deliverySlot };
+      const storeId =
+        zone === "retiro"
+          ? next.storeId !== undefined
+            ? next.storeId
+            : prev.storeId
+          : "";
+      return { zone, postalCode, rate, deliveryDate, deliverySlot, storeId };
     });
   }, []);
 

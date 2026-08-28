@@ -18,6 +18,7 @@ export const EMPTY_SHIPPING: CartShippingPref = {
   rate: null,
   deliveryDate: "",
   deliverySlot: "",
+  storeId: "",
 };
 
 export function emptyBag(): AccountBag {
@@ -38,6 +39,7 @@ export function normalizeShipping(
     rate: shipping.rate || null,
     deliveryDate: shipping.deliveryDate || "",
     deliverySlot: shipping.deliverySlot || "",
+    storeId: shipping.storeId || "",
   };
 }
 
@@ -105,7 +107,8 @@ function shippingFilled(shipping: CartShippingPref): boolean {
     shipping.rate ||
       shipping.deliveryDate ||
       shipping.deliverySlot ||
-      shipping.postalCode
+      shipping.postalCode ||
+      shipping.storeId
   );
 }
 

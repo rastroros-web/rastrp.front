@@ -1,12 +1,16 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
+import { FancySelect } from "@/components/ui/FancySelect";
 
+/** Entregas Rosario: después de las 16 hs. */
 const SLOTS = [
-  { id: "9-13", label: "9:00 a 13:00", endHour: 13 },
-  { id: "13-18", label: "13:00 a 18:00", endHour: 18 },
+  { id: "16-18", label: "16:00 a 18:00", endHour: 18 },
   { id: "18-21", label: "18:00 a 21:00", endHour: 21 },
 ] as const;
+
+const DAYS_AHEAD = 21;
+const TARGET_DAYS = 14;
 
 export function slotLabel(id?: string | null) {
   return SLOTS.find((s) => s.id === id)?.label ?? "";
@@ -36,77 +40,111 @@ function tomorrowISO() {
   return toISODate(d);
 }
 
+function isSunday(iso: string) {
+  const [y, m, d] = iso.split("-").map(Number);
+  return new Date(y, m - 1, d).getDay() === 0;
+}
+
+/** Hoy solo si comprás antes de las 16 (envío en el día). Sin domingos. */
 function slotsForDate(date: string) {
-  if (!date || date > todayISO()) return SLOTS.slice();
+  if (!date || isSunday(date)) return [];
+  if (date > todayISO()) return SLOTS.slice();
   if (date < todayISO()) return [];
   const now = rosarioNow();
-  const currentHour = now.getHours() + now.getMinutes() / 60;
-  return SLOTS.filter((s) => currentHour < s.endHour);
+  if (now.getHours() >= 16) return [];
+  return SLOTS.slice();
 }
 
 function minDeliveryDate() {
-  return slotsForDate(todayISO()).length ? todayISO() : tomorrowISO();
+  if (slotsForDate(todayISO()).length) return todayISO();
+  const d = rosarioNow();
+  for (let i = 0; i < 14; i += 1) {
+    d.setDate(d.getDate() + 1);
+    const iso = toISODate(d);
+    if (!isSunday(iso)) return iso;
+  }
+  return tomorrowISO();
+}
+
+function formatDayLabel(iso: string) {
+  const [y, m, d] = iso.split("-").map(Number);
+  const date = new Date(y, m - 1, d);
+  const today = todayISO();
+  const tomorrow = tomorrowISO();
+  const weekday = date.toLocaleDateString("es-AR", { weekday: "short" });
+  const pretty = `${String(d).padStart(2, "0")}/${String(m).padStart(2, "0")}/${y}`;
+  if (iso === today) return `Hoy · ${pretty}`;
+  if (iso === tomorrow) return `Mañana · ${pretty}`;
+  return `${weekday} · ${pretty}`;
+}
+
+function dateOptionsFrom(min: string) {
+  const [y, m, d] = min.split("-").map(Number);
+  const start = new Date(y, m - 1, d);
+  const out: { value: string; label: string }[] = [];
+  for (let i = 0; i < DAYS_AHEAD && out.length < TARGET_DAYS; i += 1) {
+    const next = new Date(start);
+    next.setDate(start.getDate() + i);
+    const iso = toISODate(next);
+    if (!slotsForDate(iso).length) continue;
+    out.push({ value: iso, label: formatDayLabel(iso) });
+  }
+  return out;
 }
 
 export function RosarioDeliveryFields({
   date,
   slot,
   onChange,
+  enabled = true,
+  className = "",
 }: {
   date: string;
   slot: string;
   onChange: (next: { deliveryDate?: string; deliverySlot?: string }) => void;
+  /** Si false, no sincroniza estado (p. ej. panel oculto en carrito). */
+  enabled?: boolean;
+  className?: string;
 }) {
   const min = minDeliveryDate();
+  const dayOptions = useMemo(() => dateOptionsFrom(min), [min]);
   const options = slotsForDate(date || min);
 
   useEffect(() => {
-    const nextDate = !date || date < min ? min : date;
+    if (!enabled) return;
+    const nextDate =
+      !date || date < min || !dayOptions.some((o) => o.value === date)
+        ? dayOptions[0]?.value || min
+        : date;
     const nextOptions = slotsForDate(nextDate);
     const nextSlot = nextOptions.some((s) => s.id === slot) ? slot : "";
     if (nextDate !== date || nextSlot !== slot) {
       onChange({ deliveryDate: nextDate, deliverySlot: nextSlot });
     }
-  }, [date, slot, min, onChange]);
+  }, [enabled, date, slot, min, dayOptions, onChange]);
+
+  const slotOptions = options.map((s) => ({ value: s.id, label: s.label }));
 
   return (
-    <div className="mt-4 grid gap-3 sm:grid-cols-2">
-      <label className="block text-sm">
-        <span className="mb-1 block text-[11px] font-semibold tracking-[0.12em] uppercase">
-          Día disponible *
-        </span>
-        <input
-          type="date"
-          required
-          min={min}
-          value={date}
-          onChange={(e) =>
-            onChange({ deliveryDate: e.target.value, deliverySlot: "" })
-          }
-          className="h-11 w-full border border-black/15 bg-white px-3 text-sm outline-none focus:border-[#222222]"
-        />
-      </label>
-      <label className="block text-sm">
-        <span className="mb-1 block text-[11px] font-semibold tracking-[0.12em] uppercase">
-          Horario *
-        </span>
-        <select
-          required
-          value={slot}
-          onChange={(e) => onChange({ deliverySlot: e.target.value })}
-          className="h-11 w-full border border-black/15 bg-white px-3 text-sm outline-none focus:border-[#222222]"
-        >
-          <option value="">Elegí un horario</option>
-          {options.map((s) => (
-            <option key={s.id} value={s.id}>
-              {s.label}
-            </option>
-          ))}
-        </select>
-      </label>
+    <div className={`grid gap-3 sm:grid-cols-2 ${className}`}>
+      <FancySelect
+        label="Día disponible *"
+        value={date}
+        options={dayOptions}
+        onChange={(value) =>
+          onChange({ deliveryDate: value, deliverySlot: "" })
+        }
+      />
+      <FancySelect
+        label="Horario *"
+        value={slot}
+        options={slotOptions}
+        placeholder="Elegí un horario"
+        onChange={(value) => onChange({ deliverySlot: value })}
+      />
       <p className="text-xs text-soft sm:col-span-2">
-        Indicá cuándo podés recibir en Rosario. El tiempo de entrega no
-        considera feriados.
+        Entregas después de las 16 hs. No hay envíos los domingos. En el día
+        solo si comprás antes de las 16 hs.
       </p>
     </div>
   );

@@ -14,18 +14,25 @@ export function FancySelect({
   options,
   onChange,
   className = "",
+  placeholder,
+  hideLabel = false,
 }: {
   label: string;
   value: string;
   options: SelectOption[];
   onChange: (value: string) => void;
   className?: string;
+  placeholder?: string;
+  hideLabel?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const listId = useId();
   const selected =
-    options.find((o) => o.value === value) ?? options[0] ?? { value: "", label: "" };
+    options.find((o) => o.value === value) ??
+    (placeholder
+      ? { value: "", label: placeholder }
+      : options[0] ?? { value: "", label: "" });
 
   useEffect(() => {
     if (!open) return;
@@ -45,9 +52,11 @@ export function FancySelect({
 
   return (
     <div ref={rootRef} className={`relative min-w-0 ${className}`}>
-      <span className="mb-1 block text-[10px] font-semibold tracking-[0.16em] text-soft uppercase">
-        {label}
-      </span>
+      {!hideLabel && label ? (
+        <span className="mb-1 block text-[10px] font-semibold tracking-[0.16em] text-soft uppercase">
+          {label}
+        </span>
+      ) : null}
       <button
         type="button"
         aria-haspopup="listbox"
@@ -60,7 +69,15 @@ export function FancySelect({
             : "border-black/10 hover:border-[#222222]"
         }`}
       >
-        <span className="truncate">{selected.label}</span>
+        <span
+          className={`truncate ${
+            placeholder && !options.some((o) => o.value === value)
+              ? "text-soft"
+              : ""
+          }`}
+        >
+          {selected.label}
+        </span>
         <ChevronDown
           className={`size-3.5 shrink-0 opacity-55 transition-transform duration-200 group-hover:opacity-100 ${
             open ? "rotate-180" : ""

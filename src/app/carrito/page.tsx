@@ -2,13 +2,14 @@
 
 import { ShopImage as Image } from "@/components/ShopImage";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { RosarioDeliveryFields } from "@/components/cart/RosarioDeliveryFields";
 import { ShippingMethodPicker } from "@/components/cart/ShippingMethodPicker";
 import { ShopChrome } from "@/components/ShopChrome";
 import { useStore } from "@/components/store/StoreProvider";
 import { formatMoney } from "@/lib/mock/money";
 import { isFreeShipping, quoteShipping } from "@/lib/mock/shipping";
+import { STORES } from "@/lib/mock/stores";
 import type { ShippingZone } from "@/lib/mock/types";
 
 const ZONES: { id: ShippingZone; label: string }[] = [
@@ -25,12 +26,18 @@ export default function CartPage() {
     cartSubtotal,
     cartTransferTotal,
     clearCart,
-    promos,
     cartShipping,
     setCartShipping,
     cartCount,
   } = useStore();
   const [leaving, setLeaving] = useState<Record<string, boolean>>({});
+
+  const onRosarioChange = useCallback(
+    (next: { deliveryDate?: string; deliverySlot?: string }) => {
+      setCartShipping(next);
+    },
+    [setCartShipping]
+  );
 
   const handleRemove = (id: string) => {
     if (leaving[id]) return;
@@ -181,12 +188,11 @@ export default function CartPage() {
                       onClick={() =>
                         setCartShipping({
                           zone: z.id,
-                          postalCode:
-                            z.id === "interior" ? cartShipping.postalCode : "",
-                          rate: null,
+                          // Mantener CP/tarifas en DOM para no achicar el bloque al volver.
+                          rate: z.id === "interior" ? cartShipping.rate : null,
                         })
                       }
-                      className={`chip-press border px-2 py-2.5 text-center text-xs font-medium sm:text-sm ${
+                      className={`border px-2 py-2.5 text-center text-xs font-medium transition-[background-color,border-color,color] sm:text-sm ${
                         cartShipping.zone === z.id
                           ? "border-[#222222] bg-[#222222] text-white"
                           : "border-black/10 hover:border-[#222222]"
@@ -196,25 +202,84 @@ export default function CartPage() {
                     </button>
                   ))}
                 </div>
-                {cartShipping.zone === "interior" ? (
-                  <ShippingMethodPicker
-                    postalCode={cartShipping.postalCode}
-                    packages={cartCount}
-                    selectedRateId={cartShipping.rate?.id}
-                    onPostalCodeChange={(cp) =>
-                      setCartShipping({ postalCode: cp })
-                    }
-                    onSelectRate={(rate) => setCartShipping({ rate })}
-                  />
-                ) : cartShipping.zone === "rosario" ? (
-                  <RosarioDeliveryFields
-                    date={cartShipping.deliveryDate}
-                    slot={cartShipping.deliverySlot}
-                    onChange={(next) => setCartShipping(next)}
-                  />
-                ) : (
-                  <p className="mt-3 text-xs text-soft">{localQuote.eta}</p>
-                )}
+                <div className="mt-4 grid">
+                  <div
+                    className={`col-start-1 row-start-1 ${
+                      cartShipping.zone === "rosario"
+                        ? "relative z-10"
+                        : "invisible pointer-events-none"
+                    }`}
+                    aria-hidden={cartShipping.zone !== "rosario"}
+                  >
+                    <RosarioDeliveryFields
+                      date={cartShipping.deliveryDate}
+                      slot={cartShipping.deliverySlot}
+                      enabled={cartShipping.zone === "rosario"}
+                      onChange={onRosarioChange}
+                    />
+                  </div>
+                  <div
+                    className={`col-start-1 row-start-1 ${
+                      cartShipping.zone === "interior"
+                        ? "relative z-10"
+                        : "invisible pointer-events-none"
+                    }`}
+                    aria-hidden={cartShipping.zone !== "interior"}
+                  >
+                    <ShippingMethodPicker
+                      postalCode={cartShipping.postalCode}
+                      packages={cartCount}
+                      selectedRateId={cartShipping.rate?.id}
+                      onPostalCodeChange={(cp) =>
+                        setCartShipping({ postalCode: cp })
+                      }
+                      onSelectRate={(rate) => setCartShipping({ rate })}
+                    />
+                  </div>
+                  <div
+                    className={`col-start-1 row-start-1 ${
+                      cartShipping.zone === "retiro"
+                        ? "relative z-10"
+                        : "invisible pointer-events-none"
+                    }`}
+                    aria-hidden={cartShipping.zone !== "retiro"}
+                  >
+                    <p className="mb-3 text-xs text-soft">
+                      Retiro gratis. Elegí el local.
+                    </p>
+                    <div className="space-y-2">
+                      {STORES.map((store) => (
+                        <button
+                          key={store.id}
+                          type="button"
+                          onClick={() => setCartShipping({ storeId: store.id })}
+                          className={`w-full border px-4 py-3 text-left transition-[background-color,border-color,color] ${
+                            cartShipping.storeId === store.id
+                              ? "border-[#222222] bg-[#222222] text-white"
+                              : "border-black/10 hover:border-[#222222]"
+                          }`}
+                        >
+                          <p className="text-sm font-semibold">{store.name}</p>
+                          <p
+                            className={`mt-0.5 text-xs ${
+                              cartShipping.storeId === store.id
+                                ? "text-white/70"
+                                : "text-soft"
+                            }`}
+                          >
+                            {store.address} · {store.hours}
+                          </p>
+                        </button>
+                      ))}
+                    </div>
+                    <Link
+                      href="/puntos-de-retiro"
+                      className="mt-3 inline-block text-[11px] font-semibold uppercase underline"
+                    >
+                      Ver puntos
+                    </Link>
+                  </div>
+                </div>
               </section>
 
               <button
@@ -251,41 +316,88 @@ export default function CartPage() {
                         : formatMoney(shippingCost)}
                   </span>
                 </div>
-                {typeof shippingCost === "number" ? (
-                  <div className="flex justify-between border-t border-black/10 pt-2 font-semibold">
-                    <span>Total transf.</span>
-                    <span>{formatMoney(totalWithShipping)}</span>
-                  </div>
-                ) : null}
+                <div className="flex justify-between border-t border-black/10 pt-2 font-semibold">
+                  <span>Total transf.</span>
+                  <span>
+                    {typeof shippingCost === "number"
+                      ? formatMoney(totalWithShipping)
+                      : "—"}
+                  </span>
+                </div>
               </div>
-              <div className="mt-4 border-t border-black/5 pt-4">
-                <p className="text-[10px] font-semibold tracking-[0.14em] text-soft uppercase">
-                  Cupones
-                </p>
-                <p className="mt-2 text-xs leading-relaxed text-soft">
-                  En checkout:{" "}
-                  {promos.length
-                    ? promos.map((p) => p.code).join(" · ")
-                    : "sin cupones activos"}
-                </p>
-              </div>
-              {cartShipping.zone === "interior" && !cartShipping.rate ? (
-                <p className="mt-6 text-center text-xs text-soft">
-                  Elegí Correo Argentino o Andreani para continuar.
-                </p>
-              ) : cartShipping.zone === "rosario" &&
-                (!cartShipping.deliveryDate || !cartShipping.deliverySlot) ? (
-                <p className="mt-6 text-center text-xs text-soft">
-                  Indicá día y horario de entrega para continuar.
-                </p>
-              ) : (
-                <Link
-                  href="/checkout"
-                  className="btn-press mt-6 flex w-full items-center justify-center bg-[#222222] px-4 py-3 text-[11px] font-semibold tracking-[0.14em] text-white uppercase hover:bg-black"
+              <div className="mt-6 grid">
+                <div
+                  className={`col-start-1 row-start-1 ${
+                    cartShipping.zone === "interior" && !cartShipping.rate
+                      ? "relative z-10"
+                      : "invisible pointer-events-none"
+                  }`}
+                  aria-hidden={
+                    !(cartShipping.zone === "interior" && !cartShipping.rate)
+                  }
                 >
-                  Ir al checkout
-                </Link>
-              )}
+                  <p className="py-3 text-center text-xs text-soft">
+                    Elegí Correo Argentino o Andreani para continuar.
+                  </p>
+                </div>
+                <div
+                  className={`col-start-1 row-start-1 ${
+                    cartShipping.zone === "rosario" &&
+                    (!cartShipping.deliveryDate || !cartShipping.deliverySlot)
+                      ? "relative z-10"
+                      : "invisible pointer-events-none"
+                  }`}
+                  aria-hidden={
+                    !(
+                      cartShipping.zone === "rosario" &&
+                      (!cartShipping.deliveryDate || !cartShipping.deliverySlot)
+                    )
+                  }
+                >
+                  <p className="py-3 text-center text-xs text-soft">
+                    Indicá día y horario de entrega para continuar.
+                  </p>
+                </div>
+                <div
+                  className={`col-start-1 row-start-1 ${
+                    cartShipping.zone === "retiro" && !cartShipping.storeId
+                      ? "relative z-10"
+                      : "invisible pointer-events-none"
+                  }`}
+                  aria-hidden={
+                    !(cartShipping.zone === "retiro" && !cartShipping.storeId)
+                  }
+                >
+                  <p className="py-3 text-center text-xs text-soft">
+                    Elegí un local de retiro para continuar.
+                  </p>
+                </div>
+                <div
+                  className={`col-start-1 row-start-1 ${
+                    (cartShipping.zone === "interior" && !cartShipping.rate) ||
+                    (cartShipping.zone === "rosario" &&
+                      (!cartShipping.deliveryDate ||
+                        !cartShipping.deliverySlot)) ||
+                    (cartShipping.zone === "retiro" && !cartShipping.storeId)
+                      ? "invisible pointer-events-none"
+                      : "relative z-10"
+                  }`}
+                  aria-hidden={
+                    (cartShipping.zone === "interior" && !cartShipping.rate) ||
+                    (cartShipping.zone === "rosario" &&
+                      (!cartShipping.deliveryDate ||
+                        !cartShipping.deliverySlot)) ||
+                    (cartShipping.zone === "retiro" && !cartShipping.storeId)
+                  }
+                >
+                  <Link
+                    href="/checkout"
+                    className="btn-press flex w-full items-center justify-center bg-[#222222] px-4 py-3 text-[11px] font-semibold tracking-[0.14em] text-white uppercase hover:bg-black"
+                  >
+                    Ir al checkout
+                  </Link>
+                </div>
+              </div>
               <Link
                 href="/productos"
                 className="btn-press mt-3 flex w-full items-center justify-center border border-[#222222] px-4 py-3 text-[11px] font-semibold tracking-[0.14em] uppercase hover:bg-[#222222] hover:text-white"
@@ -322,6 +434,10 @@ export default function CartPage() {
               (!cartShipping.deliveryDate || !cartShipping.deliverySlot) ? (
               <span className="shrink-0 px-3 text-right text-[11px] text-soft">
                 Día y horario
+              </span>
+            ) : cartShipping.zone === "retiro" && !cartShipping.storeId ? (
+              <span className="shrink-0 px-3 text-right text-[11px] text-soft">
+                Elegí local
               </span>
             ) : (
               <Link

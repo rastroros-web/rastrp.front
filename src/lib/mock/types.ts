@@ -84,6 +84,8 @@ export type CartShippingPref = {
   rate: SelectedShippingRate | null;
   deliveryDate: string;
   deliverySlot: string;
+  /** Local de retiro (centro | sur) */
+  storeId: string;
 };
 
 export type ShippingDetails = {

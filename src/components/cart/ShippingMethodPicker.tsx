@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
+import { Search } from "lucide-react";
 import { formatMoney } from "@/lib/mock/money";
 import {
   quoteCorreoShipping,
@@ -30,97 +32,146 @@ function withQuote(
   return { ...rate, quoteId: quote?.quoteId ?? null };
 }
 
+function ShippingLogoLoader({ packages }: { packages: number }) {
+  return (
+    <div className="shipping-logo-loader mt-4 overflow-hidden border border-black/10 bg-[#f5f4f0] px-3 py-5">
+      <div className="relative h-12">
+        <div className="shipping-logo absolute inset-y-0 flex items-center">
+          <Image
+            src="/assets/logo/rastro-logo.webp"
+            alt=""
+            width={88}
+            height={32}
+            className="h-8 w-auto object-contain brightness-0"
+            style={{ width: "auto", height: "2rem" }}
+            aria-hidden
+          />
+        </div>
+      </div>
+      <p className="mt-2 text-center text-xs text-soft">
+        {packages === 1
+          ? "Cotizando Correo y Andreani…"
+          : `Cotizando envío de ${packages} pares…`}
+      </p>
+    </div>
+  );
+}
+
 export function ShippingMethodPicker({
   postalCode,
   packages = 1,
   selectedRateId,
   onPostalCodeChange,
   onSelectRate,
+  className = "",
 }: {
   postalCode: string;
   packages?: number;
   selectedRateId?: string | null;
   onPostalCodeChange: (cp: string) => void;
   onSelectRate: (rate: QuotedRate | null) => void;
+  className?: string;
 }) {
   const qty = Math.min(30, Math.max(1, Math.floor(Number(packages) || 1)));
+  const [draft, setDraft] = useState(postalCode);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [quote, setQuote] = useState<ShippingQuoteResult | null>(null);
-  const selectedRef = useRef(selectedRateId);
-  const onSelectRef = useRef(onSelectRate);
-  selectedRef.current = selectedRateId;
-  onSelectRef.current = onSelectRate;
+  const [quotedCp, setQuotedCp] = useState("");
+  const requestId = useRef(0);
 
   useEffect(() => {
-    const cp = postalCode.replace(/\D/g, "").slice(0, 4);
+    if (postalCode !== "") return;
+    setDraft("");
+    setQuote(null);
+    setQuotedCp("");
+    setError("");
+  }, [postalCode]);
+
+  const runQuote = async (raw: string) => {
+    const cp = raw.replace(/\D/g, "").slice(0, 4);
+    onPostalCodeChange(cp);
     if (cp.length !== 4) {
+      setError("Ingresá un código postal de 4 dígitos.");
       setQuote(null);
-      setError("");
+      setQuotedCp("");
+      onSelectRate(null);
       return;
     }
-    let cancelled = false;
-    const timer = window.setTimeout(() => {
-      setLoading(true);
-      quoteCorreoShipping(cp, qty)
-        .then((data) => {
-          if (cancelled) return;
-          setQuote(data);
-          setError("");
-          const selectedId = selectedRef.current;
-          if (!selectedId) return;
-          const next = data.rates.find((r) => r.id === selectedId) || null;
-          onSelectRef.current(withQuote(next, data));
-        })
-        .catch((err) => {
-          if (cancelled) return;
-          setQuote(null);
-          setError(
-            err instanceof Error ? err.message : "No se pudo cotizar el envío."
-          );
-        })
-        .finally(() => {
-          if (!cancelled) setLoading(false);
-        });
-    }, 350);
-    return () => {
-      cancelled = true;
-      window.clearTimeout(timer);
-    };
-  }, [postalCode, qty]);
+    const id = ++requestId.current;
+    setLoading(true);
+    setError("");
+    setQuote(null);
+    onSelectRate(null);
+    try {
+      const data = await quoteCorreoShipping(cp, qty);
+      if (id !== requestId.current) return;
+      setQuote(data);
+      setQuotedCp(cp);
+      if (selectedRateId) {
+        const next = data.rates.find((r) => r.id === selectedRateId) || null;
+        onSelectRate(withQuote(next, data));
+      }
+    } catch (err) {
+      if (id !== requestId.current) return;
+      setQuote(null);
+      setQuotedCp("");
+      setError(
+        err instanceof Error ? err.message : "No se pudo cotizar el envío."
+      );
+    } finally {
+      if (id === requestId.current) setLoading(false);
+    }
+  };
 
   return (
-    <div className="mt-4">
-      <label className="block text-sm">
-        <span className="mb-1 block text-[11px] font-semibold tracking-[0.12em] uppercase">
-          Código postal *
-        </span>
+    <div className={className || undefined}>
+      <span className="mb-1 block text-[11px] font-semibold tracking-[0.12em] uppercase">
+        Código postal *
+      </span>
+      <div className="flex gap-2">
         <input
           type="text"
           inputMode="numeric"
           autoComplete="postal-code"
           maxLength={4}
-          value={postalCode}
-          onChange={(e) =>
-            onPostalCodeChange(e.target.value.replace(/\D/g, "").slice(0, 4))
-          }
+          value={draft}
+          onChange={(e) => {
+            const next = e.target.value.replace(/\D/g, "").slice(0, 4);
+            setDraft(next);
+            if (next !== quotedCp) {
+              setQuote(null);
+              setError("");
+              onSelectRate(null);
+            }
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              void runQuote(draft);
+            }
+          }}
           placeholder="Ej. 5000"
-          className="h-11 w-full border border-black/15 bg-white px-3 text-sm outline-none focus:border-[#222222]"
+          aria-label="Código postal"
+          className="h-11 min-w-0 flex-1 border border-black/15 bg-white px-3 text-sm outline-none focus:border-[#222222]"
         />
-      </label>
+        <button
+          type="button"
+          onClick={() => void runQuote(draft)}
+          disabled={loading || draft.replace(/\D/g, "").length !== 4}
+          aria-label="Calcular envío"
+          className="btn-press flex h-11 w-11 shrink-0 items-center justify-center border border-[#222222] bg-[#222222] text-white disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          <Search className="size-4" strokeWidth={2.25} />
+        </button>
+      </div>
 
-      {loading ? (
-        <p className="mt-3 text-xs text-soft">
-          {qty === 1
-            ? "Cotizando Correo y Andreani…"
-            : `Cotizando envío de ${qty} pares…`}
-        </p>
-      ) : null}
+      {loading ? <ShippingLogoLoader packages={qty} /> : null}
       {error ? (
         <p className="mt-3 text-xs font-medium text-brand">{error}</p>
       ) : null}
 
-      {quote?.rates?.length ? (
+      {!loading && quote?.rates?.length ? (
         <div className="mt-4 space-y-4">
           {CARRIERS.map((carrier) => {
             const list = ratesFor(quote, carrier.id);
@@ -171,13 +222,21 @@ export function ShippingMethodPicker({
             $150.000.
           </p>
         </div>
-      ) : postalCode.length === 4 && !loading && !error ? (
+      ) : null}
+
+      {!loading && !error && !quote ? (
+        <p className="mt-3 text-xs text-soft">
+          Ingresá tu CP y tocá la lupa para cotizar Correo y Andreani.
+        </p>
+      ) : null}
+
+      {!loading &&
+      !error &&
+      quotedCp.length === 4 &&
+      quote &&
+      !quote.rates?.length ? (
         <p className="mt-3 text-xs text-soft">
           No hay tarifas para ese código postal.
-        </p>
-      ) : postalCode.length < 4 ? (
-        <p className="mt-3 text-xs text-soft">
-          Ingresá tu CP y elegí Correo Argentino o Andreani.
         </p>
       ) : null}
     </div>

@@ -567,5 +567,116 @@
     "https://res.cloudinary.com/aqvdi29d/image/upload/v1787672410/rastro/products/vans-vr3/black/06.webp",
     "https://res.cloudinary.com/aqvdi29d/image/upload/v1787672410/rastro/products/vans-vr3/black/07.webp",
     "https://res.cloudinary.com/aqvdi29d/image/upload/v1787672411/rastro/products/vans-vr3/black/08.webp"
+  ],
+  "adidas-samba/off-white": [
+    "https://res.cloudinary.com/aqvdi29d/image/upload/v1787687882/rastro/products/adidas-samba/off-white/01.webp",
+    "https://res.cloudinary.com/aqvdi29d/image/upload/v1787687882/rastro/products/adidas-samba/off-white/02.webp",
+    "https://res.cloudinary.com/aqvdi29d/image/upload/v1787687882/rastro/products/adidas-samba/off-white/03.webp"
+  ],
+  "adidas-gazelle/blue": [
+    "https://res.cloudinary.com/aqvdi29d/image/upload/v1787687882/rastro/products/adidas-gazelle/blue/01.webp",
+    "https://res.cloudinary.com/aqvdi29d/image/upload/v1787687883/rastro/products/adidas-gazelle/blue/02.webp"
+  ],
+  "adidas-gazelle/rosa-nude": [
+    "https://res.cloudinary.com/aqvdi29d/image/upload/v1787687883/rastro/products/adidas-gazelle/rosa-nude/01.webp",
+    "https://res.cloudinary.com/aqvdi29d/image/upload/v1787687883/rastro/products/adidas-gazelle/rosa-nude/02.webp",
+    "https://res.cloudinary.com/aqvdi29d/image/upload/v1787687883/rastro/products/adidas-gazelle/rosa-nude/03.webp"
+  ],
+  "adidas-busenitz/adidas-busenitz-total-black-il90f": [
+    "https://res.cloudinary.com/aqvdi29d/image/upload/v1787687883/rastro/products/adidas-busenitz/adidas-busenitz-total-black-il90f/01.webp",
+    "https://res.cloudinary.com/aqvdi29d/image/upload/v1787687883/rastro/products/adidas-busenitz/adidas-busenitz-total-black-il90f/02.webp",
+    "https://res.cloudinary.com/aqvdi29d/image/upload/v1787687884/rastro/products/adidas-busenitz/adidas-busenitz-total-black-il90f/03.webp"
+  ],
+  "sandalia-flex/beige": [
+    "https://res.cloudinary.com/aqvdi29d/image/upload/v1787687883/rastro/products/sandalia-flex/beige/01.webp",
+    "https://res.cloudinary.com/aqvdi29d/image/upload/v1787687884/rastro/products/sandalia-flex/beige/02.webp",
+    "https://res.cloudinary.com/aqvdi29d/image/upload/v1787687884/rastro/products/sandalia-flex/beige/03.webp"
+  ],
+  "sandalia-flex/black": [
+    "https://res.cloudinary.com/aqvdi29d/image/upload/v1787687884/rastro/products/sandalia-flex/black/01.webp",
+    "https://res.cloudinary.com/aqvdi29d/image/upload/v1787687885/rastro/products/sandalia-flex/black/02.webp",
+    "https://res.cloudinary.com/aqvdi29d/image/upload/v1787687885/rastro/products/sandalia-flex/black/03.webp"
+  ],
+  "sandalia-h/hebi": [
+    "https://res.cloudinary.com/aqvdi29d/image/upload/v1787687885/rastro/products/sandalia-h/hebi/01.webp",
+    "https://res.cloudinary.com/aqvdi29d/image/upload/v1787687886/rastro/products/sandalia-h/hebi/02.webp",
+    "https://res.cloudinary.com/aqvdi29d/image/upload/v1787687887/rastro/products/sandalia-h/hebi/03.webp"
+  ],
+  "sandalia-h/off-white": [
+    "https://res.cloudinary.com/aqvdi29d/image/upload/v1787687886/rastro/products/sandalia-h/off-white/01.webp",
+    "https://res.cloudinary.com/aqvdi29d/image/upload/v1787687886/rastro/products/sandalia-h/off-white/02.webp",
+    "https://res.cloudinary.com/aqvdi29d/image/upload/v1787687886/rastro/products/sandalia-h/off-white/03.webp"
+  ],
+  "sandalia-h/total-black": [
+    "https://res.cloudinary.com/aqvdi29d/image/upload/v1787687887/rastro/products/sandalia-h/total-black/01.webp",
+    "https://res.cloudinary.com/aqvdi29d/image/upload/v1787687887/rastro/products/sandalia-h/total-black/02.webp",
+    "https://res.cloudinary.com/aqvdi29d/image/upload/v1787687887/rastro/products/sandalia-h/total-black/03.webp"
+  ],
+  "eva/white": [
+    "https://res.cloudinary.com/aqvdi29d/image/upload/v1787687888/rastro/products/eva/white/01.webp",
+    "https://res.cloudinary.com/aqvdi29d/image/upload/v1787687888/rastro/products/eva/white/02.webp",
+    "https://res.cloudinary.com/aqvdi29d/image/upload/v1787687888/rastro/products/eva/white/03.webp"
+  ],
+  "eva/black": [
+    "https://res.cloudinary.com/aqvdi29d/image/upload/v1787687888/rastro/products/eva/black/01.webp",
+    "https://res.cloudinary.com/aqvdi29d/image/upload/v1787687888/rastro/products/eva/black/02.webp",
+    "https://res.cloudinary.com/aqvdi29d/image/upload/v1787687889/rastro/products/eva/black/03.webp"
+  ],
+  "eva/camel": [
+    "https://res.cloudinary.com/aqvdi29d/image/upload/v1787687889/rastro/products/eva/camel/01.webp",
+    "https://res.cloudinary.com/aqvdi29d/image/upload/v1787687889/rastro/products/eva/camel/02.webp",
+    "https://res.cloudinary.com/aqvdi29d/image/upload/v1787687889/rastro/products/eva/camel/03.webp"
+  ],
+  "cira/beige": [
+    "https://res.cloudinary.com/aqvdi29d/image/upload/v1787687890/rastro/products/cira/beige/01.webp",
+    "https://res.cloudinary.com/aqvdi29d/image/upload/v1787687890/rastro/products/cira/beige/02.webp",
+    "https://res.cloudinary.com/aqvdi29d/image/upload/v1787687890/rastro/products/cira/beige/03.webp"
+  ],
+  "cira/black": [
+    "https://res.cloudinary.com/aqvdi29d/image/upload/v1787687890/rastro/products/cira/black/01.webp",
+    "https://res.cloudinary.com/aqvdi29d/image/upload/v1787687891/rastro/products/cira/black/02.webp",
+    "https://res.cloudinary.com/aqvdi29d/image/upload/v1787687891/rastro/products/cira/black/03.webp"
+  ],
+  "zoe/white": [
+    "https://res.cloudinary.com/aqvdi29d/image/upload/v1787687891/rastro/products/zoe/white/01.webp",
+    "https://res.cloudinary.com/aqvdi29d/image/upload/v1787687891/rastro/products/zoe/white/02.webp",
+    "https://res.cloudinary.com/aqvdi29d/image/upload/v1787687892/rastro/products/zoe/white/03.webp"
+  ],
+  "sandalia-teva-nina/nina": [
+    "https://res.cloudinary.com/aqvdi29d/image/upload/v1787687892/rastro/products/sandalia-teva-nina/nina/01.webp",
+    "https://res.cloudinary.com/aqvdi29d/image/upload/v1787687892/rastro/products/sandalia-teva-nina/nina/02.webp"
+  ],
+  "sandalia-teva/nico": [
+    "https://res.cloudinary.com/aqvdi29d/image/upload/v1787687892/rastro/products/sandalia-teva/nico/01.webp",
+    "https://res.cloudinary.com/aqvdi29d/image/upload/v1787687893/rastro/products/sandalia-teva/nico/02.webp"
+  ],
+  "sandalia-ryder/nico": [
+    "https://res.cloudinary.com/aqvdi29d/image/upload/v1787687893/rastro/products/sandalia-ryder/nico/01.webp",
+    "https://res.cloudinary.com/aqvdi29d/image/upload/v1787687893/rastro/products/sandalia-ryder/nico/02.webp",
+    "https://res.cloudinary.com/aqvdi29d/image/upload/v1787687893/rastro/products/sandalia-ryder/nico/03.webp"
+  ],
+  "sandalia-birk-hebi/goma-birkenstock": [
+    "https://res.cloudinary.com/aqvdi29d/image/upload/v1787687893/rastro/products/sandalia-birk-hebi/goma-birkenstock/01.webp",
+    "https://res.cloudinary.com/aqvdi29d/image/upload/v1787687894/rastro/products/sandalia-birk-hebi/goma-birkenstock/02.webp",
+    "https://res.cloudinary.com/aqvdi29d/image/upload/v1787687894/rastro/products/sandalia-birk-hebi/goma-birkenstock/03.webp"
+  ],
+  "ojota-tacha-black/nico": [
+    "https://res.cloudinary.com/aqvdi29d/image/upload/v1787687894/rastro/products/ojota-tacha-black/nico/01.webp",
+    "https://res.cloudinary.com/aqvdi29d/image/upload/v1787687894/rastro/products/ojota-tacha-black/nico/02.webp",
+    "https://res.cloudinary.com/aqvdi29d/image/upload/v1787687895/rastro/products/ojota-tacha-black/nico/03.webp"
+  ],
+  "eden-beige/eden": [
+    "https://res.cloudinary.com/aqvdi29d/image/upload/v1787687895/rastro/products/eden-beige/eden/01.webp",
+    "https://res.cloudinary.com/aqvdi29d/image/upload/v1787687895/rastro/products/eden-beige/eden/02.webp",
+    "https://res.cloudinary.com/aqvdi29d/image/upload/v1787687895/rastro/products/eden-beige/eden/03.webp"
+  ],
+  "slipper-nike-off-white/nico": [
+    "https://res.cloudinary.com/aqvdi29d/image/upload/v1787687896/rastro/products/slipper-nike-off-white/nico/01.webp",
+    "https://res.cloudinary.com/aqvdi29d/image/upload/v1787687896/rastro/products/slipper-nike-off-white/nico/02.webp"
+  ],
+  "ojota-adidas-off-white/nico": [
+    "https://res.cloudinary.com/aqvdi29d/image/upload/v1787687896/rastro/products/ojota-adidas-off-white/nico/01.webp",
+    "https://res.cloudinary.com/aqvdi29d/image/upload/v1787687897/rastro/products/ojota-adidas-off-white/nico/02.webp",
+    "https://res.cloudinary.com/aqvdi29d/image/upload/v1787687897/rastro/products/ojota-adidas-off-white/nico/03.webp"
   ]
 }

@@ -13,6 +13,7 @@ import {
 } from "@/lib/mock/lowStock";
 import { sizeQty } from "@/lib/mock/stock";
 import type { ShopProduct } from "@/lib/mock/types";
+import { FancySelect } from "@/components/ui/FancySelect";
 
 type ToneFilter = "all" | "out" | "low";
 
@@ -429,38 +430,28 @@ export default function AdminStockPage() {
           />
         </label>
 
-        <label className="sm:w-44">
-          <span className="mb-1 block text-[10px] font-semibold tracking-[0.14em] text-soft uppercase">
-            Estado
-          </span>
-          <select
-            value={tone}
-            onChange={(e) => setTone(e.target.value as ToneFilter)}
-            className="w-full border border-black/10 bg-white px-3 py-2.5 text-sm outline-none focus:border-[#222222]"
-          >
-            <option value="all">Todos</option>
-            <option value="out">Con sin stock</option>
-            <option value="low">Con bajos</option>
-          </select>
-        </label>
+        <FancySelect
+          label="Estado"
+          value={tone}
+          options={[
+            { value: "all", label: "Todos" },
+            { value: "out", label: "Con sin stock" },
+            { value: "low", label: "Con bajos" },
+          ]}
+          onChange={(value) => setTone(value as ToneFilter)}
+          className="sm:w-44"
+        />
 
-        <label className="sm:w-44">
-          <span className="mb-1 block text-[10px] font-semibold tracking-[0.14em]text-soft uppercase">
-            Marca
-          </span>
-          <select
-            value={brand}
-            onChange={(e) => setBrand(e.target.value)}
-            className="w-full border border-black/10 bg-white px-3 py-2.5 text-sm outline-none focus:border-[#222222]"
-          >
-            <option value="all">Todas</option>
-            {brands.map((b) => (
-              <option key={b} value={b}>
-                {b}
-              </option>
-            ))}
-          </select>
-        </label>
+        <FancySelect
+          label="Marca"
+          value={brand}
+          options={[
+            { value: "all", label: "Todas" },
+            ...brands.map((b) => ({ value: b, label: b })),
+          ]}
+          onChange={setBrand}
+          className="sm:w-44"
+        />
 
         {(q || tone !== "all" || brand !== "all") && (
           <button
