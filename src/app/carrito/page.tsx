@@ -227,6 +227,7 @@ export default function CartPage() {
                     aria-hidden={cartShipping.zone !== "interior"}
                   >
                     <ShippingMethodPicker
+                      enabled={cartShipping.zone === "interior"}
                       postalCode={cartShipping.postalCode}
                       packages={cartCount}
                       selectedRateId={cartShipping.rate?.id}
