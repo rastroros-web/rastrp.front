@@ -86,6 +86,19 @@ import {
   type AccountBag,
 } from "@/lib/mock/accountBags";
 
+function remoteBagKey(bag: AccountBag): string {
+  return JSON.stringify({
+    cart: bag.cart.map((item) => ({
+      productSlug: item.productSlug,
+      variantId: item.variantId,
+      size: item.size,
+      qty: item.qty,
+    })),
+    wishlist: bag.wishlist,
+    shipping: bag.shipping,
+  });
+}
+
 function withLiveCartPrices(item: CartItem, products: ShopProduct[]): CartItem {
   const product = products.find((p) => p.slug === item.productSlug);
   const variant = product?.variants.find((v) => v.id === item.variantId);
@@ -239,6 +252,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [cartShipping, setCartShippingState] =
     useState<CartShippingPref>(EMPTY_SHIPPING);
   const bagOwnerRef = useRef(GUEST_BAG_ID);
+  const lastRemoteBagKeyRef = useRef("");
   const [bagSynced, setBagSynced] = useState(false);
 
   useEffect(() => {
@@ -403,13 +417,16 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!ready || !bagSynced || !session || !hasApiAuth()) return;
+    const payload: AccountBag = { cart, wishlist, shipping: cartShipping };
+    const key = remoteBagKey(payload);
+    if (key === lastRemoteBagKeyRef.current) return;
     const timer = window.setTimeout(() => {
-      saveAccountBag({
-        cart,
-        wishlist,
-        shipping: cartShipping,
-      }).catch(() => {});
-    }, 400);
+      saveAccountBag(payload)
+        .then(() => {
+          lastRemoteBagKeyRef.current = key;
+        })
+        .catch(() => {});
+    }, 600);
     return () => window.clearTimeout(timer);
   }, [cart, wishlist, cartShipping, ready, bagSynced, session]);
 

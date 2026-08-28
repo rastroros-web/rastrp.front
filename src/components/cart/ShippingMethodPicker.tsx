@@ -125,19 +125,20 @@ export function ShippingMethodPicker({
 
   const runQuote = async (raw: string) => {
     const cp = raw.replace(/\D/g, "").slice(0, 4);
-    onPostalCodeChange(cp);
+    const currentCp = postalCode.replace(/\D/g, "").slice(0, 4);
+    if (cp !== currentCp) onPostalCodeChange(cp);
     if (cp.length !== 4) {
       setError("Ingresá un código postal de 4 dígitos.");
       setQuote(null);
       setQuotedCp("");
-      onSelectRate(null);
+      if (selectedRate) onSelectRate(null);
       return;
     }
     const id = ++requestId.current;
     setLoading(true);
     setError("");
     setQuote(null);
-    onSelectRate(null);
+    if (selectedRate) onSelectRate(null);
     try {
       const data = await quoteCorreoShipping(cp, qty);
       if (id !== requestId.current) return;

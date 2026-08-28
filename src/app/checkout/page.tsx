@@ -983,12 +983,12 @@ export default function CheckoutPage() {
                 ) : (
                   <div className="block text-sm">
                     <FancySelect
+                      variant="field"
                       label={`Provincia${zone === "interior" ? " *" : ""}`}
                       value={province}
                       options={argentinaProvinceOptions}
                       onChange={setProvince}
                       placeholder="Seleccioná provincia"
-                      className="[&_button]:normal-case [&_button]:tracking-normal [&_li_button]:normal-case [&_li_button]:tracking-normal"
                     />
                   </div>
                 )}

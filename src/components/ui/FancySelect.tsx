@@ -16,6 +16,7 @@ export function FancySelect({
   className = "",
   placeholder,
   hideLabel = false,
+  variant = "admin",
 }: {
   label: string;
   value: string;
@@ -24,6 +25,8 @@ export function FancySelect({
   className?: string;
   placeholder?: string;
   hideLabel?: boolean;
+  /** `field` usa el mismo estilo que los inputs del checkout. */
+  variant?: "admin" | "field";
 }) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -50,10 +53,38 @@ export function FancySelect({
     };
   }, [open]);
 
+  const isField = variant === "field";
+  const labelClass = isField
+    ? "mb-1 block text-[11px] font-semibold tracking-[0.12em] uppercase"
+    : "mb-1 block text-[10px] font-semibold tracking-[0.16em] text-soft uppercase";
+  const buttonClass = isField
+    ? `group flex w-full items-center justify-between gap-2 border bg-white px-3 py-2.5 text-left text-sm text-[#222222] transition ${
+        open
+          ? "border-[#222222]"
+          : "border-black/10 hover:border-[#222222]"
+      }`
+    : `group flex w-full items-center justify-between gap-2 border bg-white px-3 py-2.5 text-left text-xs font-semibold tracking-[0.08em] text-[#222222] uppercase transition hover:text-white ${
+        open
+          ? "border-[#222222] shadow-[0_8px_24px_rgba(0,0,0,0.06)]"
+          : "border-black/10 hover:border-[#222222]"
+      }`;
+  const optionClass = (active: boolean) =>
+    isField
+      ? `flex w-full items-center justify-between px-3 py-2.5 text-left text-sm transition ${
+          active
+            ? "bg-[#222222] text-white"
+            : "text-[#222222] hover:bg-[#222222] hover:text-white"
+        }`
+      : `flex w-full items-center justify-between px-3 py-2.5 text-left text-xs font-semibold tracking-[0.06em] uppercase transition ${
+          active
+            ? "bg-[#222222] text-white"
+            : "text-[#222222] hover:bg-[#222222] hover:text-white"
+        }`;
+
   return (
     <div ref={rootRef} className={`relative min-w-0 ${className}`}>
       {!hideLabel && label ? (
-        <span className="mb-1 block text-[10px] font-semibold tracking-[0.16em] text-soft uppercase">
+        <span className={labelClass}>
           {label}
         </span>
       ) : null}
@@ -63,11 +94,7 @@ export function FancySelect({
         aria-expanded={open}
         aria-controls={listId}
         onClick={() => setOpen((v) => !v)}
-        className={`group flex w-full items-center justify-between gap-2 border bg-white px-3 py-2.5 text-left text-xs font-semibold tracking-[0.08em] text-[#222222] uppercase transition hover:text-white ${
-          open
-            ? "border-[#222222] shadow-[0_8px_24px_rgba(0,0,0,0.06)]"
-            : "border-black/10 hover:border-[#222222]"
-        }`}
+        className={buttonClass}
       >
         <span
           className={`truncate ${
@@ -99,11 +126,7 @@ export function FancySelect({
               <li key={opt.value} role="option" aria-selected={active}>
                 <button
                   type="button"
-                  className={`flex w-full items-center justify-between px-3 py-2.5 text-left text-xs font-semibold tracking-[0.06em] uppercase transition ${
-                    active
-                      ? "bg-[#222222] text-white"
-                      : "text-[#222222] hover:bg-[#222222] hover:text-white"
-                  }`}
+                  className={optionClass(active)}
                   onClick={() => {
                     onChange(opt.value);
                     setOpen(false);
