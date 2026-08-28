@@ -766,19 +766,37 @@ export default function CheckoutPage() {
                 </div>
               ) : zone === "interior" ? (
                 <div className="mt-4 border border-black/10 bg-[#f5f4f0] px-4 py-3 text-sm text-soft">
-                  <p className="font-semibold text-[#222222]">
-                    Completá todos los datos de envío
-                  </p>
-                  <p className="mt-1">
-                    Fuera de Rosario pedimos DNI, CP, provincia y teléfono para
-                    que el correo pueda entregar sin demoras. Elegí Correo
-                    Argentino o Andreani.
-                  </p>
+                  {cartShipping.rate ? (
+                    <>
+                      <p className="font-semibold text-[#222222]">
+                        Envío al interior · CP {postalCode}
+                      </p>
+                      <p className="mt-1">
+                        Ya elegiste {cartShipping.rate.carrier === "andreani"
+                          ? "Andreani"
+                          : "Correo Argentino"}{" "}
+                        · {cartShipping.rate.name}. Completá tus datos de
+                        entrega abajo.
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <p className="font-semibold text-[#222222]">
+                        Completá todos los datos de envío
+                      </p>
+                      <p className="mt-1">
+                        Fuera de Rosario pedimos DNI, CP, provincia y teléfono
+                        para que el correo pueda entregar sin demoras. Elegí
+                        Correo Argentino o Andreani.
+                      </p>
+                    </>
+                  )}
                   <ShippingMethodPicker
                     className="mt-4"
                     postalCode={postalCode}
                     packages={cartCount}
                     selectedRateId={cartShipping.rate?.id}
+                    selectedRate={cartShipping.rate}
                     onPostalCodeChange={(cp) =>
                       setCartShipping({ postalCode: cp })
                     }

@@ -230,6 +230,7 @@ export default function CartPage() {
                       postalCode={cartShipping.postalCode}
                       packages={cartCount}
                       selectedRateId={cartShipping.rate?.id}
+                      selectedRate={cartShipping.rate}
                       onPostalCodeChange={(cp) =>
                         setCartShipping({ postalCode: cp })
                       }

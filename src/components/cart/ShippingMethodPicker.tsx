@@ -9,6 +9,7 @@ import {
   type ShippingQuoteResult,
   type ShippingRate,
 } from "@/lib/api/backend";
+import type { SelectedShippingRate } from "@/lib/mock/types";
 
 const CARRIERS = [
   { id: "correo_argentino", label: "Correo Argentino" },
@@ -30,6 +31,36 @@ function withQuote(
 ): QuotedRate | null {
   if (!rate) return null;
   return { ...rate, quoteId: quote?.quoteId ?? null };
+}
+
+function carrierLabel(carrier?: string) {
+  return String(carrier || "").toLowerCase() === "andreani"
+    ? "Andreani"
+    : "Correo Argentino";
+}
+
+function SelectedRateSummary({ rate }: { rate: SelectedShippingRate }) {
+  return (
+    <div className="mt-4 border border-[#222222] bg-[#222222] px-3 py-2.5 text-white">
+      <p className="text-[11px] font-semibold tracking-[0.14em] uppercase opacity-80">
+        {carrierLabel(rate.carrier)}
+      </p>
+      <div className="mt-1 flex items-baseline justify-between gap-3">
+        <span>
+          <span className="block text-sm font-medium">{rate.name}</span>
+          <span className="mt-0.5 block text-[11px] text-white/70">
+            {rate.daysMin} a {rate.daysMax} días hábiles
+          </span>
+        </span>
+        <span className="shrink-0 text-sm font-semibold">
+          {formatMoney(rate.price)}
+        </span>
+      </div>
+      <p className="mt-2 text-[11px] text-white/70">
+        Para ver otras tarifas, cambiá el CP y tocá la lupa.
+      </p>
+    </div>
+  );
 }
 
 function ShippingLogoLoader({ packages }: { packages: number }) {
@@ -61,6 +92,7 @@ export function ShippingMethodPicker({
   postalCode,
   packages = 1,
   selectedRateId,
+  selectedRate = null,
   onPostalCodeChange,
   onSelectRate,
   className = "",
@@ -68,6 +100,7 @@ export function ShippingMethodPicker({
   postalCode: string;
   packages?: number;
   selectedRateId?: string | null;
+  selectedRate?: SelectedShippingRate | null;
   onPostalCodeChange: (cp: string) => void;
   onSelectRate: (rate: QuotedRate | null) => void;
   className?: string;
@@ -140,11 +173,12 @@ export function ShippingMethodPicker({
           value={draft}
           onChange={(e) => {
             const next = e.target.value.replace(/\D/g, "").slice(0, 4);
+            const savedCp = postalCode.replace(/\D/g, "").slice(0, 4);
             setDraft(next);
-            if (next !== quotedCp) {
+            if (next !== quotedCp || (selectedRate && next !== savedCp)) {
               setQuote(null);
               setError("");
-              onSelectRate(null);
+              if (next !== savedCp) onSelectRate(null);
             }
           }}
           onKeyDown={(e) => {
@@ -226,7 +260,11 @@ export function ShippingMethodPicker({
         </div>
       ) : null}
 
-      {!loading && !error && !quote ? (
+      {!loading && !quote && selectedRate ? (
+        <SelectedRateSummary rate={selectedRate} />
+      ) : null}
+
+      {!loading && !error && !quote && !selectedRate ? (
         <p className="mt-3 text-xs text-soft">
           Ingresá tu CP y tocá la lupa para cotizar Correo y Andreani.
         </p>
