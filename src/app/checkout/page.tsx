@@ -19,6 +19,11 @@ import {
 import { HOLIDAYS_NOTE, isFreeShipping, quoteShipping } from "@/lib/mock/shipping";
 import { RosarioDeliveryFields, slotLabel } from "@/components/cart/RosarioDeliveryFields";
 import { ShippingMethodPicker } from "@/components/cart/ShippingMethodPicker";
+import { FancySelect } from "@/components/ui/FancySelect";
+import {
+  argentinaProvinceOptions,
+  matchArgentinaProvince,
+} from "@/lib/argentinaProvinces";
 import { getStore, STORES, storeHasCartStock } from "@/lib/mock/stores";
 import type {
   MockOrder,
@@ -302,7 +307,7 @@ export default function CheckoutPage() {
     setFullName((name) => name || session.name || "");
     setEmail((value) => value || session.email || "");
     setPhone((value) => value || session.phone || "");
-    if (session.province) setProvince(session.province);
+    if (session.province) setProvince(matchArgentinaProvince(session.province));
     if (session.dni) setDni((value) => value || session.dni || "");
   }, [session]);
 
@@ -315,11 +320,19 @@ export default function CheckoutPage() {
       setNumber(address.number);
       setFloor(address.floor || "");
       setCity(address.city);
-      if (address.province) setProvince(address.province);
-      if (address.postalCode) setCartShipping({ postalCode: address.postalCode });
+      if (address.province) setProvince(matchArgentinaProvince(address.province));
       if (address.dni) setDni(address.dni);
+      if (address.postalCode) setCartShipping({ postalCode: address.postalCode });
     },
     [setCartShipping]
+  );
+
+  const applyAddressIfIdle = useCallback(
+    (address: SavedAddress) => {
+      if (cartShipping.zone === "interior" && cartShipping.rate) return;
+      applyAddress(address);
+    },
+    [applyAddress, cartShipping.rate, cartShipping.zone]
   );
 
   useEffect(() => {
@@ -327,7 +340,7 @@ export default function CheckoutPage() {
     const fromGuest = session ? [] : readGuestAddresses();
     const list = fromSession.length ? fromSession : fromGuest;
     setSavedAddresses(list);
-    if (list[0]) applyAddress(list[0]);
+    if (list[0]) applyAddressIfIdle(list[0]);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- solo al cargar sesión
   }, [session]);
 
@@ -938,18 +951,29 @@ export default function CheckoutPage() {
                   />
                 </label>
 
-                <label className="block text-sm">
-                  <span className="mb-1 block text-[11px] font-semibold tracking-[0.12em] uppercase">
-                    Provincia {zone === "interior" ? "*" : ""}
-                  </span>
-                  <input
-                    required={zone === "interior"}
-                    value={province}
-                    onChange={(e) => setProvince(e.target.value)}
-                    className={fieldClass}
-                    disabled={zone === "rosario"}
-                  />
-                </label>
+                {zone === "rosario" ? (
+                  <label className="block text-sm">
+                    <span className="mb-1 block text-[11px] font-semibold tracking-[0.12em] uppercase">
+                      Provincia
+                    </span>
+                    <input
+                      readOnly
+                      value="Santa Fe"
+                      className={fieldClass}
+                    />
+                  </label>
+                ) : (
+                  <div className="block text-sm">
+                    <FancySelect
+                      label={`Provincia${zone === "interior" ? " *" : ""}`}
+                      value={province}
+                      options={argentinaProvinceOptions}
+                      onChange={setProvince}
+                      placeholder="Seleccioná provincia"
+                      className="[&_button]:normal-case [&_button]:tracking-normal [&_li_button]:normal-case [&_li_button]:tracking-normal"
+                    />
+                  </div>
+                )}
 
                 {zone === "rosario" ? (
                   <label className="block text-sm sm:col-span-2">

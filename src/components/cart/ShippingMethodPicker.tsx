@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { Search } from "lucide-react";
 import { formatMoney } from "@/lib/mock/money";
@@ -79,50 +79,71 @@ export function ShippingMethodPicker({
   const [quote, setQuote] = useState<ShippingQuoteResult | null>(null);
   const [quotedCp, setQuotedCp] = useState("");
   const requestId = useRef(0);
+  const selectedRateIdRef = useRef(selectedRateId);
 
   useEffect(() => {
-    if (postalCode !== "") return;
-    setDraft("");
-    setQuote(null);
-    setQuotedCp("");
-    setError("");
+    selectedRateIdRef.current = selectedRateId;
+  }, [selectedRateId]);
+
+  useEffect(() => {
+    const cp = postalCode.replace(/\D/g, "").slice(0, 4);
+    setDraft(cp);
+    if (cp === "") {
+      setQuote(null);
+      setQuotedCp("");
+      setError("");
+    }
   }, [postalCode]);
 
-  const runQuote = async (raw: string) => {
-    const cp = raw.replace(/\D/g, "").slice(0, 4);
-    onPostalCodeChange(cp);
-    if (cp.length !== 4) {
-      setError("Ingresá un código postal de 4 dígitos.");
-      setQuote(null);
-      setQuotedCp("");
-      onSelectRate(null);
-      return;
-    }
-    const id = ++requestId.current;
-    setLoading(true);
-    setError("");
-    setQuote(null);
-    onSelectRate(null);
-    try {
-      const data = await quoteCorreoShipping(cp, qty);
-      if (id !== requestId.current) return;
-      setQuote(data);
-      setQuotedCp(cp);
-      if (selectedRateId) {
-        const next = data.rates.find((r) => r.id === selectedRateId) || null;
-        onSelectRate(withQuote(next, data));
+  const runQuote = useCallback(
+    async (raw: string, options?: { preserveRate?: boolean }) => {
+      const cp = raw.replace(/\D/g, "").slice(0, 4);
+      onPostalCodeChange(cp);
+      if (cp.length !== 4) {
+        setError("Ingresá un código postal de 4 dígitos.");
+        setQuote(null);
+        setQuotedCp("");
+        if (!options?.preserveRate) onSelectRate(null);
+        return;
       }
-    } catch (err) {
-      if (id !== requestId.current) return;
+      const id = ++requestId.current;
+      const rateIdToRestore = options?.preserveRate
+        ? selectedRateIdRef.current
+        : null;
+      setLoading(true);
+      setError("");
       setQuote(null);
-      setQuotedCp("");
-      setError(
-        err instanceof Error ? err.message : "No se pudo cotizar el envío."
-      );
-    } finally {
-      if (id === requestId.current) setLoading(false);
-    }
-  };
+      if (!options?.preserveRate) onSelectRate(null);
+      try {
+        const data = await quoteCorreoShipping(cp, qty);
+        if (id !== requestId.current) return;
+        setQuote(data);
+        setQuotedCp(cp);
+        if (rateIdToRestore) {
+          const next =
+            data.rates.find((r) => r.id === rateIdToRestore) || null;
+          onSelectRate(withQuote(next, data));
+        }
+      } catch (err) {
+        if (id !== requestId.current) return;
+        setQuote(null);
+        setQuotedCp("");
+        setError(
+          err instanceof Error ? err.message : "No se pudo cotizar el envío."
+        );
+      } finally {
+        if (id === requestId.current) setLoading(false);
+      }
+    },
+    [onPostalCodeChange, onSelectRate, qty]
+  );
+
+  useEffect(() => {
+    const cp = postalCode.replace(/\D/g, "").slice(0, 4);
+    if (cp.length !== 4) return;
+    if (quotedCp === cp && quote) return;
+    void runQuote(cp, { preserveRate: Boolean(selectedRateIdRef.current) });
+  }, [postalCode, qty, quotedCp, quote, runQuote]);
 
   return (
     <div className={className || undefined}>
