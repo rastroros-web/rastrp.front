@@ -1,4 +1,6 @@
+import { cache } from "react";
 import type { CatalogProduct, ColorVariant, ProductSize } from "@/data/catalog";
+import { readJson, STORAGE_KEYS } from "@/lib/mock/storage";
 import { fillEmptyVariantImages } from "@/data/catalog";
 import type {
   CartItem,
@@ -173,28 +175,101 @@ export function findShopProduct(
   );
 }
 
-export async function fetchShopProducts(): Promise<ShopProduct[] | null> {
+const TOKEN_KEY = "rastro_api_token";
+
+function readToken(): string {
+  if (typeof window === "undefined") return "";
+  return localStorage.getItem(TOKEN_KEY) || "";
+}
+
+const PRODUCTS_REVALIDATE_SEC = 60;
+const CLIENT_PRODUCTS_TTL_MS = 60_000;
+const PRODUCTS_FETCHED_AT_KEY = "rastro_products_fetched_at";
+
+type ProductsCacheEntry = { data: ShopProduct[]; at: number };
+
+let clientProductsCache: ProductsCacheEntry | null = null;
+let clientProductsInflight: Promise<ShopProduct[] | null> | null = null;
+
+function rememberClientProducts(products: ShopProduct[]) {
+  const at = Date.now();
+  clientProductsCache = { data: products, at };
+  if (typeof window !== "undefined") {
+    sessionStorage.setItem(PRODUCTS_FETCHED_AT_KEY, String(at));
+  }
+}
+
+function readClientProductsCache(): ShopProduct[] | null {
+  const now = Date.now();
+  if (clientProductsCache && now - clientProductsCache.at < CLIENT_PRODUCTS_TTL_MS) {
+    return clientProductsCache.data;
+  }
+  if (typeof window === "undefined") return null;
+  const at = Number(sessionStorage.getItem(PRODUCTS_FETCHED_AT_KEY) || 0);
+  if (!at || now - at >= CLIENT_PRODUCTS_TTL_MS) return null;
+  const stored = readJson<ShopProduct[]>(STORAGE_KEYS.products, []);
+  if (!stored.length) return null;
+  clientProductsCache = { data: stored, at };
+  return stored;
+}
+
+async function fetchShopProductsFromApi(): Promise<ShopProduct[] | null> {
   const base = getBackendUrl();
   if (!base) return null;
   try {
     const token = readToken();
+    const isServer = typeof window === "undefined";
     const res = await fetch(
       `${base}/api/products${token ? "?all=1" : ""}`,
       {
-        cache: "no-store",
+        ...(isServer && !token
+          ? { next: { revalidate: PRODUCTS_REVALIDATE_SEC } }
+          : { cache: "no-store" as RequestCache }),
         headers: token ? { Authorization: `Bearer ${token}` } : undefined,
       }
     );
     if (!res.ok) return null;
     const data = (await res.json()) as ApiProduct[];
     if (!Array.isArray(data)) return null;
-    return data.map(mapApiProduct).filter((p) => p.variants.length > 0);
+    const products = data.map(mapApiProduct).filter((p) => p.variants.length > 0);
+    if (!isServer && products.length) rememberClientProducts(products);
+    return products;
   } catch {
     return null;
   }
 }
 
-const TOKEN_KEY = "rastro_api_token";
+const fetchShopProductsServer = cache(fetchShopProductsFromApi);
+
+export function invalidateShopProductsCache() {
+  clientProductsCache = null;
+  clientProductsInflight = null;
+  if (typeof window !== "undefined") {
+    sessionStorage.removeItem(PRODUCTS_FETCHED_AT_KEY);
+  }
+}
+
+export async function fetchShopProducts(options?: {
+  force?: boolean;
+}): Promise<ShopProduct[] | null> {
+  if (typeof window === "undefined") {
+    if (options?.force) return fetchShopProductsFromApi();
+    return fetchShopProductsServer();
+  }
+
+  if (!options?.force) {
+    const cached = readClientProductsCache();
+    if (cached) return cached;
+    if (clientProductsInflight) return clientProductsInflight;
+  } else {
+    invalidateShopProductsCache();
+  }
+
+  clientProductsInflight = fetchShopProductsFromApi().finally(() => {
+    clientProductsInflight = null;
+  });
+  return clientProductsInflight;
+}
 
 export type CreateProductPayload = {
   brand: string;
@@ -220,11 +295,6 @@ export type CreateProductPayload = {
 };
 
 export type UpsertVariantPayload = CreateProductPayload["variants"][number];
-
-function readToken(): string {
-  if (typeof window === "undefined") return "";
-  return localStorage.getItem(TOKEN_KEY) || "";
-}
 
 async function loginAdmin(): Promise<string> {
   const data = await loginShopUser("admin@rastro.com", "admin123");

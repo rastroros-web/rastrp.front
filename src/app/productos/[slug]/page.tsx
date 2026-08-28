@@ -19,7 +19,7 @@ type Props = {
   searchParams: Promise<{ color?: string }>;
 };
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export async function generateStaticParams() {
   const parents = catalog.map((p) => ({ slug: p.slug }));

@@ -58,6 +58,7 @@ import {
   fetchShopMe,
   fetchShopOrders,
   fetchShopProducts,
+  invalidateShopProductsCache,
   fetchShopPromos,
   getBackendUrl,
   hasApiAuth,
@@ -845,7 +846,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           }
           setOrders((prev) => [order, ...prev.filter((o) => o.id !== order.id)]);
           setCart([]);
-          fetchShopProducts()
+          invalidateShopProductsCache();
+          fetchShopProducts({ force: true })
             .then((fromApi) => {
               if (fromApi?.length) {
                 setProducts(fromApi.map(normalizeProductStock));
@@ -998,7 +1000,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           const updated = await updateShopOrder(id, { status });
           setOrders((prev) => prev.map((o) => (o.id === id ? updated : o)));
           if (status === "cancelado") {
-            fetchShopProducts()
+            invalidateShopProductsCache();
+            fetchShopProducts({ force: true })
               .then((fromApi) => {
                 if (fromApi?.length) {
                   setProducts(fromApi.map(normalizeProductStock));
@@ -1135,7 +1138,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const reloadProducts = useCallback(async () => {
-    const fromApi = await fetchShopProducts();
+    invalidateShopProductsCache();
+    const fromApi = await fetchShopProducts({ force: true });
     if (fromApi?.length) {
       setProducts(fromApi.map((p) => fillEmptyVariantImages(normalizeProductStock(p))));
     }
