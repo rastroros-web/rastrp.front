@@ -51,11 +51,11 @@ const AnimatedContent: React.FC<AnimatedContentProps> = ({
     const el = ref.current;
     if (!el) return;
 
-    let scrollerTarget: Element | string | null = container || document.getElementById('snap-main-container') || null;
-
-    if (typeof scrollerTarget === 'string') {
-      scrollerTarget = document.querySelector(scrollerTarget);
-    }
+    const scrollerTarget = container
+      ? typeof container === "string"
+        ? document.querySelector(container)
+        : container
+      : window;
 
     const axis = direction === 'horizontal' ? 'x' : 'y';
     const offset = reverse ? -distance : distance;
@@ -102,6 +102,12 @@ const AnimatedContent: React.FC<AnimatedContentProps> = ({
       once: true,
       onEnter: () => tl.play()
     });
+
+    const reduce =
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const rect = el.getBoundingClientRect();
+    const inView = rect.top < window.innerHeight && rect.bottom > 0;
+    if (reduce || inView) tl.play();
 
     return () => {
       st.kill();

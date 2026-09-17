@@ -280,7 +280,7 @@ export default function AdminCuponesPage() {
         ))}
         {rows.length === 0 && (
           <p className="border border-black/5 bg-white px-5 py-10 text-center text-sm text-soft">
-            No hay cupones. Creá uno arriba o usá Reset demo.
+            No hay cupones. Creá uno arriba.
           </p>
         )}
       </div>

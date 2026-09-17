@@ -7,8 +7,8 @@ import { ShopChrome } from "@/components/ShopChrome";
 import { PromoToast, type PromoToastPayload } from "@/components/PromoToast";
 import { useStore } from "@/components/store/StoreProvider";
 import { formatMoney } from "@/lib/mock/money";
-import { TRANSFER_ACCOUNT } from "@/lib/mock/payment";
 import { TransferAccountBox } from "@/components/checkout/TransferAccountBox";
+import { useTransferBank } from "@/lib/hooks/useTransferBank";
 import { calcPromoDiscount, findPromo, validatePromo, promoRulesText } from "@/lib/mock/promos";
 import {
   getBackendUrl,
@@ -16,7 +16,12 @@ import {
   newCheckoutIdempotencyKey,
   validateShopPromo,
 } from "@/lib/api/backend";
-import { HOLIDAYS_NOTE, isFreeShipping, quoteShipping } from "@/lib/mock/shipping";
+import {
+  HOLIDAYS_NOTE,
+  isFreeShipping,
+  isRosarioSameDayWindow,
+  quoteShipping,
+} from "@/lib/mock/shipping";
 import { RosarioDeliveryFields, slotLabel } from "@/components/cart/RosarioDeliveryFields";
 import { ShippingMethodPicker } from "@/components/cart/ShippingMethodPicker";
 import { FancySelect } from "@/components/ui/FancySelect";
@@ -82,11 +87,7 @@ function addressFromFields(input: {
 }
 
 function isSameDayWindow() {
-  const now = new Date();
-  const day = now.getDay(); // 0 Sun ... 6 Sat
-  const hour = now.getHours();
-  const isWeekday = day >= 1 && day <= 5;
-  return isWeekday && hour < 16;
+  return isRosarioSameDayWindow();
 }
 
 function toTrackingCarrier(carrier?: string): TrackingCarrier {
@@ -107,7 +108,7 @@ function formatShippingAddress(details: ShippingDetails) {
           }`
         : "";
     return details.sameDayEligible
-      ? `${base} · Envío en el día (compra antes de las 16 hs)${when}`
+      ? `${base} · Envío en el día (pedido antes de las 12 pm)${when}`
       : `${base} · Rosario y alrededores${when}`;
   }
   const ship =
@@ -134,6 +135,7 @@ export default function CheckoutPage() {
     setCartShipping,
     cartCount,
   } = useStore();
+  const { config: transferBank } = useTransferBank();
   const [paymentMethod, setPaymentMethod] =
     useState<MockOrder["paymentMethod"]>("transferencia");
   const zone = cartShipping.zone;
@@ -411,7 +413,7 @@ export default function CheckoutPage() {
 
           {done.shippingDetails?.sameDayEligible && (
             <p className="mt-4 text-center text-sm font-medium text-[#16a34a]">
-              Envío en el día a Rosario / alrededores (compra antes de las 16 hs).
+              Envío en el día a Rosario / alrededores (pedido antes de las 12 pm).
             </p>
           )}
 
@@ -736,14 +738,14 @@ export default function CheckoutPage() {
                     <>
                       <p className="font-semibold">Envío en el día disponible</p>
                       <p className="mt-1">
-                        Compraste antes de las 16:00 hs. Despachamos hoy a Rosario
+                        Pediste antes de las 12 pm. El pedido llega hoy a Rosario
                         y alrededores.
                       </p>
                     </>
                   ) : (
                     <>
                       <p className="font-semibold text-[#222222]">
-                        Envío en el día: comprá antes de las 16:00 hs
+                        Envío en el día: pedí antes de las 12 pm
                       </p>
                       <p className="mt-1">
                         Fuera de esa franja (o fin de semana), el pedido sale el
@@ -1076,7 +1078,7 @@ export default function CheckoutPage() {
                     Total a transferir: {formatMoney(total)}
                   </p>
                   <p className="mt-1 text-xs text-soft">
-                    Alias: {TRANSFER_ACCOUNT.alias}
+                    Alias: {transferBank.alias}
                   </p>
                 </div>
               ) : (

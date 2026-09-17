@@ -112,7 +112,7 @@ function Field({
 }
 
 export default function GestionCostosPage() {
-  const { ready, data, saveCosto, deleteCosto, restoreExcelCostos } = useBusiness();
+  const { ready, data, saveCosto, deleteCosto } = useBusiness();
   const [q, setQ] = useState("");
   const [form, setForm] = useState<FormState | null>(null);
 
@@ -200,26 +200,8 @@ export default function GestionCostosPage() {
     <div className="space-y-6">
       <AdminSectionHeader
         title="Costos"
-        description={`Hoja COSTOS del Excel · ${data.costos.length} filas · mismas columnas: Marca, Modelo, Código SKU, Grada, Calidad, Cant. x caja, costos y talles`}
         actions={
           <>
-            <button
-              type="button"
-              onClick={() => {
-                if (
-                  !window.confirm(
-                    "Esto reemplaza la hoja COSTOS por la original de Rastro - General.xlsx. ¿Seguimos?"
-                  )
-                ) {
-                  return;
-                }
-                restoreExcelCostos();
-                setForm(null);
-              }}
-              className="btn-press border border-[#222222] px-4 py-2.5 text-[11px] font-semibold tracking-[0.14em] uppercase"
-            >
-              Restaurar Excel
-            </button>
             <button
               type="button"
               onClick={() => setForm(form ? null : { ...EMPTY_FORM, stock: {} })}

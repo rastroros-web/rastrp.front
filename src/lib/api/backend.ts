@@ -979,6 +979,18 @@ export async function upsertShopVariant(
   return mapApiProduct(data as ApiProduct);
 }
 
+export type ShopListUser = ShopAuthUser & {
+  whatsapp?: string | null;
+  emailVerified?: boolean;
+  isActive?: boolean;
+  updatedAt?: string;
+};
+
+export async function fetchShopUsers(): Promise<ShopListUser[]> {
+  const data = await shopAuthJson<ShopListUser[]>("/api/users");
+  return Array.isArray(data) ? data : [];
+}
+
 export async function setShopUserRole(
   email: string,
   role: "ADMIN" | "STAFF" | "CUSTOMER"
@@ -1081,4 +1093,36 @@ export async function saveBusinessBook(
     body: JSON.stringify(rev == null ? book : { ...book, rev }),
   });
   return data;
+}
+
+export type TransferBankConfigApi = {
+  bankName: string;
+  accountHolderName: string;
+  cbu: string;
+  alias: string;
+  cuil: string;
+};
+
+export async function fetchTransferBank(): Promise<TransferBankConfigApi> {
+  const base = getBackendUrl();
+  if (!base) {
+    throw new Error("Falta NEXT_PUBLIC_BACKEND_URL");
+  }
+  const res = await fetch(`${base}/api/settings/transfer-bank`, {
+    cache: "no-store",
+  });
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data.message || "No se pudieron cargar los datos bancarios.");
+  }
+  return data as TransferBankConfigApi;
+}
+
+export async function updateTransferBank(
+  payload: TransferBankConfigApi
+): Promise<TransferBankConfigApi> {
+  return shopAuthJson<TransferBankConfigApi>("/api/settings/transfer-bank", {
+    method: "PUT",
+    body: JSON.stringify(payload),
+  });
 }

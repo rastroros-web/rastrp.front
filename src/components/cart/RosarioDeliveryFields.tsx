@@ -2,6 +2,10 @@
 
 import { useEffect, useMemo } from "react";
 import { FancySelect } from "@/components/ui/FancySelect";
+import {
+  ROSARIO_SAME_DAY_CUTOFF_HOUR,
+  rosarioNow,
+} from "@/lib/mock/shipping";
 
 /** Entregas Rosario: después de las 16 hs. */
 const SLOTS = [
@@ -14,14 +18,6 @@ const TARGET_DAYS = 14;
 
 export function slotLabel(id?: string | null) {
   return SLOTS.find((s) => s.id === id)?.label ?? "";
-}
-
-function rosarioNow() {
-  return new Date(
-    new Date().toLocaleString("en-US", {
-      timeZone: "America/Argentina/Buenos_Aires",
-    })
-  );
 }
 
 function toISODate(d: Date) {
@@ -45,13 +41,13 @@ function isSunday(iso: string) {
   return new Date(y, m - 1, d).getDay() === 0;
 }
 
-/** Hoy solo si comprás antes de las 16 (envío en el día). Sin domingos. */
+/** Hoy solo si pedís antes de las 12 pm (envío en el día). Sin domingos. */
 function slotsForDate(date: string) {
   if (!date || isSunday(date)) return [];
   if (date > todayISO()) return SLOTS.slice();
   if (date < todayISO()) return [];
   const now = rosarioNow();
-  if (now.getHours() >= 16) return [];
+  if (now.getHours() >= ROSARIO_SAME_DAY_CUTOFF_HOUR) return [];
   return SLOTS.slice();
 }
 
@@ -143,8 +139,8 @@ export function RosarioDeliveryFields({
         onChange={(value) => onChange({ deliverySlot: value })}
       />
       <p className="text-xs text-soft sm:col-span-2">
-        Entregas después de las 16 hs. No hay envíos los domingos. En el día
-        solo si comprás antes de las 16 hs.
+        Entregas después de las 16 hs. No hay envíos los domingos. Si pedís
+        antes de las 12 pm, el pedido llega en el día.
       </p>
     </div>
   );

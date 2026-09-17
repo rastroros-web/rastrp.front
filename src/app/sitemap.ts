@@ -6,7 +6,6 @@ const STATIC_ROUTES = [
   "/",
   "/productos",
   "/mega-sale",
-  "/liquidacion",
   "/nike",
   "/adidas",
   "/vans",

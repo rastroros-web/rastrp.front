@@ -55,7 +55,6 @@ export default function GestionPlanillaPage() {
     <div className="space-y-6">
       <AdminSectionHeader
         title="Planilla diaria"
-        description="Hoja PLANILLA DIARIA · 12 columnas del Excel, con saldos corridos. Las ventas de la tienda se anotan acá y en Ventas."
         actions={
           <button
             type="button"
@@ -102,7 +101,7 @@ export default function GestionPlanillaPage() {
         </form>
       )}
 
-      <AdminTableShell title="PLANILLA DIARIA (todas las columnas del Excel)">
+      <AdminTableShell title="Planilla diaria">
         <table className="min-w-max">
           <thead className="sticky top-0 z-10 bg-[#f5f4f0]">
             <tr>

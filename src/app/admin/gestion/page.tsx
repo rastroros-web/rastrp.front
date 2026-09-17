@@ -29,11 +29,8 @@ import { FancySelect } from "@/components/ui/FancySelect";
 const LINKS = [
   { href: "/admin/gestion/ventas", label: "Ventas", desc: "Historial de ventas y carga manual" },
   { href: "/admin/gestion/planilla", label: "Planilla diaria", desc: "Ingresos y egresos del día" },
-  { href: "/admin/gestion/caja", label: "Caja", desc: "Efectivo y Personal Pay" },
   { href: "/admin/gestion/costos", label: "Costos", desc: "Costo final y margen por modelo" },
-  { href: "/admin/gestion/ecommerce", label: "E-commerce", desc: "Catálogo web, color y stock" },
-  { href: "/admin/gestion/talles", label: "Talles cm", desc: "Medidas por modelo" },
-  { href: "/admin/gestion/gastos-fijos", label: "Gastos fijos", desc: "Marketing, ecommerce, TN" },
+  { href: "/admin/gestion/gastos-fijos", label: "Gastos fijos", desc: "Marketing y gastos mensuales" },
 ];
 
 const ALL = "all";
@@ -66,11 +63,6 @@ export default function GestionHubPage() {
       saldos: saldosActuales(data),
       fijos: sumField(data.gastosFijos || [], (g) => g.montoMensual),
       sinFecha: ventas.filter((v) => !v.monthKey).length,
-      vacio:
-        !ventas.length &&
-        !gastos.length &&
-        !(data.costos || []).length &&
-        !(data.ecommerce || []).length,
     };
   }, [data, period]);
 
@@ -85,7 +77,6 @@ export default function GestionHubPage() {
     <div className="space-y-6 md:space-y-8">
       <AdminSectionHeader
         title="Gestión"
-        description="Mismas hojas que el Excel · se carga todo desde acá · las ventas de la tienda se agregan solas"
         actions={
           <>
             <FancySelect
@@ -98,12 +89,6 @@ export default function GestionHubPage() {
               onChange={setPeriod}
               className="w-full sm:w-52"
             />
-            <Link
-              href="/admin/gestion/ecommerce"
-              className="btn-press bg-brand px-4 py-2.5 text-[11px] font-semibold tracking-[0.14em] text-white uppercase"
-            >
-              Sync catálogo
-            </Link>
             <button
               type="button"
               onClick={() => {
@@ -119,23 +104,6 @@ export default function GestionHubPage() {
           </>
         }
       />
-
-      {view.vacio ? (
-        <section className="border border-brand/30 bg-brand/5 p-4 sm:p-5">
-          <p className="text-sm font-semibold uppercase tracking-wide">
-            Todavía no hay nada cargado
-          </p>
-          <p className="mt-1 text-sm text-soft">
-            El libro arranca vacío y se completa desde acá. El orden que menos
-            trabajo da es: primero <strong>Costos</strong> (marca, modelo y
-            color; de ahí salen la ganancia y el margen), después{" "}
-            <strong>E-commerce</strong> con el stock por talle, y por
-            último los saldos de <strong>Caja</strong> y{" "}
-            <strong>Planilla diaria</strong>. Las ventas de la tienda se anotan
-            solas cuando entra un pedido.
-          </p>
-        </section>
-      ) : null}
 
       <section className="space-y-2.5">
         <h2 className="text-[11px] font-semibold tracking-[0.2em] text-soft uppercase">
@@ -183,7 +151,6 @@ export default function GestionHubPage() {
           <AdminStat label="Saldo bancario" value={formatMoney(saldos.bancario)} />
           <AdminStat label="Saldo efectivo" value={formatMoney(saldos.efectivo)} />
           <AdminStat label="Gastos fijos / mes" value={formatMoney(view.fijos)} />
-          <AdminStat label="Última caja" value={formatMoney(data.caja[0]?.total ?? 0)} />
           <AdminStat label="Pares en stock" value={String(stock.pares)} />
           <AdminStat label="Variantes con stock" value={String(stock.variantes)} />
           <AdminStat label="Stock al costo" value={formatMoney(stock.valorCosto)} />

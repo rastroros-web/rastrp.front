@@ -39,7 +39,6 @@ import {
   saveBusinessBook,
   type BusinessBookResponse,
 } from "@/lib/api/backend";
-import { EXCEL_COSTOS, withExcelCostosIfEmpty } from "@/lib/mock/costosSeed";
 
 type BusinessContextValue = {
   ready: boolean;
@@ -58,8 +57,6 @@ type BusinessContextValue = {
   deleteCaja: (id: string) => void;
   saveCosto: (row: CostoRow) => void;
   deleteCosto: (id: string) => void;
-  /** Reemplaza la hoja COSTOS por la del Excel original. */
-  restoreExcelCostos: () => void;
   saveTalle: (row: TalleMedida) => void;
   saveEcommerce: (row: EcommerceRow) => void;
   deleteEcommerce: (id: string) => void;
@@ -91,8 +88,8 @@ export function BusinessProvider({ children }: { children: ReactNode }) {
   /** Adopta el libro que mandó el servidor sin rebotarlo de vuelta. */
   const applyRemote = useCallback(
     (remote: BusinessBookResponse) => {
-      const next = withExcelCostosIfEmpty(normalizeBusiness(remote));
-      markSynced(normalizeBusiness(remote), remote.rev);
+      const next = normalizeBusiness(remote);
+      markSynced(next, remote.rev);
       setData(next);
       writeJson(BUSINESS_KEY, next);
       return next;
@@ -122,11 +119,10 @@ export function BusinessProvider({ children }: { children: ReactNode }) {
       const vacio = emptyBusiness();
       // Los libros viejos traían los datos del Excel: se descartan por versión.
       if (stored?.version && stored.version >= vacio.version) {
-        setData(withExcelCostosIfEmpty(normalizeBusiness(stored)));
+        setData(normalizeBusiness(stored));
       } else {
-        const seeded = withExcelCostosIfEmpty(vacio);
-        writeJson(BUSINESS_KEY, seeded);
-        setData(seeded);
+        writeJson(BUSINESS_KEY, vacio);
+        setData(vacio);
       }
       setReady(true);
     })();
@@ -294,11 +290,6 @@ export function BusinessProvider({ children }: { children: ReactNode }) {
         }),
       deleteCosto: (id) =>
         patch((p) => ({ ...p, costos: p.costos.filter((r) => r.id !== id) })),
-      restoreExcelCostos: () =>
-        patch((p) => ({
-          ...p,
-          costos: EXCEL_COSTOS.map((row) => ({ ...row })),
-        })),
       saveTalle: (row) =>
         patch((p) => {
           const idx = p.talles.findIndex((r) => r.id === row.id);

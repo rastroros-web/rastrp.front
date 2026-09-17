@@ -36,7 +36,7 @@ export function HeroCarousel({ slides }: HeroCarouselProps) {
     if (slides.length <= 1) return;
     const id = setInterval(() => {
       setIndex((current) => (current + 1) % slides.length);
-    }, 4500);
+    }, 8000);
     return () => clearInterval(id);
   }, [slides.length]);
 

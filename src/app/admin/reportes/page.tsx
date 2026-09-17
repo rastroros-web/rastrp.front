@@ -68,7 +68,7 @@ export default function AdminReportesPage() {
             Reportes
           </h1>
           <p className="mt-1 text-sm text-soft">
-            Ventas mock · {valid.length} pedidos válidos · {products.length}{" "}
+            Ventas de tienda · {valid.length} pedidos válidos · {products.length}{" "}
             productos
           </p>
         </div>

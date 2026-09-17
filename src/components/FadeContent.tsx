@@ -44,11 +44,11 @@ const FadeContent: React.FC<FadeContentProps> = ({
     const el = ref.current;
     if (!el) return;
 
-    let scrollerTarget: Element | string | null = container || document.getElementById('snap-main-container') || null;
-
-    if (typeof scrollerTarget === 'string') {
-      scrollerTarget = document.querySelector(scrollerTarget);
-    }
+    const scrollerTarget = container
+      ? typeof container === "string"
+        ? document.querySelector(container)
+        : container
+      : window;
 
     const startPct = (1 - threshold) * 100;
     const getSeconds = (val: number) => (val > 10 ? val / 1000 : val);
@@ -91,6 +91,12 @@ const FadeContent: React.FC<FadeContentProps> = ({
       once: true,
       onEnter: () => tl.play()
     });
+
+    const reduce =
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const rect = el.getBoundingClientRect();
+    const inView = rect.top < window.innerHeight && rect.bottom > 0;
+    if (reduce || inView) tl.play();
 
     return () => {
       st.kill();

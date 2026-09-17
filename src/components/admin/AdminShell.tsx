@@ -9,20 +9,15 @@ import {
   Users,
   LogOut,
   Store,
-  RotateCcw,
   BarChart3,
   AlertTriangle,
   Ticket,
   Briefcase,
   Receipt,
-  Wallet,
   ClipboardList,
   Calculator,
-  Ruler,
-  ShoppingBasket,
 } from "lucide-react";
 import { useStore } from "@/components/store/StoreProvider";
-import { useBusiness } from "@/components/admin/BusinessProvider";
 import { PageEnter } from "@/components/PageEnter";
 
 const NAV = [
@@ -42,17 +37,13 @@ const GESTION = [
   { href: "/admin/gestion", label: "Gestión", icon: Briefcase },
   { href: "/admin/gestion/ventas", label: "Ventas", icon: Receipt },
   { href: "/admin/gestion/planilla", label: "Planilla", icon: ClipboardList },
-  { href: "/admin/gestion/caja", label: "Caja", icon: Wallet },
   { href: "/admin/gestion/costos", label: "Costos", icon: Calculator },
-  { href: "/admin/gestion/ecommerce", label: "E-commerce", icon: ShoppingBasket },
-  { href: "/admin/gestion/talles", label: "Talles cm", icon: Ruler },
   { href: "/admin/gestion/gastos-fijos", label: "Gastos fijos", icon: Calculator },
 ];
 
 export function AdminShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const { session, logout, resetDemoData } = useStore();
-  const { clearBusiness } = useBusiness();
+  const { session, logout } = useStore();
   const isAdmin = session?.role === "admin";
 
   return (
@@ -151,23 +142,6 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
               <Store className="size-4" />
               Ver tienda
             </Link>
-            {isAdmin ? (
-              <button
-                type="button"
-                onClick={() => {
-                  const ok = window.confirm(
-                    "Esto borra la gestión cargada y vuelve a los datos de demo de la tienda. ¿Seguís?"
-                  );
-                  if (!ok) return;
-                  clearBusiness();
-                  resetDemoData();
-                }}
-                className="flex w-full items-center gap-2.5 px-3 py-2.5 text-left text-[12px] font-semibold tracking-[0.08em] text-white/70 uppercase transition hover:bg-white/10 hover:text-white"
-              >
-                <RotateCcw className="size-4" />
-                Reset demo
-              </button>
-            ) : null}
             <button
               type="button"
               onClick={() => {

@@ -56,7 +56,7 @@ export function SearchModal({
             ref={inputRef}
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            placeholder="Buscar marca, modelo o color…"
+            placeholder="Buscar marca o modelo"
             className="w-full bg-transparent text-sm outline-none placeholder:text-soft"
           />
           <button
@@ -70,13 +70,6 @@ export function SearchModal({
         </div>
 
         <div className="max-h-[50vh] overflow-y-auto">
-          {!q.trim() && (
-            <div className="px-4 py-6 text-sm text-soft">
-              Probá: <span className="text-[#222222]">dunk</span>,{" "}
-              <span className="text-[#222222]">samba</span>,{" "}
-              <span className="text-[#222222]">panda</span>
-            </div>
-          )}
           {q.trim() && results.length === 0 && (
             <p className="px-4 py-8 text-center text-sm text-soft">
               No encontramos “{q}”

@@ -17,11 +17,10 @@ import { resolveVentaArticulo } from "@/lib/mock/resolveVenta";
 import { ledgerFecha } from "@/lib/mock/orderLabels";
 import {
   backfillTalleFromOrders,
+  refreshBusinessFromServer,
   syncShopOrdersToVentas,
 } from "@/lib/mock/orderVentas";
-
-/** Cuenta nueva ordenada del Excel (fila “A PARTIR DEL 1 DE JUNIO”) */
-const CUENTA_NUEVA_DESDE = "2026-06-01";
+import { getBackendUrl } from "@/lib/api/backend";
 
 function normalizeFecha(fecha: string | null): string | null {
   if (!fecha) return null;
@@ -39,23 +38,25 @@ function sortVentasNewest(a: VentaRow, b: VentaRow) {
   return fa < fb ? 1 : -1;
 }
 
-type Periodo = "nueva" | "todas" | "custom";
+type Periodo = "todas" | "custom";
 
 export default function GestionVentasPage() {
   const { ready, data, addVenta, deleteVenta, fillVentaCosts } = useBusiness();
   const { applyVentasToStock, getProduct, orders } = useStore();
   const [q, setQ] = useState("");
   const [open, setOpen] = useState(false);
-  const [periodo, setPeriodo] = useState<Periodo>("nueva");
+  const [periodo, setPeriodo] = useState<Periodo>("todas");
   const [year, setYear] = useState<string>("all");
   const [desde, setDesde] = useState("");
   const [hasta, setHasta] = useState("");
   const [toast, setToast] = useState<string | null>(null);
   const importedOnce = useRef(false);
+  const hasApi = Boolean(getBackendUrl());
 
-  // Trae pedidos de checkout que aún no están en la planilla + talles faltantes
+  // Sin API: importa pedidos mock a la planilla local una vez.
+  // Con API: las ventas las anota el backend al marcar el pedido como pagado.
   useEffect(() => {
-    if (!ready || importedOnce.current || !orders.length) return;
+    if (!ready || importedOnce.current || hasApi || !orders.length) return;
     importedOnce.current = true;
     const talles = backfillTalleFromOrders(orders);
     const result = syncShopOrdersToVentas(orders);
@@ -65,7 +66,7 @@ export default function GestionVentasPage() {
     }
     if (talles > 0) parts.push(`${talles} talles completados`);
     if (parts.length) setToast(`Se sumaron: ${parts.join(" · ")}`);
-  }, [ready, orders]);
+  }, [ready, orders, hasApi]);
 
   const years = useMemo(() => {
     const set = new Set<string>();
@@ -81,10 +82,6 @@ export default function GestionVentasPage() {
       ...v,
       fecha: normalizeFecha(v.fecha),
     }));
-
-    if (periodo === "nueva") {
-      list = list.filter((v) => v.fecha && v.fecha >= CUENTA_NUEVA_DESDE);
-    }
 
     if (year !== "all") {
       list = list.filter((v) => v.fecha?.startsWith(year));
@@ -137,14 +134,10 @@ export default function GestionVentasPage() {
   const total = sumField(enrichedRows, (v) => v.total);
   const costo = sumField(enrichedRows, (v) => v.displayCosto);
   const linked = enrichedRows.filter((v) => v.link.matched).length;
-  const cuentaNuevaCount = data.ventas.filter((v) => {
-    const f = normalizeFecha(v.fecha);
-    return f && f >= CUENTA_NUEVA_DESDE;
-  }).length;
 
   function selectPeriodo(next: Periodo) {
     setPeriodo(next);
-    if (next === "nueva") {
+    if (next === "todas") {
       setYear("all");
       setDesde("");
       setHasta("");
@@ -195,6 +188,13 @@ export default function GestionVentasPage() {
   }
 
   function onImportOrders() {
+    if (hasApi) {
+      refreshBusinessFromServer();
+      setToast(
+        "Planilla actualizada desde el servidor. Las ventas de tienda se anotan al marcar el pedido como pagado."
+      );
+      return;
+    }
     const result = syncShopOrdersToVentas(orders);
     setToast(
       result.added
@@ -232,11 +232,9 @@ export default function GestionVentasPage() {
   if (!ready) return <p className="text-sm text-soft">Cargando…</p>;
 
   const desc =
-    periodo === "nueva"
-      ? `Cuenta nueva desde 1/6/26 · ${cuentaNuevaCount} en total · ${linked}/${enrichedRows.length} vinculadas al catálogo`
-      : desde || hasta || year !== "all"
-        ? `Filtro activo · ${enrichedRows.length} resultados · ${linked} vinculadas`
-        : `${data.ventas.length} registros · planilla completa`;
+    desde || hasta || year !== "all"
+      ? `Filtro activo · ${enrichedRows.length} resultados · ${linked} vinculadas`
+      : `${data.ventas.length} registros · planilla completa`;
 
   return (
     <div className="space-y-6">
@@ -250,7 +248,7 @@ export default function GestionVentasPage() {
               onClick={onImportOrders}
               className="btn-press bg-brand px-4 py-2.5 text-[11px] font-semibold text-white uppercase"
             >
-              Importar pedidos tienda
+              {hasApi ? "Actualizar planilla" : "Importar pedidos tienda"}
             </button>
             <button
               type="button"
@@ -294,17 +292,6 @@ export default function GestionVentasPage() {
         <div className="flex flex-wrap gap-2">
           <button
             type="button"
-            onClick={() => selectPeriodo("nueva")}
-            className={`px-3 py-2 text-[11px] font-semibold uppercase ${
-              periodo === "nueva"
-                ? "bg-[#222222] text-white"
-                : "border border-black/10"
-            }`}
-          >
-            Cuenta nueva (1/6/26)
-          </button>
-          <button
-            type="button"
             onClick={() => selectPeriodo("todas")}
             className={`px-3 py-2 text-[11px] font-semibold uppercase ${
               periodo === "todas" && year === "all" && !desde && !hasta
@@ -325,7 +312,7 @@ export default function GestionVentasPage() {
               type="button"
               onClick={() => selectYear("all")}
               className={`px-3 py-2 text-[11px] font-semibold uppercase ${
-                year === "all" && periodo !== "nueva"
+                year === "all"
                   ? "bg-[#222222] text-white"
                   : "border border-black/10"
               }`}

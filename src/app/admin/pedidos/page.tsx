@@ -11,11 +11,13 @@ import {
   orderStatusFilterOptions,
   orderStatusOptions,
 } from "@/lib/admin/select-options";
+import { TransferBankSettings } from "@/components/admin/TransferBankSettings";
 
 export default function AdminOrdersPage() {
-  const { orders, updateOrderStatus } = useStore();
+  const { orders, updateOrderStatus, session } = useStore();
   const [q, setQ] = useState("");
   const [status, setStatus] = useState<"all" | OrderStatus>("all");
+  const isAdmin = session?.role === "admin";
 
   const filtered = useMemo(() => {
     const query = q.trim().toLowerCase();
@@ -33,16 +35,19 @@ export default function AdminOrdersPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <p className="text-[11px] font-semibold tracking-[0.2em] text-brand uppercase">
-          Ventas
-        </p>
-        <h1 className="mt-1 font-display text-3xl font-bold tracking-wide uppercase sm:text-4xl">
-          Pedidos
-        </h1>
-        <p className="mt-1 text-sm text-soft">
-          {filtered.length} de {orders.length} pedidos
-        </p>
+      <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between">
+        <div>
+          <p className="text-[11px] font-semibold tracking-[0.2em] text-brand uppercase">
+            Ventas
+          </p>
+          <h1 className="mt-1 font-display text-3xl font-bold tracking-wide uppercase sm:text-4xl">
+            Pedidos
+          </h1>
+          <p className="mt-1 text-sm text-soft">
+            {filtered.length} de {orders.length} pedidos
+          </p>
+        </div>
+        {isAdmin ? <TransferBankSettings /> : null}
       </div>
 
       <div className="flex flex-col gap-3 border border-black/5 bg-white p-4 sm:flex-row sm:flex-wrap sm:items-end">

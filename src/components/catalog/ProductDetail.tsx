@@ -21,14 +21,10 @@ import { CartToast, type CartToastPayload } from "@/components/CartToast";
 import { useStore } from "@/components/store/StoreProvider";
 import { sizeQty, stockLabelFromSizes } from "@/lib/mock/stock";
 import { productSharePayload } from "@/lib/shareProduct";
+import { pinWindowToTop } from "@/lib/scroll";
 
 function scrollToProductImage() {
-  const el = document.getElementById("producto");
-  if (el) {
-    el.scrollIntoView({ behavior: "smooth", block: "start" });
-    return;
-  }
-  window.scrollTo({ top: 0, behavior: "smooth" });
+  pinWindowToTop();
 }
 
 export function ProductDetail({
@@ -58,10 +54,10 @@ export function ProductDetail({
   );
   const [size, setSize] = useState<string | null>(null);
   const [added, setAdded] = useState(false);
-  const [notifySize, setNotifySize] = useState<string | null>(null);
   const [toast, setToast] = useState<CartToastPayload | null>(null);
   const [shared, setShared] = useState(false);
   const skipInitialScroll = useRef(true);
+  const sizeSectionRef = useRef<HTMLDivElement>(null);
 
   const variant = useMemo(
     () => getVariant(activeProduct, colorId),
@@ -124,6 +120,21 @@ export function ProductDetail({
     }
     scrollToProductImage();
   }, [colorId]);
+
+  useEffect(() => {
+    if (!size) return;
+    const onPointerDown = (e: PointerEvent) => {
+      const target = e.target as Node | null;
+      if (!target) return;
+      const el = sizeSectionRef.current;
+      if (el?.contains(target)) return;
+      if (target instanceof Element && target.closest(".add-cart-btn")) return;
+      setSize(null);
+      setAdded(false);
+    };
+    document.addEventListener("pointerdown", onPointerDown);
+    return () => document.removeEventListener("pointerdown", onPointerDown);
+  }, [size]);
 
   const closeToast = useCallback(() => setToast(null), []);
 
@@ -408,7 +419,7 @@ export function ProductDetail({
             </div>
           )}
 
-          <div className="mt-8">
+          <div ref={sizeSectionRef} className="mt-8">
             <div className="mb-3 flex items-baseline justify-between">
               <p className="text-[11px] font-semibold tracking-[0.16em] uppercase">
                 Talle
@@ -429,25 +440,22 @@ export function ProductDetail({
                   <button
                     key={s.label}
                     type="button"
+                    disabled={out}
                     onClick={() => {
-                      if (out) {
-                        setNotifySize(s.label);
-                        window.setTimeout(() => setNotifySize(null), 2800);
-                        return;
-                      }
-                      setSize(s.label);
+                      if (out) return;
+                      setSize(selected ? null : s.label);
                       setAdded(false);
                     }}
                     className={`chip-press relative px-2 py-3 text-sm font-semibold ${
                       out
-                        ? "cursor-pointer bg-[#f0f0f0] text-soft line-through hover:bg-[#e8e8e8]"
+                        ? "cursor-not-allowed bg-[#f0f0f0] text-soft/60 line-through"
                         : selected
                           ? "bg-[#222222] text-white"
                           : "border border-black/15 bg-white text-[#222222] hover:border-neutral-900 hover:bg-neutral-900 hover:text-white"
                     }`}
                     title={
                       out
-                        ? "Avisarme cuando haya stock"
+                        ? "Sin stock"
                         : `${qty} unidad${qty === 1 ? "" : "es"}`
                     }
                   >
@@ -467,16 +475,6 @@ export function ProductDetail({
                 );
               })}
             </div>
-            {notifySize && (
-              <p className="mt-2 text-xs font-medium text-[#16a34a]">
-                Te avisamos cuando el talle {notifySize} vuelva.
-              </p>
-            )}
-            {!size && !notifySize && (
-              <p className="mt-2 text-xs text-soft">
-                Elegí un talle · tocá un agotado para “avisarme”
-              </p>
-            )}
             {selectedStock != null && selectedStock > 0 && selectedStock <= 5 && (
               <p className="mt-2 text-xs font-semibold text-brand uppercase tracking-wide">
                 Quedan {selectedStock} en talle {size}
@@ -530,7 +528,7 @@ export function ProductDetail({
                 Envío a todo el país
               </Link>
               {" · "}
-              Rosario: comprá antes de las 16 hs y llega en el día
+              Rosario: si pedís antes de las 12 pm, llega en el día
             </li>
             <li>
               <Link

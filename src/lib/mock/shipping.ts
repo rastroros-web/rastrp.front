@@ -12,6 +12,24 @@ export const FREE_SHIPPING_FROM = 150_000;
 export const HOLIDAYS_NOTE =
   "El tiempo de entrega no considera feriados.";
 
+/** Corte para envío en el día dentro de Rosario (hora de Buenos Aires). */
+export const ROSARIO_SAME_DAY_CUTOFF_HOUR = 12;
+
+export function rosarioNow() {
+  return new Date(
+    new Date().toLocaleString("en-US", {
+      timeZone: "America/Argentina/Buenos_Aires",
+    })
+  );
+}
+
+/** Si pedís antes de las 12 pm en día hábil, el pedido llega en el día. */
+export function isRosarioSameDayWindow(now = rosarioNow()) {
+  const day = now.getDay();
+  const isWeekday = day >= 1 && day <= 5;
+  return isWeekday && now.getHours() < ROSARIO_SAME_DAY_CUTOFF_HOUR;
+}
+
 export function isFreeShipping(merchandiseTotal: number) {
   return merchandiseTotal >= FREE_SHIPPING_FROM;
 }
@@ -37,7 +55,7 @@ export function quoteShipping(
       zone,
       label: free ? "Envío gratis (Rosario)" : "Envío Rosario",
       cost: free ? 0 : 3_500,
-      eta: `En el día (si comprás antes de las 16 hs) o 24–48 hs. ${HOLIDAYS_NOTE}`,
+      eta: `En el día (si pedís antes de las 12 pm) o 24–48 hs. ${HOLIDAYS_NOTE}`,
     };
   }
 

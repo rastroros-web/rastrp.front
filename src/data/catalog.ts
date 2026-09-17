@@ -486,7 +486,6 @@ export const brands = [...new Set(catalog.map((p) => p.brand))].sort();
 export const storeCategoryRoutes = [
   { slug: "productos", label: "Catálogo", href: "/productos" },
   { slug: "mega-sale", label: "Mega Sale", href: "/mega-sale" },
-  { slug: "liquidacion", label: "Liquidación", href: "/liquidacion" },
   { slug: "nike", label: "Nike", href: "/nike" },
   { slug: "adidas", label: "Adidas", href: "/adidas" },
   { slug: "samba", label: "Samba", href: "/samba" },
@@ -501,5 +500,4 @@ export const categories = [
   { id: "zapatillas", label: "Zapatillas" },
   { id: "sandalias", label: "Sandalias" },
   { id: "sale", label: "Sale" },
-  { id: "liquidacion", label: "Liquidación" },
 ] as const;

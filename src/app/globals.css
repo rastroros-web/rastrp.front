@@ -102,8 +102,10 @@
 }
 
 html {
-  scroll-behavior: smooth;
+  /* auto: Chrome mobile + smooth + App Router deja el scroll abajo. */
+  scroll-behavior: auto;
   overflow-x: clip;
+  overflow-anchor: none;
 }
 
 body {
@@ -111,6 +113,7 @@ body {
   background-color: var(--cream);
   color: var(--ink);
   overflow-x: clip;
+  overflow-anchor: none;
   -webkit-text-size-adjust: 100%;
 }
 
@@ -133,7 +136,7 @@ body {
 }
 
 .animate-marquee {
-  animation: marquee 28s linear infinite;
+  animation: marquee 56s linear infinite;
 }
 
 @keyframes fade-up {
@@ -149,6 +152,19 @@ body {
 
 .animate-fade-up {
   animation: fade-up 0.7s ease-out both;
+}
+
+@keyframes page-enter-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.page-enter {
+  animation: page-enter-fade 0.4s ease-out both;
 }
 
 @keyframes star-movement-bottom {
@@ -507,11 +523,16 @@ a.border.btn-press:hover {
 }
 
 .adbar-track {
-  animation: adbar-marquee 28s linear infinite;
+  animation: adbar-marquee 56s linear infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {
   .adbar-track {
+    animation: none;
+  }
+
+  .page-enter,
+  .animate-fade-up {
     animation: none;
   }
 

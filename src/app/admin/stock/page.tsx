@@ -390,7 +390,7 @@ export default function AdminStockPage() {
           Stock bajo
         </h1>
         <p className="mt-2 max-w-xl text-sm text-soft">
-          Fuente: planilla E-commerce. Los cambios acá también actualizan ese stock.
+          Los cambios acá actualizan el stock de la tienda.
         </p>
         <p className="mt-1 text-sm text-soft">
           Rojo sin stock · Naranja ≤ {LOW_STOCK_THRESHOLD} u. · Verde +

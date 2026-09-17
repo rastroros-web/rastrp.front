@@ -66,7 +66,6 @@ export default function GestionGastosFijosPage() {
     <div className="space-y-6">
       <AdminSectionHeader
         title="Gastos fijos"
-        description="Hojas GASTOS FIJOS + GASTOS MENSUALES · Enero / Febrero / Marzo como en el Excel"
         actions={
           <button
             type="button"

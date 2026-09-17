@@ -12,7 +12,6 @@ import {
   flattenCatalog,
   isMegaSale,
   storeCategoryRoutes,
-  isLiquidacion,
   productMatchesQuery,
   type ProductCardModel,
 } from "@/data/catalog";
@@ -169,9 +168,6 @@ export function CatalogGrid() {
       if (category === "sale") {
         return isMegaSale(p);
       }
-      if (category === "liquidacion") {
-        return isLiquidacion(p);
-      }
       if (category === "sandalias") {
         return /sandalia|ojota|zueco/i.test(p.name);
       }
@@ -211,7 +207,7 @@ export function CatalogGrid() {
 
   const goToPage = (next: number) => {
     patchQuery({ page: String(next) });
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    window.scrollTo({ top: 0, behavior: "auto" });
   };
 
   return (

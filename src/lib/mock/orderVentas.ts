@@ -42,6 +42,10 @@ function notifyBusinessChanged() {
   window.dispatchEvent(new Event(BUSINESS_CHANGED_EVENT));
 }
 
+export function refreshBusinessFromServer() {
+  notifyBusinessChanged();
+}
+
 /** Lee planilla business (localStorage o null) */
 export function readBusinessData(): BusinessData | null {
   return readJson<BusinessData | null>(BUSINESS_KEY, null);

@@ -50,7 +50,8 @@ function lockBodyScroll() {
 }
 
 function unlockBodyScroll() {
-  const y = Number(document.body.dataset.scrollLockY || 0);
+  const locked = document.body.dataset.scrollLockY;
+  const y = Number(locked || 0);
   document.body.style.position = "";
   document.body.style.top = "";
   document.body.style.left = "";
@@ -58,7 +59,7 @@ function unlockBodyScroll() {
   document.body.style.width = "";
   document.documentElement.style.overflow = "";
   delete document.body.dataset.scrollLockY;
-  window.scrollTo(0, y);
+  if (locked != null) window.scrollTo(0, y);
 }
 
 export function SiteHeader() {

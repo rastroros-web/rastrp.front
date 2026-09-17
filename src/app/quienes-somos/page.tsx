@@ -28,7 +28,7 @@ export default function QuienesSomosPage() {
           title: "Desde Rosario al país",
           body: [
             "Operamos desde Rosario con envíos a todo el país.",
-            "En Rosario y alrededores ofrecemos envío en el día si comprás antes de las 16 hs.",
+            "En Rosario y alrededores, si pedís antes de las 12 pm el pedido llega en el día.",
             "También tenés puntos de retiro para retirar sin costo de domicilio.",
           ],
         },

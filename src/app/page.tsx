@@ -70,7 +70,7 @@ export default function Home() {
         <section id="marcas" className="border-b border-black/5 py-6 md:py-8">
           <LogoLoop
             logos={brandLogos}
-            speed={80}
+            speed={28}
             direction="left"
             logoHeight={28}
             gap={48}
@@ -164,7 +164,7 @@ export default function Home() {
                 Envíos
               </h3>
               <p className="mt-2 text-xs font-semibold tracking-[0.14em] text-soft uppercase">
-                A todo el país · retiro en puntos
+                Rosario en el día · a todo el país
               </p>
             </FadeContent>
             <FadeContent blur duration={900} delay={0.3}>
