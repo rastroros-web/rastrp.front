@@ -1,13 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useStore } from "@/components/store/StoreProvider";
 import { useBusiness } from "@/components/admin/BusinessProvider";
 import { formatMoney } from "@/lib/mock/money";
 import { getLowStockItems } from "@/lib/mock/lowStock";
 import { sumField } from "@/lib/mock/business";
-import { setShopUserRole } from "@/lib/api/backend";
+import { fetchShopUsers, setShopUserRole } from "@/lib/api/backend";
 
 function RoleAssignCard() {
   const [email, setEmail] = useState("");
@@ -76,16 +76,35 @@ function RoleAssignCard() {
 }
 
 export default function AdminDashboardPage() {
-  const { products, orders, users, cartCount, session } = useStore();
+  const { products, orders, cartCount, session } = useStore();
   const { data: business, ready: businessReady } = useBusiness();
   const isAdmin = session?.role === "admin";
+  const canListUsers =
+    session?.role === "admin" || session?.role === "staff";
+  const [customerCount, setCustomerCount] = useState(0);
   const activeProducts = products.filter((p) => p.active !== false).length;
   const revenue = orders
     .filter((o) => o.status !== "cancelado")
     .reduce((s, o) => s + o.total, 0);
   const pending = orders.filter((o) => o.status === "pendiente").length;
-  const customers = users.filter((u) => u.role === "customer").length;
   const lowStock = useMemo(() => getLowStockItems(products), [products]);
+
+  useEffect(() => {
+    if (!canListUsers) return;
+    let cancelled = false;
+    fetchShopUsers()
+      .then((list) => {
+        if (!cancelled) {
+          setCustomerCount(list.filter((u) => u.role === "CUSTOMER").length);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setCustomerCount(0);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [canListUsers]);
 
   const recent = orders.slice(0, 5);
 
@@ -95,19 +114,13 @@ export default function AdminDashboardPage() {
   const excelGastosFijos = businessReady
     ? sumField(business.gastosFijos, (g) => g.montoMensual)
     : 0;
-  const excelStock = businessReady
-    ? business.ecommerce.reduce(
-        (s, r) => s + Object.values(r.stock).reduce((a, b) => a + b, 0),
-        0
-      )
-    : 0;
 
   const stats = [
     { label: "Ventas tienda", value: formatMoney(revenue) },
     { label: "Pedidos", value: String(orders.length) },
     { label: "Pendientes", value: String(pending) },
     { label: "Productos activos", value: String(activeProducts) },
-    { label: "Clientes", value: String(customers) },
+    { label: "Clientes", value: String(customerCount) },
     { label: "Stock bajo", value: String(lowStock.length) },
   ];
 
@@ -156,8 +169,7 @@ export default function AdminDashboardPage() {
                 Planilla Rastro
               </p>
               <p className="mt-0.5 text-sm text-soft">
-                Datos del Excel · {business.ventas.length} ventas ·{" "}
-                {business.ecommerce.length} variantes
+                Datos de la planilla · {business.ventas.length} ventas
               </p>
             </div>
             <Link
@@ -167,10 +179,10 @@ export default function AdminDashboardPage() {
               Abrir gestión
             </Link>
           </div>
-          <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
+          <div className="grid grid-cols-2 gap-2.5">
             <div className="bg-[#f5f4f0] p-3">
               <p className="text-[9px] font-semibold tracking-[0.12em] text-soft uppercase">
-                Ventas Excel
+                Ventas planilla
               </p>
               <p className="mt-1 text-lg font-semibold">
                 {formatMoney(excelVentas)}
@@ -182,20 +194,6 @@ export default function AdminDashboardPage() {
               </p>
               <p className="mt-1 text-lg font-semibold">
                 {formatMoney(excelGastosFijos)}
-              </p>
-            </div>
-            <div className="bg-[#f5f4f0] p-3">
-              <p className="text-[9px] font-semibold tracking-[0.12em] text-soft uppercase">
-                Pares e-commerce
-              </p>
-              <p className="mt-1 text-lg font-semibold">{excelStock}</p>
-            </div>
-            <div className="bg-[#f5f4f0] p-3">
-              <p className="text-[9px] font-semibold tracking-[0.12em] text-soft uppercase">
-                Última caja
-              </p>
-              <p className="mt-1 text-lg font-semibold">
-                {formatMoney(business.caja[0]?.total ?? 0)}
               </p>
             </div>
           </div>

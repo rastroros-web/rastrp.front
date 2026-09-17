@@ -271,10 +271,14 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     bagOwnerRef.current = owner;
     const storedBag = migrateLegacyBag(owner);
 
-    setUsers(storedUsers?.length ? storedUsers : SEED_USERS);
+    const hasApi = Boolean(getBackendUrl());
+
+    setUsers(hasApi ? [] : storedUsers?.length ? storedUsers : SEED_USERS);
     setOrders(
-      storedSession && getBackendUrl()
-        ? []
+      hasApi
+        ? storedSession
+          ? []
+          : []
         : storedOrders?.length
           ? storedOrders
           : seedOrders()
@@ -294,8 +298,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     setRecentlyViewed(storedRecent);
     setCartShippingState(storedBag.shipping);
 
-    if (!storedUsers?.length) writeJson(STORAGE_KEYS.users, SEED_USERS);
-    if (!storedOrders?.length) writeJson(STORAGE_KEYS.orders, seedOrders());
+    if (!hasApi && !storedUsers?.length) writeJson(STORAGE_KEYS.users, SEED_USERS);
+    if (hasApi) writeJson(STORAGE_KEYS.users, []);
+    if (!hasApi && !storedOrders?.length) writeJson(STORAGE_KEYS.orders, seedOrders());
+    if (hasApi) writeJson(STORAGE_KEYS.orders, []);
     if (!storedPromos?.length) writeJson(STORAGE_KEYS.promos, SEED_PROMO_CODES);
     if (!readJson<BusinessData | null>(BUSINESS_KEY, null)) {
       writeJson(BUSINESS_KEY, emptyBusiness());
