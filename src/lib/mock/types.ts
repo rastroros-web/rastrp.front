@@ -116,6 +116,8 @@ export type ShippingDetails = {
 
 export type MockOrder = {
   id: string;
+  /** ID numérico de Orders (para MP external_reference / sync). */
+  numericId?: number;
   userId: string;
   userName: string;
   userEmail: string;
@@ -128,6 +130,8 @@ export type MockOrder = {
   total: number;
   paymentMethod: "transferencia" | "mercadopago";
   status: OrderStatus;
+  mpPaymentId?: string;
+  paidAt?: string;
   shippingAddress: string;
   shippingDetails?: ShippingDetails;
   trackingCarrier?: TrackingCarrier;

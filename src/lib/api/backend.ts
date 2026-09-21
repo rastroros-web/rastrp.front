@@ -475,6 +475,8 @@ export type ApiOrder = {
   total: number;
   paymentMethod: MockOrder["paymentMethod"];
   status: OrderStatus;
+  mpPaymentId?: string;
+  paidAt?: string;
   shippingAddress: string;
   shippingDetails?: MockOrder["shippingDetails"];
   trackingCarrier?: TrackingCarrier;
@@ -484,14 +486,37 @@ export type ApiOrder = {
   auth?: { token: string; user: ShopAuthUser };
 };
 
+export type ShopPaymentPreference = {
+  preferenceId: string;
+  initPoint: string;
+  sandboxInitPoint?: string;
+};
+
+/** Extrae el id numérico de `ORD-42` / `42` para MP. */
+export function parseShopOrderNumericId(
+  raw: string | number | null | undefined
+): number | null {
+  if (raw == null || raw === "") return null;
+  if (typeof raw === "number") {
+    return Number.isFinite(raw) && raw > 0 ? Math.trunc(raw) : null;
+  }
+  const match = String(raw).trim().match(/^(?:ORD-)?(\d+)$/i);
+  return match ? Number(match[1]) : null;
+}
+
 function moneyFromApi(value: number | string | null | undefined): string {
   if (typeof value === "string" && value.includes("$")) return value;
   return formatMoney(Number(value) || 0);
 }
 
 export function mapApiOrder(order: ApiOrder): MockOrder {
+  const numericId =
+    order.numericId != null
+      ? Number(order.numericId)
+      : parseShopOrderNumericId(order.id) || undefined;
   return {
     id: order.id,
+    numericId: numericId && Number.isFinite(numericId) ? numericId : undefined,
     userId: String(order.userId),
     userName: order.userName,
     userEmail: order.userEmail,
@@ -516,6 +541,8 @@ export function mapApiOrder(order: ApiOrder): MockOrder {
     total: Number(order.total) || 0,
     paymentMethod: order.paymentMethod,
     status: order.status,
+    mpPaymentId: order.mpPaymentId || undefined,
+    paidAt: order.paidAt || undefined,
     shippingAddress: order.shippingAddress || "",
     shippingDetails: order.shippingDetails,
     trackingCarrier: order.trackingCarrier,
@@ -665,6 +692,41 @@ export async function updateShopOrder(
     }
   );
   return mapApiOrder(data);
+}
+
+export async function createShopPaymentPreference(
+  orderId: string | number
+): Promise<ShopPaymentPreference> {
+  const data = await shopAuthJson<ShopPaymentPreference>(
+    `/api/orders/${encodeURIComponent(String(orderId))}/payment-preference`,
+    { method: "POST" }
+  );
+  return {
+    preferenceId: String(data.preferenceId || ""),
+    initPoint: String(data.initPoint || ""),
+    sandboxInitPoint: data.sandboxInitPoint
+      ? String(data.sandboxInitPoint)
+      : undefined,
+  };
+}
+
+export async function syncShopPayment(
+  orderId: string | number,
+  paymentId: string
+): Promise<{
+  success: boolean;
+  order: {
+    id: string;
+    numericId?: number;
+    status: OrderStatus;
+    mpPaymentId?: string;
+    paidAt?: string;
+  };
+}> {
+  return shopAuthJson("/api/orders/sync-payment", {
+    method: "POST",
+    body: JSON.stringify({ orderId, paymentId }),
+  });
 }
 
 export function mapApiPromo(p: PromoCode): PromoCode {

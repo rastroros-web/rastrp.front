@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { Check } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { ShopChrome } from "@/components/ShopChrome";
 import { PromoToast, type PromoToastPayload } from "@/components/PromoToast";
 import { useStore } from "@/components/store/StoreProvider";
@@ -122,6 +122,7 @@ const fieldClass =
   "w-full border border-black/10 px-3 py-2.5 text-sm outline-none focus:border-[#222222]";
 
 export default function CheckoutPage() {
+  const router = useRouter();
   const {
     ready,
     session,
@@ -156,7 +157,10 @@ export default function CheckoutPage() {
     });
   };
   const [storeId, setStoreId] = useState(
-    () => cartShipping.storeId || STORES[0].id
+    () =>
+      cartShipping.storeId ||
+      STORES.find((s) => s.alwaysInStock)?.id ||
+      STORES[0].id
   );
   const [done, setDone] = useState<MockOrder | null>(null);
   const [error, setError] = useState("");
@@ -177,7 +181,6 @@ export default function CheckoutPage() {
   const [promoCode, setPromoCode] = useState("");
   const [promoError, setPromoError] = useState("");
   const [promoToast, setPromoToast] = useState<PromoToastPayload | null>(null);
-  const [mpPhase, setMpPhase] = useState<"idle" | "redirect" | "ok">("idle");
   const [accountPassword, setAccountPassword] = useState("");
   const [needPassword, setNeedPassword] = useState(false);
   const [savedAddresses, setSavedAddresses] = useState<SavedAddress[]>([]);
@@ -287,7 +290,6 @@ export default function CheckoutPage() {
 
   const total = Math.max(0, merchandise - discount + shippingCost);
   const canConfirm =
-    mpPhase === "idle" &&
     !submitting &&
     !(zone === "interior" && !cartShipping.rate) &&
     !(
@@ -303,6 +305,18 @@ export default function CheckoutPage() {
   const storeStock = selectedStore
     ? storeHasCartStock(selectedStore, cartSlugs)
     : { ok: true, missing: [] as string[] };
+
+  useEffect(() => {
+    if (zone !== "retiro") return;
+    const current = getStore(storeId);
+    if (current && storeHasCartStock(current, cartSlugs).ok) return;
+    const fallback = STORES.find(
+      (store) => storeHasCartStock(store, cartSlugs).ok
+    );
+    if (!fallback) return;
+    setStoreId(fallback.id);
+    setCartShipping({ storeId: fallback.id });
+  }, [zone, storeId, cartSlugs, setCartShipping]);
 
   useEffect(() => {
     if (!session) return;
@@ -375,15 +389,24 @@ export default function CheckoutPage() {
 
   if (done) {
     const isTransfer = done.paymentMethod === "transferencia";
+    const mpPaid = !isTransfer && done.status === "pagado";
     return (
       <ShopChrome>
         <main className="mx-auto max-w-xl flex-1 px-4 py-10 md:px-6 md:py-16">
           <div className="text-center">
             <p className="text-[11px] font-semibold tracking-[0.2em] text-brand uppercase">
-              {isTransfer ? "Pedido reservado" : "Pago confirmado"}
+              {isTransfer
+                ? "Pedido reservado"
+                : mpPaid
+                  ? "Pago confirmado"
+                  : "Pedido creado"}
             </p>
             <h1 className="mt-2 font-display text-4xl font-bold tracking-wide uppercase">
-              {isTransfer ? "Transferí para confirmar" : "¡Listo!"}
+              {isTransfer
+                ? "Transferí para confirmar"
+                : mpPaid
+                  ? "¡Listo!"
+                  : "Seguí con Mercado Pago"}
             </h1>
             <p className="mt-3 text-sm text-soft">
               Pedido <strong className="text-[#222222]">{done.id}</strong> · Total{" "}
@@ -393,21 +416,32 @@ export default function CheckoutPage() {
               Estado: {done.status}
               {isTransfer
                 ? " — pendiente hasta acreditar el pago"
-                : " — pago aprobado"}
+                : mpPaid
+                  ? " — pago aprobado"
+                  : " — pendiente de pago online"}
             </p>
           </div>
 
           {isTransfer ? (
             <TransferAccountBox orderId={done.id} total={done.total} />
           ) : (
-            <section className="mt-8 border border-[#16a34a]/30 bg-[#f0fdf4] p-5 text-left">
-              <p className="text-sm font-semibold text-[#16a34a]">
-                Mercado Pago · pago aprobado
+            <section className="mt-8 border border-[#009ee3]/25 bg-[#f0f9ff] p-5 text-left">
+              <p className="text-sm font-semibold text-[#009ee3]">
+                Mercado Pago
               </p>
               <p className="mt-2 text-sm text-soft">
-                Recibimos la confirmación del cobro. Ya podés seguir el estado
-                del pedido desde tu cuenta.
+                {mpPaid
+                  ? "Recibimos la confirmación del cobro. Ya podés seguir el estado del pedido desde tu cuenta."
+                  : "Tu pedido quedó reservado. Completá el pago en Mercado Pago para confirmarlo."}
               </p>
+              {!mpPaid && (
+                <Link
+                  href={`/checkout/${encodeURIComponent(String(done.numericId || done.id))}`}
+                  className="btn-press mt-4 inline-flex bg-[#009ee3] px-5 py-3 text-[11px] font-semibold tracking-[0.12em] text-white uppercase"
+                >
+                  Ir a pagar
+                </Link>
+              )}
             </section>
           )}
 
@@ -625,15 +659,12 @@ export default function CheckoutPage() {
               if (!session) writeGuestAddresses(next);
             }
 
-            if (paymentMethod === "mercadopago") {
-              setMpPhase("redirect");
-              window.setTimeout(() => {
-                setMpPhase("ok");
-                window.setTimeout(() => {
-                  setMpPhase("idle");
-                  setDone(result.order);
-                }, 900);
-              }, 1600);
+            if (paymentMethod === "mercadopago" && getBackendUrl()) {
+              router.push(
+                `/checkout/${encodeURIComponent(
+                  String(result.order.numericId || result.order.id)
+                )}`
+              );
               return;
             }
 
@@ -1268,41 +1299,6 @@ export default function CheckoutPage() {
         </form>
       </main>
       <PromoToast toast={promoToast} onClose={closePromoToast} />
-
-      {mpPhase !== "idle" && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4 backdrop-blur-[2px]">
-          <div className="w-full max-w-sm border border-black/10 bg-white p-6 text-center shadow-[0_24px_80px_rgba(0,0,0,0.25)]">
-            <p className="text-[11px] font-semibold tracking-[0.16em] text-[#009ee3] uppercase">
-              Mercado Pago
-            </p>
-            {mpPhase === "redirect" ? (
-              <>
-                <h2 className="mt-3 font-display text-2xl font-bold uppercase">
-                  Procesando pago…
-                </h2>
-                <p className="mt-2 text-sm text-soft">
-                  Simulación de redirección. No se cobra dinero real.
-                </p>
-                <div className="mx-auto mt-6 h-1 w-40 overflow-hidden bg-black/5">
-                  <div className="h-full w-1/2 animate-pulse bg-[#009ee3]" />
-                </div>
-              </>
-            ) : (
-              <>
-                <div className="mx-auto mt-2 flex size-12 items-center justify-center bg-[#16a34a] text-white">
-                  <Check className="size-6" strokeWidth={2.5} />
-                </div>
-                <h2 className="mt-3 font-display text-2xl font-bold uppercase">
-                  Pago aprobado
-                </h2>
-                <p className="mt-2 text-sm text-soft">
-                  Volviendo al pedido…
-                </p>
-              </>
-            )}
-          </div>
-        </div>
-      )}
     </ShopChrome>
   );
 }
