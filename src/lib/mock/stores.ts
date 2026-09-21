@@ -7,7 +7,9 @@ export type StoreLocation = {
   city: string;
   hours: string;
   phone: string;
-  /** Slugs con stock disponible para retiro (demo mock) */
+  /** Si es true, el checkout no bloquea retiro por slug. */
+  alwaysInStock?: boolean;
+  /** Slugs con stock disponible para retiro (solo si alwaysInStock es false). */
   stockSlugs: string[];
 };
 
@@ -57,6 +59,7 @@ export const STORES: StoreLocation[] = [
     city: "Rosario",
     hours: "Horario a coordinar",
     phone: "",
+    alwaysInStock: true,
     stockSlugs: ALL_PICKUP_STOCK,
   },
 ];
@@ -69,6 +72,7 @@ export function storeHasCartStock(
   store: StoreLocation,
   productSlugs: string[]
 ): { ok: boolean; missing: string[] } {
+  if (store.alwaysInStock) return { ok: true, missing: [] };
   const missing = productSlugs.filter((s) => !store.stockSlugs.includes(s));
   return { ok: missing.length === 0, missing };
 }
