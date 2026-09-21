@@ -34,7 +34,7 @@ const COPY: Record<
     eyebrow: "Pago rechazado",
     title: "No se pudo cobrar",
     description:
-      "Mercado Pago no acreditó el pago. Podés reintentar con el mismo pedido o elegir otro medio.",
+      "Mercado Pago no acreditó el pago. Liberamos el stock de este pedido: armá uno nuevo desde el carrito o el catálogo.",
     tone: "border-[#dc2626]/25 bg-[#fef2f2] text-[#dc2626]",
   },
   pending: {
@@ -84,6 +84,12 @@ function PagoResultInner({ variant }: { variant: PagoVariant }) {
           await syncShopPayment(orderId, paymentId).catch(() => {
             /* webhook también puede actualizar */
           });
+        }
+        if (
+          (variant === "pending" || variant === "failure") &&
+          paymentId
+        ) {
+          await syncShopPayment(orderId, paymentId).catch(() => {});
         }
         if (cancelled) return;
 
@@ -167,12 +173,12 @@ function PagoResultInner({ variant }: { variant: PagoVariant }) {
         </section>
 
         <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
-          {variant === "failure" && orderId && (
+          {variant === "failure" && (
             <Link
-              href={`/checkout/${encodeURIComponent(orderId)}`}
+              href="/checkout"
               className="btn-press bg-[#222222] px-6 py-3 text-center text-[11px] font-semibold tracking-[0.14em] text-white uppercase"
             >
-              Reintentar pago
+              Volver al checkout
             </Link>
           )}
           <Link

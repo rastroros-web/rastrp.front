@@ -608,6 +608,14 @@ export default function CheckoutPage() {
             };
 
             setSubmitting(true);
+            if (!session) {
+              const pwd = accountPassword.trim();
+              if (pwd.length < 8) {
+                setSubmitting(false);
+                setError("La contraseña debe tener al menos 8 caracteres.");
+                return;
+              }
+            }
             const result = await placeOrder({
               paymentMethod,
               shippingAddress: formatShippingAddress(details),
@@ -622,7 +630,7 @@ export default function CheckoutPage() {
                     name: fullName.trim(),
                     email: email.trim(),
                     phone: phone.trim(),
-                    password: accountPassword || undefined,
+                    password: accountPassword.trim(),
                   },
             });
             setSubmitting(false);
@@ -918,22 +926,24 @@ export default function CheckoutPage() {
                     <span className="mb-1 block text-[11px] font-semibold tracking-[0.12em] uppercase">
                       {needPassword
                         ? "Contraseña de tu cuenta *"
-                        : "Contraseña (si ya tenés cuenta)"}
+                        : "Creá una contraseña *"}
                     </span>
                     <input
                       type="password"
-                      required={needPassword}
+                      required
+                      minLength={8}
                       value={accountPassword}
                       onChange={(e) => setAccountPassword(e.target.value)}
                       className={fieldClass}
-                      autoComplete="current-password"
+                      autoComplete={
+                        needPassword ? "current-password" : "new-password"
+                      }
                     />
-                    {needPassword && (
-                      <span className="mt-1 block text-xs text-soft">
-                        Ese email ya está registrado. Ingresá la contraseña para
-                        confirmar.
-                      </span>
-                    )}
+                    <span className="mt-1 block text-xs text-soft">
+                      {needPassword
+                        ? "Ese email ya está registrado. Ingresá la contraseña para confirmar."
+                        : "Mínimo 8 caracteres. La vas a necesitar para ver el pedido después de pagar."}
+                    </span>
                   </label>
                 )}
 

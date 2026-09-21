@@ -1,17 +1,20 @@
 "use client";
 
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useStore } from "@/components/store/StoreProvider";
 
 export function AccountGate({ children }: { children: React.ReactNode }) {
   const { ready, session } = useStore();
   const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     if (!ready) return;
-    if (!session) router.replace("/cuenta/login?next=/cuenta");
-  }, [ready, session, router]);
+    if (session) return;
+    const next = pathname && pathname.startsWith("/") ? pathname : "/cuenta";
+    router.replace(`/cuenta/login?next=${encodeURIComponent(next)}`);
+  }, [ready, session, router, pathname]);
 
   if (session) return <>{children}</>;
 

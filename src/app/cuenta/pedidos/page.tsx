@@ -6,6 +6,31 @@ import { ShopChrome } from "@/components/ShopChrome";
 import { AccountGate } from "@/components/account/AccountGate";
 import { useStore } from "@/components/store/StoreProvider";
 import { formatMoney } from "@/lib/mock/money";
+import {
+  canRetryMercadoPago,
+  mercadoPagoCheckoutHref,
+} from "@/lib/mock/orderLabels";
+
+function orderActionLabel(order: {
+  status: string;
+  paymentMethod: string;
+}) {
+  if (canRetryMercadoPago(order)) return "Ir a pagar";
+  if (order.status === "pendiente" && order.paymentMethod === "transferencia") {
+    return "Ver datos para transferir";
+  }
+  return "Ver seguimiento";
+}
+
+function orderActionHref(order: {
+  id: string;
+  numericId?: number;
+  status: string;
+  paymentMethod: string;
+}) {
+  if (canRetryMercadoPago(order)) return mercadoPagoCheckoutHref(order);
+  return `/cuenta/pedidos/${order.id}`;
+}
 
 function OrdersContent() {
   const { session, orders } = useStore();
@@ -85,12 +110,14 @@ function OrdersContent() {
               </div>
 
               <Link
-                href={`/cuenta/pedidos/${o.id}`}
-                className="btn-press mt-4 flex w-full items-center justify-center bg-[#222222] px-4 py-3 text-[11px] font-semibold tracking-[0.14em] text-white uppercase"
+                href={orderActionHref(o)}
+                className={`btn-press mt-4 flex w-full items-center justify-center px-4 py-3 text-[11px] font-semibold tracking-[0.14em] uppercase ${
+                  canRetryMercadoPago(o)
+                    ? "bg-[#009ee3] text-white"
+                    : "bg-[#222222] text-white"
+                }`}
               >
-                {o.status === "pendiente" && o.paymentMethod === "transferencia"
-                  ? "Ver datos para transferir"
-                  : "Ver seguimiento"}
+                {orderActionLabel(o)}
               </Link>
             </div>
 
@@ -116,13 +143,14 @@ function OrdersContent() {
                 <div className="shrink-0 text-right">
                   <p className="text-lg font-semibold">{formatMoney(o.total)}</p>
                   <Link
-                    href={`/cuenta/pedidos/${o.id}`}
-                    className="btn-press mt-3 inline-flex border border-[#222222] px-4 py-2.5 text-[11px] font-semibold tracking-[0.12em] uppercase"
+                    href={orderActionHref(o)}
+                    className={`btn-press mt-3 inline-flex px-4 py-2.5 text-[11px] font-semibold tracking-[0.12em] uppercase ${
+                      canRetryMercadoPago(o)
+                        ? "bg-[#009ee3] text-white"
+                        : "border border-[#222222]"
+                    }`}
                   >
-                    {o.status === "pendiente" &&
-                    o.paymentMethod === "transferencia"
-                      ? "Ver datos para transferir"
-                      : "Ver seguimiento"}
+                    {orderActionLabel(o)}
                   </Link>
                 </div>
               </div>

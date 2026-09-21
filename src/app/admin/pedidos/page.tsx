@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 import { Search } from "lucide-react";
 import { useStore } from "@/components/store/StoreProvider";
 import { formatMoney } from "@/lib/mock/money";
+import { paymentMethodLabel } from "@/lib/mock/orderLabels";
 import type { OrderStatus } from "@/lib/mock/types";
 import { FancySelect } from "@/components/ui/FancySelect";
 import {
@@ -110,7 +111,7 @@ export default function AdminOrdersPage() {
             <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-soft">
               <span>{o.items.reduce((s, i) => s + i.qty, 0)} items</span>
               <span>·</span>
-              <span className="capitalize">{o.paymentMethod}</span>
+              <span>{paymentMethodLabel(o.paymentMethod)}</span>
               <span>·</span>
               <span>{new Date(o.createdAt).toLocaleDateString("es-AR")}</span>
             </div>
@@ -182,7 +183,9 @@ export default function AdminOrdersPage() {
                   {o.items.reduce((s, i) => s + i.qty, 0)}
                 </td>
                 <td className="px-4 py-3">{formatMoney(o.total)}</td>
-                <td className="px-4 py-3 capitalize">{o.paymentMethod}</td>
+                <td className="px-4 py-3">
+                  {paymentMethodLabel(o.paymentMethod)}
+                </td>
                 <td className="px-4 py-3">
                   <FancySelect
                     label="Estado"

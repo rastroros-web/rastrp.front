@@ -6,6 +6,7 @@ import { use, useEffect, useState, type FormEvent } from "react";
 import { notFound } from "next/navigation";
 import { useStore } from "@/components/store/StoreProvider";
 import { formatMoney, parseMoney } from "@/lib/mock/money";
+import { paymentMethodLabel } from "@/lib/mock/orderLabels";
 import {
   carrierLabel,
   trackingUrl,
@@ -105,8 +106,8 @@ export default function AdminOrderDetailPage({
           <p className="text-[10px] font-semibold tracking-[0.14em] text-soft uppercase">
             Pago
           </p>
-          <p className="mt-1 text-sm font-semibold capitalize">
-            {order.paymentMethod}
+          <p className="mt-1 text-sm font-semibold">
+            {paymentMethodLabel(order.paymentMethod)}
           </p>
         </div>
         <div className="border border-black/5 bg-white p-4">
@@ -377,8 +378,8 @@ export default function AdminOrderDetailPage({
           </div>
           <p className="pt-1 text-xs text-soft">
             Método de pago:{" "}
-            <span className="capitalize text-[#222222]">
-              {order.paymentMethod}
+            <span className="text-[#222222]">
+              {paymentMethodLabel(order.paymentMethod)}
             </span>
           </p>
         </div>

@@ -94,6 +94,35 @@ export function collapseLabel(text: string | null | undefined) {
   return compact.join(" ");
 }
 
+/** Label legible del medio de pago. */
+export function paymentMethodLabel(
+  method: string | null | undefined
+): string {
+  const value = String(method || "").trim().toLowerCase();
+  if (value === "transferencia") return "Transferencia";
+  if (value === "mercadopago") return "Mercado Pago";
+  return method ? String(method) : "—";
+}
+
+/** Link al checkout MP para reintentar / completar pago. */
+export function mercadoPagoCheckoutHref(order: {
+  id: string;
+  numericId?: number;
+}): string {
+  const id = order.numericId || order.id;
+  return `/checkout/${encodeURIComponent(String(id))}`;
+}
+
+export function canRetryMercadoPago(order: {
+  paymentMethod?: string;
+  status?: string;
+}): boolean {
+  return (
+    String(order.paymentMethod || "") === "mercadopago" &&
+    String(order.status || "") === "pendiente"
+  );
+}
+
 export function planillaDescripcion(
   articulo: string | null | undefined,
   talle?: string | null

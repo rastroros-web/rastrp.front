@@ -9,6 +9,11 @@ import { useStore } from "@/components/store/StoreProvider";
 import { formatMoney } from "@/lib/mock/money";
 import { TransferAccountBox } from "@/components/checkout/TransferAccountBox";
 import { carrierLabel, trackingUrl } from "@/lib/mock/tracking";
+import {
+  canRetryMercadoPago,
+  mercadoPagoCheckoutHref,
+  paymentMethodLabel,
+} from "@/lib/mock/orderLabels";
 import type { OrderStatus } from "@/lib/mock/types";
 
 const STEPS: OrderStatus[] = [
@@ -49,7 +54,7 @@ function trackingMessage(order: {
     case "pendiente":
       return order.paymentMethod === "transferencia"
         ? "Estamos esperando tu transferencia. Mandanos el comprobante por WhatsApp; cuando acredite, el pedido pasa a pagado."
-        : "Tu pedido está pendiente de confirmación de pago.";
+        : "Tu pedido está pendiente de pago con Mercado Pago. Completá el cobro para confirmarlo.";
     case "pagado":
       return "Pago confirmado. En breve armamos tu pedido para despachar.";
     case "preparando":
@@ -376,8 +381,8 @@ function OrderDetail() {
             <p className="text-[10px] font-semibold tracking-[0.14em] text-soft uppercase">
               Método de pago
             </p>
-            <p className="mt-1 text-sm font-medium capitalize">
-              {order.paymentMethod}
+            <p className="mt-1 text-sm font-medium">
+              {paymentMethodLabel(order.paymentMethod)}
             </p>
             {order.paymentMethod === "transferencia" &&
               order.status === "pendiente" && (
@@ -387,6 +392,14 @@ function OrderDetail() {
                   compact
                 />
               )}
+            {canRetryMercadoPago(order) && (
+              <Link
+                href={mercadoPagoCheckoutHref(order)}
+                className="btn-press mt-4 inline-flex bg-[#009ee3] px-5 py-3 text-[11px] font-semibold tracking-[0.12em] text-white uppercase"
+              >
+                Ir a pagar
+              </Link>
+            )}
           </div>
         </section>
       </div>
