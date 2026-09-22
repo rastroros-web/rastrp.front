@@ -132,6 +132,10 @@ export type MockOrder = {
   status: OrderStatus;
   mpPaymentId?: string;
   paidAt?: string;
+  /** ISO: vencimiento del pendiente (24 h desde createdAt). */
+  paymentExpiresAt?: string;
+  /** El cliente puede cancelar mientras esté pendiente de pago. */
+  canCancelUnpaid?: boolean;
   shippingAddress: string;
   shippingDetails?: ShippingDetails;
   trackingCarrier?: TrackingCarrier;

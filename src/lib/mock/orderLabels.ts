@@ -123,6 +123,16 @@ export function canRetryMercadoPago(order: {
   );
 }
 
+/** Pedido sin pagar (MP o transferencia) que el cliente puede cancelar. */
+export function canCancelUnpaidOrder(order: {
+  paymentMethod?: string;
+  status?: string;
+  canCancelUnpaid?: boolean;
+}): boolean {
+  if (order.canCancelUnpaid === true) return true;
+  return String(order.status || "") === "pendiente";
+}
+
 export function planillaDescripcion(
   articulo: string | null | undefined,
   talle?: string | null

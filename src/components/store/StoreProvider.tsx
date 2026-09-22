@@ -69,6 +69,7 @@ import {
   updateShopProfile,
   createShopOrder,
   updateShopOrder,
+  cancelShopOrder,
   saveShopPromo,
   deleteShopPromo,
 } from "@/lib/api/backend";
@@ -177,6 +178,9 @@ type StoreContextValue = {
     };
   }) => Promise<PlaceOrderResult>;
   updateOrderStatus: (id: string, status: OrderStatus) => Promise<void>;
+  cancelOrder: (
+    id: string
+  ) => Promise<{ ok: true; order: MockOrder } | { ok: false; error: string }>;
   updateOrderTracking: (
     id: string,
     data: {
@@ -1047,6 +1051,54 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     [orders]
   );
 
+  const cancelOrder = useCallback(async (id: string) => {
+    if (hasApiAuth() || getBackendUrl()) {
+      try {
+        const updated = await cancelShopOrder(id);
+        setOrders((prev) => prev.map((o) => (o.id === id ? updated : o)));
+        invalidateShopProductsCache();
+        fetchShopProducts({ force: true })
+          .then((fromApi) => {
+            if (fromApi?.length) {
+              setProducts(fromApi.map(normalizeProductStock));
+            }
+          })
+          .catch(() => {});
+        notifyBusinessChanged();
+        return { ok: true as const, order: updated };
+      } catch (err) {
+        return {
+          ok: false as const,
+          error:
+            err instanceof Error
+              ? err.message
+              : "No se pudo cancelar el pedido.",
+        };
+      }
+    }
+    const current = orders.find((o) => o.id === id);
+    if (!current || current.status !== "pendiente") {
+      return {
+        ok: false as const,
+        error: "Solo se pueden cancelar pedidos pendientes de pago.",
+      };
+    }
+    const updated = {
+      ...current,
+      status: "cancelado" as OrderStatus,
+      updatedAt: new Date().toISOString(),
+      canCancelUnpaid: undefined,
+      paymentExpiresAt: undefined,
+    };
+    setOrders((prev) => prev.map((o) => (o.id === id ? updated : o)));
+    try {
+      removeVentasOfOrder(updated);
+    } catch {
+      /* noop */
+    }
+    return { ok: true as const, order: updated };
+  }, [orders]);
+
   const updateOrderTracking = useCallback(
     async (
       id: string,
@@ -1377,6 +1429,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       trackView,
       placeOrder,
       updateOrderStatus,
+      cancelOrder,
       updateOrderTracking,
       getProduct,
       getOrder,
@@ -1418,6 +1471,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       trackView,
       placeOrder,
       updateOrderStatus,
+      cancelOrder,
       updateOrderTracking,
       getProduct,
       getOrder,

@@ -5,16 +5,19 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { ShopChrome } from "@/components/ShopChrome";
 import { AccountGate } from "@/components/account/AccountGate";
+import { CancelOrderDialog } from "@/components/account/CancelOrderDialog";
 import { useStore } from "@/components/store/StoreProvider";
 import { formatMoney } from "@/lib/mock/money";
 import { TransferAccountBox } from "@/components/checkout/TransferAccountBox";
 import { carrierLabel, trackingUrl } from "@/lib/mock/tracking";
 import {
+  canCancelUnpaidOrder,
   canRetryMercadoPago,
   mercadoPagoCheckoutHref,
   paymentMethodLabel,
 } from "@/lib/mock/orderLabels";
 import type { OrderStatus } from "@/lib/mock/types";
+import { useState } from "react";
 
 const STEPS: OrderStatus[] = [
   "pendiente",
@@ -96,7 +99,10 @@ function stepHint(status: OrderStatus) {
 function OrderDetail() {
   const params = useParams<{ id: string }>();
   const id = params.id;
-  const { session, getOrder, ready } = useStore();
+  const { session, getOrder, ready, cancelOrder } = useStore();
+  const [showCancel, setShowCancel] = useState(false);
+  const [cancelling, setCancelling] = useState(false);
+  const [cancelError, setCancelError] = useState("");
 
   if (!ready) {
     return (
@@ -122,6 +128,18 @@ function OrderDetail() {
       </main>
     );
   }
+
+  const confirmCancel = async () => {
+    setCancelling(true);
+    setCancelError("");
+    const result = await cancelOrder(order.id);
+    setCancelling(false);
+    if (!result.ok) {
+      setCancelError(result.error);
+      return;
+    }
+    setShowCancel(false);
+  };
 
   const idx = statusIndex(order.status);
   const postal = isPostalShipment(order);
@@ -400,9 +418,38 @@ function OrderDetail() {
                 Ir a pagar
               </Link>
             )}
+            {canCancelUnpaidOrder(order) && (
+              <div className="mt-4 space-y-2">
+                <button
+                  type="button"
+                  disabled={cancelling}
+                  onClick={() => {
+                    setCancelError("");
+                    setShowCancel(true);
+                  }}
+                  className="btn-press inline-flex border border-red-300 px-5 py-3 text-[11px] font-semibold tracking-[0.12em] text-red-700 uppercase disabled:opacity-50"
+                >
+                  Cancelar pedido
+                </button>
+                {cancelError && (
+                  <p className="text-xs text-red-600">{cancelError}</p>
+                )}
+              </div>
+            )}
           </div>
         </section>
       </div>
+
+      {showCancel && (
+        <CancelOrderDialog
+          order={order}
+          busy={cancelling}
+          onClose={() => {
+            if (!cancelling) setShowCancel(false);
+          }}
+          onConfirm={confirmCancel}
+        />
+      )}
     </main>
   );
 }

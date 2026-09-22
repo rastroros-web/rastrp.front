@@ -477,6 +477,8 @@ export type ApiOrder = {
   status: OrderStatus;
   mpPaymentId?: string;
   paidAt?: string;
+  paymentExpiresAt?: string;
+  canCancelUnpaid?: boolean;
   shippingAddress: string;
   shippingDetails?: MockOrder["shippingDetails"];
   trackingCarrier?: TrackingCarrier;
@@ -543,6 +545,8 @@ export function mapApiOrder(order: ApiOrder): MockOrder {
     status: order.status,
     mpPaymentId: order.mpPaymentId || undefined,
     paidAt: order.paidAt || undefined,
+    paymentExpiresAt: order.paymentExpiresAt || undefined,
+    canCancelUnpaid: order.canCancelUnpaid || undefined,
     shippingAddress: order.shippingAddress || "",
     shippingDetails: order.shippingDetails,
     trackingCarrier: order.trackingCarrier,
@@ -690,6 +694,14 @@ export async function updateShopOrder(
       method: "PUT",
       body: JSON.stringify(payload),
     }
+  );
+  return mapApiOrder(data);
+}
+
+export async function cancelShopOrder(id: string): Promise<MockOrder> {
+  const data = await shopAuthJson<ApiOrder>(
+    `/api/orders/${encodeURIComponent(id)}/cancel`,
+    { method: "POST" }
   );
   return mapApiOrder(data);
 }
