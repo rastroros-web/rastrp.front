@@ -33,6 +33,7 @@ export function FancySelect({
   const listId = useId();
   const selected =
     options.find((o) => o.value === value) ??
+    options.find((o) => o.value === "all") ??
     (placeholder
       ? { value: "", label: placeholder }
       : options[0] ?? { value: "", label: "" });

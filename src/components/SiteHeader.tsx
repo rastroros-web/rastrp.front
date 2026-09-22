@@ -29,6 +29,12 @@ const NAV = storeCategoryRoutes
     link: c.href,
   }));
 
+const DESKTOP_NAV_LINK =
+  "relative inline-block py-1 text-[10px] font-semibold tracking-[0.12em] text-[#222222] uppercase transition-colors duration-200 hover:text-brand after:absolute after:inset-x-0 after:bottom-0 after:h-px after:origin-left after:scale-x-0 after:bg-brand after:transition-transform after:duration-200 hover:after:scale-x-100 lg:text-[11px] lg:tracking-[0.14em]";
+
+const DESKTOP_NAV_ICON =
+  "relative inline-flex size-8 items-center justify-center text-[#222222] transition duration-200 hover:scale-105 hover:bg-[#f5f4f0] hover:text-brand";
+
 const EXTRA_NAV = [
   { label: "Favoritos", ariaLabel: "Favoritos", link: "/favoritos" },
   { label: "Quiénes somos", ariaLabel: "Quiénes somos", link: "/quienes-somos" },
@@ -168,14 +174,14 @@ export function SiteHeader() {
               <Link
                 key={item.label}
                 href={item.link}
-                className="text-[10px] font-semibold tracking-[0.12em] text-[#222222] uppercase transition hover:text-brand lg:text-[11px] lg:tracking-[0.14em]"
+                className={DESKTOP_NAV_LINK}
               >
                 {item.label}
               </Link>
             ))}
           </nav>
 
-          <Link href="/" className="shrink-0">
+          <Link href="/" className="shrink-0 transition duration-200 hover:opacity-70">
             <Image
               src="/assets/logo/rastro-logo.webp"
               alt="Rastro"
@@ -192,7 +198,7 @@ export function SiteHeader() {
                 <Link
                   key={item.label}
                   href={item.link}
-                  className="text-[10px] font-semibold tracking-[0.12em] text-[#222222] uppercase transition hover:text-brand lg:text-[11px] lg:tracking-[0.14em]"
+                  className={DESKTOP_NAV_LINK}
                 >
                   {item.label}
                 </Link>
@@ -201,7 +207,7 @@ export function SiteHeader() {
             <button
               type="button"
               onClick={() => setSearchOpen(true)}
-              className="text-[#222222] transition hover:text-brand"
+              className={DESKTOP_NAV_ICON}
               aria-label="Buscar"
               title="Buscar (⌘K)"
             >
@@ -209,31 +215,31 @@ export function SiteHeader() {
             </button>
             <Link
               href="/favoritos"
-              className="relative text-[#222222] transition hover:text-brand"
+              className={DESKTOP_NAV_ICON}
               aria-label="Favoritos"
             >
               <Heart className="size-4" />
               {wishlist.length > 0 && (
-                <span className="absolute -top-2 -right-2 flex size-4 items-center justify-center bg-brand text-[9px] font-bold text-white">
+                <span className="absolute top-0.5 right-0.5 flex size-4 items-center justify-center bg-brand text-[9px] font-bold text-white">
                   {wishlist.length > 9 ? "9+" : wishlist.length}
                 </span>
               )}
             </Link>
             <Link
               href={accountHref}
-              className="text-[#222222] transition hover:text-brand"
+              className={DESKTOP_NAV_ICON}
               aria-label="Cuenta"
             >
               <User className="size-4" />
             </Link>
             <Link
               href="/carrito"
-              className="relative text-[#222222] transition hover:text-brand"
+              className={DESKTOP_NAV_ICON}
               aria-label="Carrito"
             >
               <ShoppingBag className="size-4" />
               {cartCount > 0 && (
-                <span className="absolute -top-2 -right-2 flex size-4 items-center justify-center bg-brand text-[9px] font-bold text-white">
+                <span className="absolute top-0.5 right-0.5 flex size-4 items-center justify-center bg-brand text-[9px] font-bold text-white">
                   {cartCount > 9 ? "9+" : cartCount}
                 </span>
               )}

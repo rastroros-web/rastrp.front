@@ -5,7 +5,6 @@ import AnimatedContent from "@/components/AnimatedContent";
 import { ShopChrome } from "@/components/ShopChrome";
 import {
   INSTAGRAM_URL,
-  WHATSAPP_DISPLAY,
   WHATSAPP_URL,
 } from "@/data/brand";
 
@@ -110,7 +109,7 @@ export function InfoPage({
                       rel="noopener noreferrer"
                       className="btn-press mt-6 inline-flex w-full items-center justify-center bg-white px-4 py-3 text-[11px] font-semibold tracking-[0.14em] text-[#222222] uppercase"
                     >
-                      WhatsApp {WHATSAPP_DISPLAY}
+                      Hablar por WhatsApp
                     </a>
                     <a
                       href={INSTAGRAM_URL}

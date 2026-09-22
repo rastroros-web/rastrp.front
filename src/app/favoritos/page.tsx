@@ -5,11 +5,24 @@ import { ShopChrome } from "@/components/ShopChrome";
 import { ProductCard } from "@/components/ProductCard";
 import { useStore } from "@/components/store/StoreProvider";
 import { flattenCatalog } from "@/data/catalog";
+import { getBackendUrl } from "@/lib/api/backend";
+import { parseWishlistKey } from "@/lib/mock/accountBags";
 
 export default function FavoritosPage() {
-  const { wishlist, products, ready } = useStore();
+  const { wishlist, products, ready, session } = useStore();
+  const needsLogin = Boolean(getBackendUrl()) && ready && !session;
   const source = ready ? products.filter((p) => p.active !== false) : [];
-  const items = flattenCatalog(source).filter((p) => wishlist.includes(p.slug));
+  const cards = flattenCatalog(source);
+  const items = wishlist.flatMap((key) => {
+    const { slug, variantId } = parseWishlistKey(key);
+    const matches = cards.filter((p) => p.slug === slug);
+    if (!matches.length) return [];
+    if (variantId) {
+      const color = matches.find((p) => p.variantId === variantId);
+      return color ? [color] : [];
+    }
+    return [matches[0]];
+  });
 
   return (
     <ShopChrome>
@@ -20,35 +33,52 @@ export default function FavoritosPage() {
         <h1 className="mt-2 font-display text-3xl font-bold tracking-wide uppercase sm:text-4xl md:text-5xl">
           Favoritos
         </h1>
-        <p className="mt-2 text-sm text-soft">
-          {items.length === 0
-            ? "Todavía no guardaste nada"
-            : `${items.length} producto${items.length === 1 ? "" : "s"}`}
-        </p>
-
-        {items.length === 0 ? (
-          <div className="mt-10">
-            <p className="max-w-md text-sm text-soft">
-              Tocá el corazón en cualquier producto para guardarlo acá y
-              encontrarlo rápido después.
+        {needsLogin ? (
+          <div className="mt-10 max-w-md">
+            <p className="text-sm text-soft">
+              Iniciá sesión para ver y guardar favoritos en tu cuenta. Así los
+              tenés en cualquier dispositivo.
             </p>
             <Link
-              href="/productos"
+              href="/cuenta/login?next=%2Ffavoritos"
               className="btn-press mt-6 inline-flex bg-[#222222] px-5 py-3 text-[11px] font-semibold tracking-[0.14em] text-white uppercase"
             >
-              Ir al catálogo
+              Ingresar
             </Link>
           </div>
         ) : (
-          <div className="mt-8 grid grid-cols-2 gap-x-2.5 gap-y-7 md:grid-cols-3 md:gap-x-5 md:gap-y-10 lg:grid-cols-4">
-            {items.map((product, index) => (
-              <ProductCard
-                key={`${product.slug}-${product.variantId}`}
-                product={product}
-                index={index}
-              />
-            ))}
-          </div>
+          <>
+            <p className="mt-2 text-sm text-soft">
+              {items.length === 0
+                ? "Todavía no guardaste nada"
+                : `${items.length} producto${items.length === 1 ? "" : "s"}`}
+            </p>
+
+            {items.length === 0 ? (
+              <div className="mt-10">
+                <p className="max-w-md text-sm text-soft">
+                  Tocá el corazón en cualquier producto para guardarlo acá y
+                  encontrarlo rápido después.
+                </p>
+                <Link
+                  href="/productos"
+                  className="btn-press mt-6 inline-flex bg-[#222222] px-5 py-3 text-[11px] font-semibold tracking-[0.14em] text-white uppercase"
+                >
+                  Ir al catálogo
+                </Link>
+              </div>
+            ) : (
+              <div className="mt-8 grid grid-cols-2 gap-x-2.5 gap-y-7 md:grid-cols-3 md:gap-x-5 md:gap-y-10 lg:grid-cols-4">
+                {items.map((product, index) => (
+                  <ProductCard
+                    key={`${product.slug}-${product.variantId}`}
+                    product={product}
+                    index={index}
+                  />
+                ))}
+              </div>
+            )}
+          </>
         )}
       </main>
     </ShopChrome>

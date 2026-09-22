@@ -41,8 +41,8 @@ export default function FaqPage() {
         {
           title: "¿Hay cupones?",
           body: [
-            "Sí, según promoción vigente. Podés aplicarlos en el carrito o checkout.",
-            "Al registrarte tenés el cupón BIENVENIDA: 10% OFF (1 uso por usuario).",
+            "Sí, según promoción vigente. Un cupón por pedido.",
+            "Al registrarte tenés un cupón personal de bienvenida (10% OFF, 1 uso). No se acumula con otros cupones: si aplicás uno de campaña, reemplaza al de bienvenida.",
           ],
         },
       ]}

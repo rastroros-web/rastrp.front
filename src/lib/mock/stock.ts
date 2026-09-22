@@ -1,4 +1,4 @@
-import type { ProductSize } from "@/data/catalog";
+import { filterOfferedSizes, type ProductSize } from "@/data/catalog";
 import type { ShopProduct } from "@/lib/mock/types";
 
 export function sizeQty(s: {
@@ -21,7 +21,7 @@ export function normalizeProductStock(product: ShopProduct): ShopProduct {
     ...product,
     variants: product.variants.map((v) => ({
       ...v,
-      sizes: v.sizes.map(syncSizeStock),
+      sizes: filterOfferedSizes(v.sizes).map(syncSizeStock),
     })),
   };
 }

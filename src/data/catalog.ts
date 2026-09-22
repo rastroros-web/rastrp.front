@@ -17,6 +17,8 @@ export type ProductSize = {
 
 export type ColorVariant = {
   id: string;
+  /** ID numérico de ProductVariants en el backend. */
+  numericId?: number;
   name: string;
   color: string;
   image: string;
@@ -73,6 +75,13 @@ export function stripSizeChartImages(images: string[]): string[] {
   return images.filter((src) => Boolean(src) && !isDriveSizeChartSrc(src));
 }
 
+/** Talles que no ofrecemos en tienda (ni filtro, ni PDP, ni admin). */
+const DROPPED_SIZE_LABELS = new Set(["44", "45"]);
+
+export function filterOfferedSizes<T extends { label: string }>(sizes: T[]): T[] {
+  return sizes.filter((s) => !DROPPED_SIZE_LABELS.has(String(s.label)));
+}
+
 function stripProductSizeCharts(product: CatalogProduct): CatalogProduct {
   return {
     ...product,
@@ -82,7 +91,12 @@ function stripProductSizeCharts(product: CatalogProduct): CatalogProduct {
         variant.image && !isDriveSizeChartSrc(variant.image)
           ? variant.image
           : images[0] || "";
-      return { ...variant, images, image };
+      return {
+        ...variant,
+        images,
+        image,
+        sizes: filterOfferedSizes(variant.sizes || []),
+      };
     }),
   };
 }

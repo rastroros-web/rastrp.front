@@ -99,7 +99,41 @@ export function mergeCarts(account: CartItem[], guest: CartItem[]): CartItem[] {
 }
 
 export function mergeWishlists(account: string[], guest: string[]): string[] {
-  return [...new Set([...account, ...guest])];
+  return [...new Set([...account, ...guest].map(normalizeWishlistKey))];
+}
+
+/** slug o slug::variantId — el color queda guardado aparte. */
+export function wishlistKey(slug: string, variantId?: string | null): string {
+  const id = String(variantId || "").trim();
+  return id ? `${slug}::${id}` : slug;
+}
+
+export function parseWishlistKey(key: string): {
+  slug: string;
+  variantId: string | null;
+} {
+  const raw = String(key || "").trim();
+  const sep = raw.indexOf("::");
+  if (sep <= 0) return { slug: raw, variantId: null };
+  const slug = raw.slice(0, sep);
+  const variantId = raw.slice(sep + 2).trim() || null;
+  return { slug, variantId };
+}
+
+function normalizeWishlistKey(key: string): string {
+  const { slug, variantId } = parseWishlistKey(key);
+  return wishlistKey(slug, variantId);
+}
+
+export function isWishlistEntry(
+  keys: string[],
+  slug: string,
+  variantId?: string | null
+): boolean {
+  const exact = wishlistKey(slug, variantId);
+  if (keys.includes(exact)) return true;
+  if (variantId) return false;
+  return keys.includes(slug);
 }
 
 function shippingFilled(shipping: CartShippingPref): boolean {

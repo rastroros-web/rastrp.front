@@ -18,7 +18,7 @@ export function ProductCard({
   index?: number;
 }) {
   const { toggleWishlist, isWishlisted, getProduct, ready } = useStore();
-  const wishlisted = ready && isWishlisted(product.slug);
+  const wishlisted = ready && isWishlisted(product.slug, product.variantId);
   const live = ready ? getProduct(product.slug) : undefined;
   const variant = live?.variants.find((v) => v.id === product.variantId);
   const salePercent = variant?.salePercent;
@@ -82,7 +82,7 @@ export function ProductCard({
             type="button"
             onClick={(e) => {
               e.preventDefault();
-              toggleWishlist(product.slug);
+              toggleWishlist(product.slug, product.variantId);
             }}
             aria-label={wishlisted ? "Quitar de favoritos" : "Agregar a favoritos"}
             className={`absolute top-1.5 right-1.5 z-20 flex size-8 items-center justify-center border bg-cream/90 transition md:top-2 md:right-2 ${

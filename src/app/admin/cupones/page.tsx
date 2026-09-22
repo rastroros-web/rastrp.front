@@ -9,6 +9,12 @@ import {
   type PromoCode,
 } from "@/lib/mock/promos";
 import { FancySelect } from "@/components/ui/FancySelect";
+import { DateTimePicker } from "@/components/ui/DateTimePicker";
+import { useAlert } from "@/components/ui/AlertProvider";
+import {
+  argentinaDateTimeToIso,
+  isoToArgentinaParts,
+} from "@/lib/argentinaTime";
 
 const emptyForm = {
   code: "",
@@ -17,11 +23,14 @@ const emptyForm = {
   value: 10,
   minPurchase: "",
   maxUses: "",
+  expiresDate: "",
+  expiresTime: "",
   oncePerUser: false,
 };
 
 export default function AdminCuponesPage() {
   const { orders, promos, savePromo, deletePromo } = useStore();
+  const { confirm } = useAlert();
   const valid = orders.filter((o) => o.status !== "cancelado");
   const [form, setForm] = useState(emptyForm);
   const [error, setError] = useState("");
@@ -46,6 +55,13 @@ export default function AdminCuponesPage() {
     e.preventDefault();
     setError("");
     setOkMsg("");
+    const expiresAt = form.expiresDate
+      ? argentinaDateTimeToIso(form.expiresDate, form.expiresTime)
+      : undefined;
+    if (form.expiresDate && !expiresAt) {
+      setError("Fecha de vencimiento inválida.");
+      return;
+    }
     const result = await savePromo({
       code: form.code,
       label: form.label,
@@ -54,6 +70,7 @@ export default function AdminCuponesPage() {
       minPurchase: form.minPurchase ? Number(form.minPurchase) : undefined,
       maxUses: form.maxUses ? Number(form.maxUses) : undefined,
       oncePerUser: form.oncePerUser || undefined,
+      expiresAt,
       active: true,
     });
     if (!result.ok) {
@@ -87,7 +104,9 @@ export default function AdminCuponesPage() {
           Nuevo / editar cupón
         </h2>
         <p className="text-xs text-soft">
-          Si el código ya existe, se actualiza. Si no, se crea.
+          Si el código ya existe, se actualiza. Si no, se crea. Los cupones de
+          campaña no se acumulan con el de bienvenida: en el pedido vale uno
+          solo.
         </p>
         <div className="grid gap-3 sm:grid-cols-2">
           <label className="block text-sm">
@@ -175,6 +194,18 @@ export default function AdminCuponesPage() {
               placeholder="Opcional"
             />
           </label>
+          <DateTimePicker
+            label="Vence (Argentina)"
+            date={form.expiresDate}
+            time={form.expiresTime}
+            onChange={({ date, time }) =>
+              setForm((f) => ({
+                ...f,
+                expiresDate: date,
+                expiresTime: date && !time ? "23:59" : time,
+              }))
+            }
+          />
           <label className="flex items-center gap-2 text-sm sm:col-span-2">
             <input
               type="checkbox"
@@ -222,7 +253,8 @@ export default function AdminCuponesPage() {
                   <button
                     type="button"
                     className="btn-press border border-black/15 px-3 py-1.5 text-[10px] font-semibold uppercase"
-                    onClick={() =>
+                    onClick={() => {
+                      const parts = isoToArgentinaParts(promo.expiresAt);
                       setForm({
                         code: promo.code,
                         label: promo.label,
@@ -232,9 +264,11 @@ export default function AdminCuponesPage() {
                           ? String(promo.minPurchase)
                           : "",
                         maxUses: promo.maxUses ? String(promo.maxUses) : "",
+                        expiresDate: parts.date,
+                        expiresTime: parts.time,
                         oncePerUser: !!promo.oncePerUser,
-                      })
-                    }
+                      });
+                    }}
                   >
                     Editar
                   </button>
@@ -242,13 +276,16 @@ export default function AdminCuponesPage() {
                     type="button"
                     className="btn-press border border-red-600 px-3 py-1.5 text-[10px] font-semibold uppercase text-red-600"
                     onClick={async () => {
-                      if (
-                        window.confirm(
-                          `¿Borrar el cupón ${promo.code}? Los pedidos ya hechos no cambian.`
-                        )
-                      ) {
-                        await deletePromo(promo.code);
-                      }
+                      const ok = await confirm({
+                        eyebrow: "Cupones",
+                        title: `¿Borrar ${promo.code}?`,
+                        message:
+                          "Los pedidos ya hechos no cambian. Este cupón deja de valer en checkout.",
+                        confirmLabel: "Borrar cupón",
+                        cancelLabel: "Conservar",
+                        tone: "danger",
+                      });
+                      if (ok) await deletePromo(promo.code);
                     }}
                   >
                     Borrar

@@ -13,6 +13,7 @@ import {
 import { formatMoney, uid } from "@/lib/mock/money";
 import { SHEET_SIZES, cell, moneyOrDash } from "@/lib/mock/sheetCols";
 import type { CostoRow } from "@/lib/mock/business";
+import { useAlert } from "@/components/ui/AlertProvider";
 
 type FormState = {
   id: string | null;
@@ -113,6 +114,7 @@ function Field({
 
 export default function GestionCostosPage() {
   const { ready, data, saveCosto, deleteCosto } = useBusiness();
+  const { alert } = useAlert();
   const [q, setQ] = useState("");
   const [form, setForm] = useState<FormState | null>(null);
 
@@ -161,10 +163,15 @@ export default function GestionCostosPage() {
   const setField = (key: keyof FormState, value: string) =>
     setForm((prev) => (prev ? { ...prev, [key]: value } : prev));
 
-  const submit = () => {
+  const submit = async () => {
     if (!form || !calc) return;
     if (!form.marca.trim() && !form.modelo.trim()) {
-      window.alert("Marca o modelo son obligatorios.");
+      await alert({
+        eyebrow: "Costos",
+        title: "Faltan datos",
+        message: "Marca o modelo son obligatorios.",
+        confirmLabel: "Entendido",
+      });
       return;
     }
     const stock: Record<string, number> = {};

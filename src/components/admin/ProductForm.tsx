@@ -16,6 +16,10 @@ import {
   uid,
 } from "@/lib/mock/money";
 import {
+  composeProductDescription,
+  parseProductSizeChart,
+} from "@/lib/productSizeChart";
+import {
   createShopProduct,
   getBackendUrl,
   resolveMediaUrl,
@@ -24,6 +28,7 @@ import {
   upsertShopVariant,
 } from "@/lib/api/backend";
 import { FancySelect } from "@/components/ui/FancySelect";
+import { readJson, writeJson } from "@/lib/mock/storage";
 
 const BASE_BRANDS = [
   "Nike",
@@ -36,8 +41,58 @@ const BASE_BRANDS = [
   "Teva",
 ];
 
+type NamedColor = { name: string; hex: string };
+
+const COLORS_KEY = "rastro_admin_colors";
+
+const BASE_COLORS: NamedColor[] = [
+  { name: "Blanca", hex: "#f5f4f0" },
+  { name: "Negra", hex: "#111111" },
+  { name: "Off White", hex: "#f4f0e6" },
+  { name: "Panda", hex: "#1a1a1a" },
+  { name: "Beige", hex: "#c4a574" },
+  { name: "Marrón", hex: "#6b4a32" },
+  { name: "Azul", hex: "#1e3a5f" },
+  { name: "Verde", hex: "#3f6b4f" },
+  { name: "Rosa", hex: "#e8a0b4" },
+  { name: "Gris", hex: "#9aa0a6" },
+];
+
+function colorKey(name: string) {
+  return name.trim().toLowerCase();
+}
+
+function mergeColors(...lists: NamedColor[][]) {
+  const map = new Map<string, NamedColor>();
+  for (const list of lists) {
+    for (const color of list) {
+      const name = color.name.trim();
+      if (!name) continue;
+      const key = colorKey(name);
+      if (!map.has(key)) map.set(key, { name, hex: color.hex || "#888888" });
+    }
+  }
+  return [...map.values()].sort((a, b) => a.name.localeCompare(b.name, "es"));
+}
+
 const SIZES = ["34", "35", "36", "37", "38", "39", "40", "41", "42", "43"];
 const GENEROS = ["UNISEX", "HOMBRE", "MUJER", "NINOS"] as const;
+
+function chartStateFromDescription(description: string) {
+  const parsed = parseProductSizeChart(description || "");
+  const cmBySize: Record<string, string> = {};
+  for (const label of SIZES) cmBySize[label] = "";
+  for (const row of parsed.rows) {
+    if (row.size in cmBySize) cmBySize[row.size] = row.cm;
+  }
+  const hasTable = parsed.rows.length > 0;
+  return {
+    descBody: hasTable ? parsed.body : parsed.fallback || parsed.body || "",
+    fitNote: parsed.fitNote,
+    cmBySize,
+    includesNote: parsed.extras[0] || "",
+  };
+}
 
 function toLocalInput(iso?: string | null) {
   if (!iso) return "";
@@ -146,12 +201,22 @@ export function ProductForm({
       ? fillEmptyVariantImages(structuredClone(initial))
       : emptyProduct()
   );
+  const initialChart = chartStateFromDescription(initial?.description || "");
+  const [descBody, setDescBody] = useState(initialChart.descBody);
+  const [fitNote, setFitNote] = useState(initialChart.fitNote);
+  const [cmBySize, setCmBySize] = useState(initialChart.cmBySize);
+  const [includesNote, setIncludesNote] = useState(initialChart.includesNote);
   const [genero, setGenero] = useState<(typeof GENEROS)[number]>("UNISEX");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [extraBrands, setExtraBrands] = useState<string[]>([]);
   const [addingBrand, setAddingBrand] = useState(false);
   const [newBrand, setNewBrand] = useState("");
+  const [extraColors, setExtraColors] = useState<NamedColor[]>(() =>
+    readJson<NamedColor[]>(COLORS_KEY, [])
+  );
+  const [addingColor, setAddingColor] = useState(false);
+  const [newColor, setNewColor] = useState("");
   const [variantIndex, setVariantIndex] = useState(() => {
     if (!initialVariantId || !initial?.variants?.length) return 0;
     const idx = initial.variants.findIndex((v) => v.id === initialVariantId);
@@ -173,6 +238,20 @@ export function ProductForm({
     ].sort((a, b) => a.localeCompare(b, "es"));
   }, [products, extraBrands, product.brand]);
 
+  const colorOptions = useMemo(() => {
+    const fromCatalog = products.flatMap((p) =>
+      p.variants.map((variant) => ({
+        name: variant.name,
+        hex: variant.color,
+      }))
+    );
+    const fromDraft = product.variants.map((variant) => ({
+      name: variant.name,
+      hex: variant.color,
+    }));
+    return mergeColors(BASE_COLORS, fromCatalog, extraColors, fromDraft);
+  }, [products, extraColors, product.variants]);
+
   const safeIndex = Math.min(
     variantIndex,
     Math.max(0, product.variants.length - 1)
@@ -191,6 +270,34 @@ export function ProductForm({
     setProduct((p) => ({ ...p, brand: resolved }));
     setNewBrand("");
     setAddingBrand(false);
+  };
+
+  const applyColor = (name: string, hex?: string) => {
+    setProduct((prev) => {
+      const variants = [...prev.variants];
+      const i = Math.min(variantIndex, variants.length - 1);
+      variants[i] = {
+        ...variants[i],
+        name,
+        color: hex || variants[i].color,
+      };
+      return { ...prev, variants };
+    });
+  };
+
+  const addNamedColor = () => {
+    const name = newColor.trim().replace(/\s+/g, " ");
+    if (!name) return;
+    const exists = colorOptions.find((c) => colorKey(c.name) === colorKey(name));
+    const hex = exists?.hex || v.color || "#888888";
+    if (!exists) {
+      const next = mergeColors(extraColors, [{ name, hex }]);
+      setExtraColors(next);
+      writeJson(COLORS_KEY, next);
+    }
+    applyColor(exists?.name ?? name, hex);
+    setNewColor("");
+    setAddingColor(false);
   };
 
   const setVariantField = (field: string, value: string) => {
@@ -335,27 +442,28 @@ export function ProductForm({
       const variants = [...prev.variants];
       const i = Math.min(variantIndex, variants.length - 1);
       const current = { ...variants[i] };
-      const existing = new Map(current.sizes.map((s) => [s.label, s]));
       const stock = inStock ? 8 : 0;
       current.sizes = SIZES.map((label) => ({
         label,
         stock,
         inStock: stock > 0,
       }));
-      for (const s of existing.values()) {
-        if (!SIZES.includes(s.label)) {
-          current.sizes.push({ ...s, stock, inStock: stock > 0 });
-        }
-      }
       variants[i] = current;
       return { ...prev, variants };
     });
   };
 
   const addVariant = () => {
+    const used = new Set(product.variants.map((variant) => colorKey(variant.name)));
+    const unused = colorOptions.find((c) => !used.has(colorKey(c.name)));
+    const next = emptyVariant();
+    if (unused) {
+      next.name = unused.name;
+      next.color = unused.hex;
+    }
     setProduct((prev) => ({
       ...prev,
-      variants: [...prev.variants, emptyVariant()],
+      variants: [...prev.variants, next],
     }));
     setVariantIndex(product.variants.length);
   };
@@ -364,33 +472,43 @@ export function ProductForm({
     e.preventDefault();
     setError("");
     const modelo = product.name.trim();
+    const includes = includesNote.trim();
+    const description = composeProductDescription({
+      body: descBody,
+      fitNote,
+      rows: SIZES.map((size) => ({ size, cm: cmBySize[size] || "" })),
+      extras: includes
+        ? [/^incluye\b/i.test(includes) ? includes : `Incluye ${includes}`]
+        : [],
+    });
+    const draft: ShopProduct = { ...product, description };
     if (mode === "create") {
       if (!modelo) {
         setError("El modelo es obligatorio");
         return;
       }
-      const missingColor = product.variants.find((variant) => !variant.name.trim());
+      const missingColor = draft.variants.find((variant) => !variant.name.trim());
       if (missingColor) {
         setError("Cada variante necesita un color");
         return;
       }
-      const hasStock = product.variants.some((variant) =>
+      const hasStock = draft.variants.some((variant) =>
         variant.sizes.some((s) => (s.stock ?? (s.inStock ? 1 : 0)) > 0)
       );
       if (!hasStock) {
         setError("Activá al menos un talle con stock");
         return;
       }
-      if (product.megaSale) {
-        const percent = Math.floor(Number(product.megaSalePercent));
+      if (draft.megaSale) {
+        const percent = Math.floor(Number(draft.megaSalePercent));
         if (!Number.isFinite(percent) || percent < 1 || percent > 90) {
           setError("Mega Sale necesita un porcentaje entre 1 y 90.");
           return;
         }
         if (
-          product.megaSaleStartsAt &&
-          product.megaSaleEndsAt &&
-          new Date(product.megaSaleEndsAt) <= new Date(product.megaSaleStartsAt)
+          draft.megaSaleStartsAt &&
+          draft.megaSaleEndsAt &&
+          new Date(draft.megaSaleEndsAt) <= new Date(draft.megaSaleStartsAt)
         ) {
           setError("La fecha de fin tiene que ser posterior al inicio.");
           return;
@@ -400,37 +518,37 @@ export function ProductForm({
       if (getBackendUrl()) {
         try {
           setSaving(true);
-          const brand = product.brand;
+          const brand = draft.brand;
           const primary = slugify(brand);
           await createShopProduct({
             brand,
             modelo,
             genero,
-            tipo: product.category === "sandalias" ? "OTRO" : "ZAPATILLA",
-            description: product.description || undefined,
-            megaSale: Boolean(product.megaSale),
-            megaSalePercent: product.megaSale
-              ? Number(product.megaSalePercent)
+            tipo: draft.category === "sandalias" ? "OTRO" : "ZAPATILLA",
+            description: draft.description || undefined,
+            megaSale: Boolean(draft.megaSale),
+            megaSalePercent: draft.megaSale
+              ? Number(draft.megaSalePercent)
               : null,
-            megaSaleStartsAt: product.megaSale
-              ? product.megaSaleStartsAt || new Date().toISOString()
+            megaSaleStartsAt: draft.megaSale
+              ? draft.megaSaleStartsAt || new Date().toISOString()
               : null,
-            megaSaleEndsAt: product.megaSale
-              ? product.megaSaleEndsAt || null
+            megaSaleEndsAt: draft.megaSale
+              ? draft.megaSaleEndsAt || null
               : null,
             storeCategories: Array.from(
-              new Set([primary, ...(product.storeCategories || [])])
+              new Set([primary, ...(draft.storeCategories || [])])
             ),
-            tags: product.tags,
-            variants: product.variants.map((variant) =>
+            tags: draft.tags,
+            variants: draft.variants.map((variant) =>
               variantApiPayload(variant, { includeZeros: false })
             ),
           });
           saveProduct({
-            ...product,
+            ...draft,
             name: modelo,
             slug: slugify(`${brand}-${modelo}`),
-            variants: product.variants.map((variant) => {
+            variants: draft.variants.map((variant) => {
               const images = (variant.images || [])
                 .map((src) => src.trim())
                 .filter(Boolean);
@@ -452,17 +570,17 @@ export function ProductForm({
       }
     }
 
-    if (mode === "edit" && getBackendUrl() && product.id) {
-      if (product.megaSale) {
-        const percent = Math.floor(Number(product.megaSalePercent));
+    if (mode === "edit" && getBackendUrl() && draft.id) {
+      if (draft.megaSale) {
+        const percent = Math.floor(Number(draft.megaSalePercent));
         if (!Number.isFinite(percent) || percent < 1 || percent > 90) {
           setError("Mega Sale necesita un porcentaje entre 1 y 90.");
           return;
         }
         if (
-          product.megaSaleStartsAt &&
-          product.megaSaleEndsAt &&
-          new Date(product.megaSaleEndsAt) <= new Date(product.megaSaleStartsAt)
+          draft.megaSaleStartsAt &&
+          draft.megaSaleEndsAt &&
+          new Date(draft.megaSaleEndsAt) <= new Date(draft.megaSaleStartsAt)
         ) {
           setError("La fecha de fin tiene que ser posterior al inicio.");
           return;
@@ -470,39 +588,39 @@ export function ProductForm({
       }
       try {
         setSaving(true);
-        const brand = product.brand;
+        const brand = draft.brand;
         const primary = slugify(brand);
-        await updateShopProduct(product.id, {
+        await updateShopProduct(draft.id, {
           brand,
-          ...(product.modelo ? { modelo: product.modelo } : {}),
-          tipo: product.category === "sandalias" ? "OTRO" : "ZAPATILLA",
-          description: product.description || undefined,
-          megaSale: Boolean(product.megaSale),
-          megaSalePercent: product.megaSale
-            ? Number(product.megaSalePercent)
+          ...(draft.modelo ? { modelo: draft.modelo } : {}),
+          tipo: draft.category === "sandalias" ? "OTRO" : "ZAPATILLA",
+          description: draft.description || undefined,
+          megaSale: Boolean(draft.megaSale),
+          megaSalePercent: draft.megaSale
+            ? Number(draft.megaSalePercent)
             : null,
-          megaSaleStartsAt: product.megaSale
-            ? product.megaSaleStartsAt || new Date().toISOString()
+          megaSaleStartsAt: draft.megaSale
+            ? draft.megaSaleStartsAt || new Date().toISOString()
             : null,
-          megaSaleEndsAt: product.megaSale
-            ? product.megaSaleEndsAt || null
+          megaSaleEndsAt: draft.megaSale
+            ? draft.megaSaleEndsAt || null
             : null,
           storeCategories: Array.from(
-            new Set([primary, ...(product.storeCategories || [])])
+            new Set([primary, ...(draft.storeCategories || [])])
           ),
         });
-        for (const variant of product.variants) {
+        for (const variant of draft.variants) {
           if (!variant.name.trim()) {
             throw new Error("Cada variante necesita un color");
           }
-          await upsertShopVariant(product.id, {
+          await upsertShopVariant(draft.id, {
             ...variantApiPayload(variant, { includeZeros: true, slug: true }),
           });
         }
         await reloadProducts();
         saveProduct({
-          ...product,
-          variants: product.variants.map((variant) => {
+          ...draft,
+          variants: draft.variants.map((variant) => {
             const images = (variant.images || [])
               .map((src) => src.trim())
               .filter(Boolean);
@@ -522,33 +640,33 @@ export function ProductForm({
       return;
     }
 
-    const name = product.name.trim();
+    const name = draft.name.trim();
     if (!name) {
       setError("El nombre es obligatorio");
       return;
     }
-    const hasStock = product.variants.some((variant) =>
+    const hasStockLocal = draft.variants.some((variant) =>
       variant.sizes.some((s) => (s.stock ?? (s.inStock ? 1 : 0)) > 0)
     );
-    if (!hasStock) {
+    if (!hasStockLocal) {
       setError("Activá al menos un talle con stock");
       return;
     }
-    let slug = product.slug.trim() || slugify(name);
+    let slug = draft.slug.trim() || slugify(name);
     if (mode === "create" && products.some((p) => p.slug === slug)) {
       slug = `${slug}-${uid("x").slice(-4)}`;
     }
-    const brand = product.brand;
-    const primary = slugify(brand);
+    const brandLocal = draft.brand;
+    const primaryLocal = slugify(brandLocal);
     const saved: ShopProduct = {
-      ...product,
+      ...draft,
       name,
       slug,
-      primaryCategory: primary,
+      primaryCategory: primaryLocal,
       storeCategories: Array.from(
-        new Set([primary, ...(product.storeCategories || [])])
+        new Set([primaryLocal, ...(draft.storeCategories || [])])
       ),
-      variants: product.variants.map((variant) => ({
+      variants: draft.variants.map((variant) => ({
         ...variant,
         id: variant.id || slugify(variant.name) || uid("var"),
         images:
@@ -789,7 +907,10 @@ export function ProductForm({
         {(mode === "create" || product.variants.length > 1) && (
           <div className="md:col-span-2">
             <p className="mb-2 text-[11px] font-semibold tracking-[0.14em] uppercase">
-              Color / variante a editar
+              Colores de este producto
+            </p>
+            <p className="mb-2 text-xs text-soft">
+              Tocá uno para editar precio, fotos y talles de esa variante.
             </p>
             <div className="flex flex-wrap gap-2">
               {product.variants.map((variant, i) => (
@@ -812,29 +933,69 @@ export function ProductForm({
                   onClick={addVariant}
                   className="chip-press border border-dashed border-black/25 px-3 py-2 text-[11px] font-semibold tracking-[0.08em] uppercase text-soft hover:border-[#222222] hover:text-[#222222]"
                 >
-                  ＋ Agregar color
+                  ＋ Sumar variante
                 </button>
               ) : null}
             </div>
-            <p className="mt-2 text-xs text-soft">
-              Estás editando:{" "}
-              <span className="font-semibold text-[#222222]">{v.name}</span> ·
-              los cambios de stock/precio aplican a este color
-            </p>
           </div>
         )}
 
-        <label className="block text-sm">
-          <span className="mb-1 block text-[11px] font-semibold tracking-[0.14em] uppercase">
-            Color
-          </span>
-          <input
+        <div className="block text-sm">
+          <FancySelect
+            label="Nombre de este color"
             value={v.name}
-            onChange={(e) => setVariantField("name", e.target.value)}
-            placeholder="Blanca"
-            className="w-full border border-black/10 bg-white px-3 py-2.5 outline-none focus:border-[#222222]"
+            options={colorOptions.map((c) => ({ value: c.name, label: c.name }))}
+            onChange={(value) => {
+              setAddingColor(false);
+              const hit = colorOptions.find((c) => c.name === value);
+              applyColor(value, hit?.hex);
+            }}
           />
-        </label>
+          {!addingColor ? (
+            <button
+              type="button"
+              onClick={() => setAddingColor(true)}
+              className="mt-2 text-[11px] font-semibold tracking-[0.12em] uppercase underline underline-offset-2"
+            >
+              ＋ Nombre nuevo
+            </button>
+          ) : (
+            <div className="mt-2 flex flex-col gap-2 sm:flex-row">
+              <input
+                autoFocus
+                value={newColor}
+                onChange={(e) => setNewColor(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    addNamedColor();
+                  }
+                }}
+                placeholder="Ej: Cherry, Chocolate…"
+                className="w-full border border-black/10 bg-white px-3 py-2.5 text-sm outline-none focus:border-[#222222]"
+              />
+              <div className="flex shrink-0 gap-2">
+                <button
+                  type="button"
+                  onClick={addNamedColor}
+                  className="btn-press bg-[#222222] px-3 py-2.5 text-[11px] font-semibold tracking-[0.12em] text-white uppercase"
+                >
+                  Guardar
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAddingColor(false);
+                    setNewColor("");
+                  }}
+                  className="btn-press border border-black/15 px-3 py-2.5 text-[11px] font-semibold tracking-[0.12em] uppercase"
+                >
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
 
         <label className="block text-sm">
           <span className="mb-1 block text-[11px] font-semibold tracking-[0.14em] uppercase">
@@ -1112,17 +1273,85 @@ export function ProductForm({
 
         <label className="block text-sm md:col-span-2">
           <span className="mb-1 block text-[11px] font-semibold tracking-[0.14em] uppercase">
-            Descripción
+            Descripción (opcional)
           </span>
           <textarea
-            value={product.description}
-            onChange={(e) =>
-              setProduct((p) => ({ ...p, description: e.target.value }))
-            }
-            rows={5}
+            value={descBody}
+            onChange={(e) => setDescBody(e.target.value)}
+            rows={3}
+            placeholder="Texto comercial del producto…"
             className="w-full border border-black/10 bg-white px-3 py-2.5 outline-none focus:border-[#222222]"
           />
         </label>
+
+        <div className="md:col-span-2 space-y-3 border border-black/10 bg-[#fafaf8] p-4">
+          <div>
+            <p className="text-[11px] font-semibold tracking-[0.14em] uppercase">
+              Guía de talles de este modelo
+            </p>
+            <p className="mt-1 text-xs text-soft">
+              Cada modelo calza distinto. Completá los cm de plantilla de{" "}
+              {product.name.trim() || "este producto"}. El cliente ve esta
+              tabla al tocar “¿Cómo sé mi talle?”.
+            </p>
+          </div>
+          <label className="block text-sm">
+            <span className="mb-1 block text-[11px] font-semibold tracking-[0.14em] uppercase">
+              Nota de calce
+            </span>
+            <textarea
+              value={fitNote}
+              onChange={(e) => setFitNote(e.target.value)}
+              rows={2}
+              placeholder="Ej: Samba calza justo. Si usás 39 en Air Force, pedí 40 acá."
+              className="w-full border border-black/10 bg-white px-3 py-2.5 outline-none focus:border-[#222222]"
+            />
+          </label>
+          <div>
+            <p className="mb-2 text-[11px] font-semibold tracking-[0.14em] uppercase">
+              Largo de plantilla (cm)
+            </p>
+            <div className="grid grid-cols-5 gap-2 sm:grid-cols-10">
+              {SIZES.map((label) => (
+                <label key={`cm-${label}`} className="block text-center">
+                  <span className="mb-1 block text-[10px] font-semibold tabular-nums text-soft">
+                    {label}
+                  </span>
+                  <input
+                    type="text"
+                    inputMode="decimal"
+                    value={cmBySize[label] || ""}
+                    onChange={(e) =>
+                      setCmBySize((prev) => ({
+                        ...prev,
+                        [label]: e.target.value,
+                      }))
+                    }
+                    placeholder="—"
+                    className="w-full border border-black/10 bg-white px-1 py-1.5 text-center text-xs outline-none focus:border-[#222222]"
+                    aria-label={`Plantilla talle ${label} en cm`}
+                  />
+                </label>
+              ))}
+            </div>
+            <p className="mt-2 text-xs text-soft">
+              Dejá vacío el talle que no quieras mostrar. Usá coma o punto (ej.
+              25,4).
+            </p>
+          </div>
+          <label className="block text-sm">
+            <span className="mb-1 block text-[11px] font-semibold tracking-[0.14em] uppercase">
+              Incluye (opcional)
+            </span>
+            <input
+              type="text"
+              value={includesNote}
+              onChange={(e) => setIncludesNote(e.target.value)}
+              placeholder="caja personalizada, cordones extra…"
+              className="w-full border border-black/10 bg-white px-3 py-2.5 outline-none focus:border-[#222222]"
+            />
+          </label>
+        </div>
       </div>
 
       {error && <p className="text-sm text-red-600">{error}</p>}

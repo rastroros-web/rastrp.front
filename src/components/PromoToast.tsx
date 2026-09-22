@@ -6,6 +6,7 @@ import { PartyPopper, X } from "lucide-react";
 export type PromoToastPayload = {
   code: string;
   label: string;
+  replacesWelcome?: boolean;
 };
 
 export function PromoToast({
@@ -42,7 +43,9 @@ export function PromoToast({
           </p>
           <p className="mt-0.5 text-sm text-soft">{toast.label}</p>
           <p className="mt-2 text-xs text-soft">
-            El descuento ya está en tu resumen. ¡Buenas compras!
+            {toast.replacesWelcome
+              ? "No se acumula con el cupón de bienvenida: este descuento lo reemplaza."
+              : "El descuento ya está en tu resumen. ¡Buenas compras!"}
           </p>
         </div>
         <button

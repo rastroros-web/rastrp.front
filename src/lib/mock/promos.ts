@@ -1,3 +1,5 @@
+import { formatArgentinaDateTime } from "@/lib/argentinaTime";
+
 export type PromoCode = {
   code: string;
   label: string;
@@ -13,25 +15,15 @@ export type PromoCode = {
   /** ISO date — opcional */
   expiresAt?: string;
   active?: boolean;
+  /** Cupones de campaña no se acumulan con BIEN-* */
+  stackWithWelcome?: boolean;
+  replacesWelcome?: boolean;
 };
+
+export const RETIRED_CAMPAIGN_CODES = ["RASTRO10", "MEGA20"] as const;
 
 /** Seed inicial (también fallback si no hay localStorage). */
 export const SEED_PROMO_CODES: PromoCode[] = [
-  {
-    code: "RASTRO10",
-    label: "10% OFF en tu compra",
-    type: "percent",
-    value: 10,
-    minPurchase: 30_000,
-  },
-  {
-    code: "MEGA20",
-    label: "20% OFF Mega Sale",
-    type: "percent",
-    value: 20,
-    minPurchase: 50_000,
-    maxUses: 50,
-  },
   {
     code: "BIENVENIDA",
     label: "10% OFF de bienvenida",
@@ -113,7 +105,14 @@ export function validatePromo(
       return { ok: false, error: "Ya usaste este cupón" };
     }
   }
-  return { ok: true, promo };
+  const stacked: PromoCode = { ...promo };
+  if (!/^BIEN-/.test(promo.code) && opts.userId) {
+    const hasWelcome = (opts.catalog ?? []).some(
+      (p) => /^BIEN-/.test(p.code) && p.active !== false
+    );
+    if (hasWelcome) stacked.replacesWelcome = true;
+  }
+  return { ok: true, promo: stacked };
 }
 
 export function promoRulesText(p: PromoCode): string[] {
@@ -122,8 +121,11 @@ export function promoRulesText(p: PromoCode): string[] {
     rules.push(`Mín. $${p.minPurchase.toLocaleString("es-AR")}`);
   if (p.oncePerUser) rules.push("1 uso / usuario");
   if (p.maxUses != null) rules.push(`Máx. ${p.maxUses} usos`);
+  if (/^BIEN-/.test(p.code)) rules.push("No acumulable con otros cupones");
+  else if (p.stackWithWelcome === false || p.stackWithWelcome == null)
+    rules.push("No acumulable con bienvenida");
   if (p.expiresAt)
-    rules.push(`Vence ${new Date(p.expiresAt).toLocaleDateString("es-AR")}`);
+    rules.push(`Vence ${formatArgentinaDateTime(p.expiresAt)} ART`);
   if (p.active === false) rules.push("Inactivo");
   if (!rules.length) rules.push("Sin restricciones extra");
   return rules;

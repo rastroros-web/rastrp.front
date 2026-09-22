@@ -10,6 +10,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import type {
   CartItem,
   CartShippingPref,
@@ -31,7 +32,7 @@ import {
   sizeQty,
   syncSizeStock,
 } from "@/lib/mock/stock";
-import { DEMO_HINTS, SEED_USERS, seedOrders, seedProducts } from "@/lib/mock/seed";
+import { SEED_USERS, seedOrders, seedProducts } from "@/lib/mock/seed";
 import { readJson, STORAGE_KEYS, writeJson } from "@/lib/mock/storage";
 import {
   syncEcommerceToProducts,
@@ -57,11 +58,16 @@ import {
   fetchAccountBag,
   fetchShopMe,
   fetchShopOrders,
+  fetchAdminOrders,
   fetchShopProducts,
+  fetchAdminProducts,
   invalidateShopProductsCache,
   fetchShopPromos,
   getBackendUrl,
   hasApiAuth,
+  updateShopProduct,
+  deleteShopProduct,
+  persistShopProductStock,
   loginShopUser,
   registerShopUser,
   clearApiToken,
@@ -80,10 +86,13 @@ import {
   emptyBag,
   EMPTY_SHIPPING,
   GUEST_BAG_ID,
+  isWishlistEntry,
   mergeBags,
+  mergeWishlists,
   migrateLegacyBag,
   normalizeBag,
   readBag,
+  wishlistKey,
   writeBag,
   type AccountBag,
 } from "@/lib/mock/accountBags";
@@ -143,7 +152,6 @@ type StoreContextValue = {
   cartTransferTotal: number;
   cartShipping: CartShippingPref;
   setCartShipping: (next: Partial<CartShippingPref>) => void;
-  demoHints: typeof DEMO_HINTS;
   login: (email: string, password: string) => Promise<LoginResult>;
   register: (data: {
     name: string;
@@ -159,8 +167,8 @@ type StoreContextValue = {
   updateCartQty: (id: string, qty: number) => void;
   removeFromCart: (id: string) => void;
   clearCart: () => void;
-  toggleWishlist: (slug: string) => void;
-  isWishlisted: (slug: string) => boolean;
+  toggleWishlist: (slug: string, variantId?: string | null) => void;
+  isWishlisted: (slug: string, variantId?: string | null) => boolean;
   trackView: (slug: string) => void;
   placeOrder: (input: {
     paymentMethod: MockOrder["paymentMethod"];
@@ -192,20 +200,28 @@ type StoreContextValue = {
   getProduct: (slug: string) => ShopProduct | undefined;
   getOrder: (id: string) => MockOrder | undefined;
   saveProduct: (product: ShopProduct) => void;
+  persistProductStock: (
+    product: ShopProduct
+  ) => Promise<{ ok: true } | { ok: false; error: string }>;
   reloadProducts: () => Promise<void>;
-  deleteProduct: (slug: string) => void;
-  toggleProductActive: (slug: string) => void;
+  deleteProduct: (
+    slug: string
+  ) => Promise<{ ok: true } | { ok: false; error: string }>;
+  toggleProductActive: (
+    slug: string
+  ) => Promise<{ ok: true } | { ok: false; error: string }>;
   savePromo: (
     promo: PromoCode
   ) => Promise<{ ok: true } | { ok: false; error: string }>;
   deletePromo: (code: string) => Promise<void>;
   syncFromEcommerce: (rows: EcommerceRow[]) => SyncEcommerceResult;
   /** Descuenta stock del catálogo según ventas de la planilla */
-  applyVentasToStock: (ventas: VentaRow[]) => {
+  applyVentasToStock: (ventas: VentaRow[]) => Promise<{
     deductions: StockDeduction[];
     applied: number;
     skipped: number;
-  };
+    error?: string;
+  }>;
   resetDemoData: () => void;
 };
 
@@ -244,7 +260,13 @@ function sessionFromApi(user: {
   };
 }
 
+function isStaffSession(session: SessionUser | null | undefined) {
+  return session?.role === "admin" || session?.role === "staff";
+}
+
 export function StoreProvider({ children }: { children: ReactNode }) {
+  const router = useRouter();
+  const pathname = usePathname();
   const [ready, setReady] = useState(false);
   const [users, setUsers] = useState<MockUser[]>(SEED_USERS);
   const [session, setSession] = useState<SessionUser | null>(null);
@@ -288,17 +310,15 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           : seedOrders()
     );
     setPromos(
-      (storedPromos?.length ? storedPromos : SEED_PROMO_CODES)
-        .filter((p) => p.type === "percent" || p.type === "fixed")
-        .map((p) =>
-          p.code === "BIENVENIDA"
-            ? SEED_PROMO_CODES.find((s) => s.code === "BIENVENIDA") ?? p
-            : p
-        )
+      hasApi
+        ? []
+        : (storedPromos?.length ? storedPromos : SEED_PROMO_CODES).filter(
+            (p) => p.type === "percent" || p.type === "fixed"
+          )
     );
     setCart(storedBag.cart);
     setSession(storedSession);
-    setWishlist(storedBag.wishlist);
+    setWishlist(hasApi && storedSession ? [] : storedBag.wishlist);
     setRecentlyViewed(storedRecent);
     setCartShippingState(storedBag.shipping);
 
@@ -306,7 +326,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     if (hasApi) writeJson(STORAGE_KEYS.users, []);
     if (!hasApi && !storedOrders?.length) writeJson(STORAGE_KEYS.orders, seedOrders());
     if (hasApi) writeJson(STORAGE_KEYS.orders, []);
-    if (!storedPromos?.length) writeJson(STORAGE_KEYS.promos, SEED_PROMO_CODES);
+    if (!hasApi && !storedPromos?.length) writeJson(STORAGE_KEYS.promos, SEED_PROMO_CODES);
+    if (hasApi) writeJson(STORAGE_KEYS.promos, []);
     if (!readJson<BusinessData | null>(BUSINESS_KEY, null)) {
       writeJson(BUSINESS_KEY, emptyBusiness());
     }
@@ -314,7 +335,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     let cancelled = false;
     (async () => {
       try {
-        const fromApi = await fetchShopProducts();
+        let fromApi = await fetchShopProducts();
         if (cancelled) return;
 
         if (fromApi?.length) {
@@ -341,11 +362,11 @@ export function StoreProvider({ children }: { children: ReactNode }) {
             setSession(sessionNow);
             writeJson(STORAGE_KEYS.session, sessionNow);
           } catch {
-            if (!storedSession) {
-              clearApiToken();
-              if (!cancelled) setSession(null);
-              sessionNow = null;
-            }
+            // Token vencido o JWT_SECRET rotado: la sesión local ya no sirve.
+            clearApiToken();
+            writeJson(STORAGE_KEYS.session, null);
+            if (!cancelled) setSession(null);
+            sessionNow = null;
           }
         }
 
@@ -353,37 +374,52 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           try {
             const remote = normalizeBag(await fetchAccountBag());
             if (cancelled) return;
-            const local = readBag(bagOwnerId(sessionNow.id));
-            const remoteEmpty =
-              remote.cart.length === 0 && remote.wishlist.length === 0;
-            const bag =
-              remoteEmpty && (local.cart.length > 0 || local.wishlist.length > 0)
-                ? local
-                : remote;
-            writeBag(sessionNow.id, bag);
+            const guestWish = readBag(GUEST_BAG_ID).wishlist;
+            const bag = {
+              ...remote,
+              wishlist: mergeWishlists(remote.wishlist, guestWish),
+            };
+            writeBag(GUEST_BAG_ID, {
+              ...readBag(GUEST_BAG_ID),
+              wishlist: [],
+            });
             bagOwnerRef.current = sessionNow.id;
+            writeBag(sessionNow.id, { ...bag, wishlist: [] });
             setCart(bag.cart);
             setWishlist(bag.wishlist);
             setCartShippingState(bag.shipping);
-            if (bag !== remote) {
+            lastRemoteBagKeyRef.current = remoteBagKey(bag);
+            if (guestWish.length > 0) {
               saveAccountBag(bag).catch(() => {});
             }
           } catch {
-            /* seguimos con el carrito local de esa cuenta */
+            setWishlist([]);
           }
 
           try {
-            const remoteOrders = await fetchShopOrders();
+            const remoteOrders = isStaffSession(sessionNow)
+              ? await fetchAdminOrders()
+              : await fetchShopOrders();
             if (cancelled) return;
             setOrders(remoteOrders);
           } catch {
             /* sin pedidos de API */
           }
+
+          if (isStaffSession(sessionNow)) {
+            const adminProducts = await fetchAdminProducts();
+            if (cancelled) return;
+            if (adminProducts?.length) {
+              setProducts(
+                adminProducts.map((p) =>
+                  fillEmptyVariantImages(normalizeProductStock(p))
+                )
+              );
+            }
+          }
         }
 
-        const fromPromos = await fetchShopPromos(
-          sessionNow?.role === "admin" || sessionNow?.role === "staff"
-        );
+        const fromPromos = await fetchShopPromos(isStaffSession(sessionNow));
         if (cancelled) return;
         if (fromPromos) setPromos(fromPromos);
       } catch {
@@ -421,10 +457,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     if (!ready) return;
     writeBag(bagOwnerRef.current, {
       cart,
-      wishlist,
+      wishlist: getBackendUrl() && session ? [] : wishlist,
       shipping: cartShipping,
     });
-  }, [cart, wishlist, cartShipping, ready]);
+  }, [cart, wishlist, cartShipping, ready, session]);
 
   useEffect(() => {
     if (!ready || !bagSynced || !session || !hasApiAuth()) return;
@@ -472,12 +508,13 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
       const attachAccount = (userId: string, incoming: AccountBag) => {
         const merged = mergeBags(incoming, guestBag);
-        writeBag(GUEST_BAG_ID, emptyBag());
+        writeBag(GUEST_BAG_ID, { ...emptyBag(), cart: [], shipping: EMPTY_SHIPPING });
         bagOwnerRef.current = userId;
-        writeBag(userId, merged);
+        writeBag(userId, { ...merged, wishlist: [] });
         setCart(merged.cart);
         setWishlist(merged.wishlist);
         setCartShippingState(merged.shipping);
+        lastRemoteBagKeyRef.current = "";
         return merged;
       };
 
@@ -497,14 +534,16 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           }
           setBagSynced(true);
           try {
-            setOrders(await fetchShopOrders());
+            setOrders(
+              isStaffSession(nextSession)
+                ? await fetchAdminOrders()
+                : await fetchShopOrders()
+            );
           } catch {
             setOrders([]);
           }
           try {
-            const fromPromos = await fetchShopPromos(
-              nextSession.role === "admin" || nextSession.role === "staff"
-            );
+            const fromPromos = await fetchShopPromos(isStaffSession(nextSession));
             if (fromPromos) setPromos(fromPromos);
           } catch {
             /* seguimos con los cupones locales */
@@ -556,12 +595,13 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
       const attachAccount = (userId: string, incoming: AccountBag) => {
         const merged = mergeBags(incoming, guestBag);
-        writeBag(GUEST_BAG_ID, emptyBag());
+        writeBag(GUEST_BAG_ID, { ...emptyBag(), cart: [], shipping: EMPTY_SHIPPING });
         bagOwnerRef.current = userId;
-        writeBag(userId, merged);
+        writeBag(userId, { ...merged, wishlist: [] });
         setCart(merged.cart);
         setWishlist(merged.wishlist);
         setCartShippingState(merged.shipping);
+        lastRemoteBagKeyRef.current = "";
         return merged;
       };
 
@@ -644,9 +684,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       wishlist,
       shipping: cartShipping,
     };
-    writeBag(bagOwnerRef.current, currentBag);
     if (hasApiAuth()) {
       saveAccountBag(currentBag).catch(() => {});
+    } else {
+      writeBag(bagOwnerRef.current, currentBag);
     }
     clearApiToken();
     writeJson(STORAGE_KEYS.session, null);
@@ -654,7 +695,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     const guest = readBag(GUEST_BAG_ID);
     setSession(null);
     setCart(guest.cart);
-    setWishlist(guest.wishlist);
+    setWishlist(getBackendUrl() ? [] : guest.wishlist);
     setCartShippingState(guest.shipping);
     if (getBackendUrl()) setOrders([]);
     setBagSynced(true);
@@ -787,14 +828,31 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
-  const toggleWishlist = useCallback((slug: string) => {
-    setWishlist((prev) =>
-      prev.includes(slug) ? prev.filter((s) => s !== slug) : [slug, ...prev]
-    );
-  }, []);
+  const toggleWishlist = useCallback(
+    (slug: string, variantId?: string | null) => {
+      if (getBackendUrl() && !session) {
+        const next = pathname.startsWith("/cuenta/login")
+          ? "/favoritos"
+          : pathname || "/favoritos";
+        router.push(
+          `/cuenta/login?next=${encodeURIComponent(next)}`
+        );
+        return;
+      }
+      const key = wishlistKey(slug, variantId);
+      setWishlist((prev) => {
+        if (prev.includes(key)) {
+          return prev.filter((s) => s !== key);
+        }
+        return [key, ...prev.filter((s) => s !== slug && s !== key)];
+      });
+    },
+    [session, pathname, router]
+  );
 
   const isWishlisted = useCallback(
-    (slug: string) => wishlist.includes(slug),
+    (slug: string, variantId?: string | null) =>
+      isWishlistEntry(wishlist, slug, variantId),
     [wishlist]
   );
 
@@ -1011,7 +1069,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           setOrders((prev) => prev.map((o) => (o.id === id ? updated : o)));
           if (status === "cancelado") {
             invalidateShopProductsCache();
-            fetchShopProducts({ force: true })
+            const reload = isStaffSession(session)
+              ? fetchAdminProducts()
+              : fetchShopProducts({ force: true });
+            reload
               .then((fromApi) => {
                 if (fromApi?.length) {
                   setProducts(fromApi.map(normalizeProductStock));
@@ -1048,7 +1109,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         /* noop */
       }
     },
-    [orders]
+    [orders, session]
   );
 
   const cancelOrder = useCallback(async (id: string) => {
@@ -1197,29 +1258,100 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   const reloadProducts = useCallback(async () => {
     invalidateShopProductsCache();
-    const fromApi = await fetchShopProducts({ force: true });
+    const fromApi = isStaffSession(session)
+      ? await fetchAdminProducts()
+      : await fetchShopProducts({ force: true });
     if (fromApi?.length) {
       setProducts(fromApi.map((p) => fillEmptyVariantImages(normalizeProductStock(p))));
     }
-  }, []);
+  }, [session]);
 
-  const deleteProduct = useCallback((slug: string) => {
+  const persistProductStock = useCallback(async (product: ShopProduct) => {
+    const now = new Date().toISOString();
+    const normalized = fillEmptyVariantImages(normalizeProductStock(product));
+    if (getBackendUrl() && hasApiAuth()) {
+      try {
+        await persistShopProductStock(normalized);
+        invalidateShopProductsCache();
+      } catch (err) {
+        return {
+          ok: false as const,
+          error:
+            err instanceof Error ? err.message : "No se pudo guardar el stock.",
+        };
+      }
+    }
+    saveProduct({ ...normalized, updatedAt: now });
+    return { ok: true as const };
+  }, [saveProduct]);
+
+  const deleteProduct = useCallback(async (slug: string) => {
+    const current = products.find((p) => p.slug === slug);
+    if (getBackendUrl() && hasApiAuth()) {
+      const id = Number(current?.id);
+      if (!Number.isFinite(id) || id <= 0) {
+        return { ok: false as const, error: "Este producto no está en el servidor." };
+      }
+      try {
+        await deleteShopProduct(id);
+        invalidateShopProductsCache();
+      } catch (err) {
+        return {
+          ok: false as const,
+          error:
+            err instanceof Error
+              ? err.message
+              : "No se pudo eliminar el producto.",
+        };
+      }
+    }
     setProducts((prev) => prev.filter((p) => p.slug !== slug));
-  }, []);
+    return { ok: true as const };
+  }, [products]);
 
-  const toggleProductActive = useCallback((slug: string) => {
+  const toggleProductActive = useCallback(async (slug: string) => {
+    const current = products.find((p) => p.slug === slug);
+    if (!current) {
+      return { ok: false as const, error: "Producto no encontrado." };
+    }
+    const nextActive = !(current.active ?? true);
+    if (getBackendUrl() && hasApiAuth()) {
+      const id = Number(current.id);
+      if (!Number.isFinite(id) || id <= 0) {
+        return { ok: false as const, error: "Este producto no está en el servidor." };
+      }
+      try {
+        const saved = await updateShopProduct(id, { active: nextActive });
+        invalidateShopProductsCache();
+        setProducts((prev) =>
+          prev.map((p) =>
+            p.slug === slug ? { ...p, ...saved, active: nextActive } : p
+          )
+        );
+        return { ok: true as const };
+      } catch (err) {
+        return {
+          ok: false as const,
+          error:
+            err instanceof Error
+              ? err.message
+              : "No se pudo cambiar el estado.",
+        };
+      }
+    }
     setProducts((prev) =>
       prev.map((p) =>
         p.slug === slug
           ? {
               ...p,
-              active: !(p.active ?? true),
+              active: nextActive,
               updatedAt: new Date().toISOString(),
             }
           : p
       )
     );
-  }, []);
+    return { ok: true as const };
+  }, [products]);
 
   const savePromo = useCallback(
     async (
@@ -1300,52 +1432,71 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     return result;
   }, [products]);
 
-  const applyVentasToStock = useCallback((ventas: VentaRow[]) => {
+  const applyVentasToStock = useCallback(async (ventas: VentaRow[]) => {
     const deductions = ventasToStockDeductions(ventas);
     let applied = 0;
     let skipped = 0;
     const now = new Date().toISOString();
     const touched: ShopProduct[] = [];
-    setProducts((prev) =>
-      prev.map((p) => {
-        const hits = deductions.filter((d) => d.slug === p.slug);
-        if (!hits.length) return p;
-        let changed = false;
-        const variants = p.variants.map((v) => {
-          const variantHits = hits.filter((h) => h.variantId === v.id);
-          if (!variantHits.length) return v;
-          const sizes = v.sizes.map((s) => ({ ...s }));
-          for (const d of variantHits) {
-            let remaining = d.qty;
-            const ordered = d.talle
-              ? sizes.filter((s) => s.label === d.talle)
-              : [...sizes].sort(
-                  (a, b) =>
-                    (typeof b.stock === "number" ? b.stock : 0) -
-                    (typeof a.stock === "number" ? a.stock : 0)
-                );
-            for (const s of ordered) {
-              if (remaining <= 0) break;
-              const qty =
-                typeof s.stock === "number" ? s.stock : s.inStock ? 1 : 0;
-              if (qty <= 0) continue;
-              const take = Math.min(qty, remaining);
-              s.stock = qty - take;
-              s.inStock = s.stock > 0;
-              remaining -= take;
-              applied += take;
-              changed = true;
-            }
-            if (remaining > 0) skipped += remaining;
+    const nextProducts = products.map((p) => {
+      const hits = deductions.filter((d) => d.slug === p.slug);
+      if (!hits.length) return p;
+      let changed = false;
+      const variants = p.variants.map((v) => {
+        const variantHits = hits.filter((h) => h.variantId === v.id);
+        if (!variantHits.length) return v;
+        const sizes = v.sizes.map((s) => ({ ...s }));
+        for (const d of variantHits) {
+          let remaining = d.qty;
+          const ordered = d.talle
+            ? sizes.filter((s) => s.label === d.talle)
+            : [...sizes].sort(
+                (a, b) =>
+                  (typeof b.stock === "number" ? b.stock : 0) -
+                  (typeof a.stock === "number" ? a.stock : 0)
+              );
+          for (const s of ordered) {
+            if (remaining <= 0) break;
+            const qty =
+              typeof s.stock === "number" ? s.stock : s.inStock ? 1 : 0;
+            if (qty <= 0) continue;
+            const take = Math.min(qty, remaining);
+            s.stock = qty - take;
+            s.inStock = s.stock > 0;
+            remaining -= take;
+            applied += take;
+            changed = true;
           }
-          return { ...v, sizes };
-        });
-        if (!changed) return p;
-        const next = normalizeProductStock({ ...p, variants, updatedAt: now });
-        touched.push(next);
-        return next;
-      })
-    );
+          if (remaining > 0) skipped += remaining;
+        }
+        return { ...v, sizes };
+      });
+      if (!changed) return p;
+      const next = normalizeProductStock({ ...p, variants, updatedAt: now });
+      touched.push(next);
+      return next;
+    });
+    setProducts(nextProducts);
+
+    if (touched.length && getBackendUrl() && hasApiAuth()) {
+      try {
+        for (const p of touched) {
+          await persistShopProductStock(p);
+        }
+        invalidateShopProductsCache();
+      } catch (err) {
+        return {
+          deductions,
+          applied,
+          skipped,
+          error:
+            err instanceof Error
+              ? err.message
+              : "No se pudo guardar el stock en el servidor.",
+        };
+      }
+    }
+
     for (const p of touched) {
       try {
         pushProductStockToEcommerce(p);
@@ -1354,7 +1505,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       }
     }
     return { deductions, applied, skipped };
-  }, []);
+  }, [products]);
 
   const resetDemoData = useCallback(() => {
     const biz = emptyBusiness();
@@ -1415,7 +1566,6 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       cartTransferTotal,
       cartShipping,
       setCartShipping,
-      demoHints: DEMO_HINTS,
       login,
       register,
       logout,
@@ -1434,6 +1584,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       getProduct,
       getOrder,
       saveProduct,
+      persistProductStock,
       reloadProducts,
       deleteProduct,
       toggleProductActive,
@@ -1476,6 +1627,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       getProduct,
       getOrder,
       saveProduct,
+      persistProductStock,
       reloadProducts,
       deleteProduct,
       toggleProductActive,

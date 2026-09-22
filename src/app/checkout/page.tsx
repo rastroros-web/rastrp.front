@@ -207,7 +207,11 @@ export default function CheckoutPage() {
         const applied = await validateShopPromo(promoInput, merchandise);
         setPromoCode(applied.code);
         setPromoError("");
-        setPromoToast({ code: applied.code, label: applied.label });
+        setPromoToast({
+          code: applied.code,
+          label: applied.label,
+          replacesWelcome: applied.replacesWelcome,
+        });
       } catch (err) {
         setPromoCode("");
         setPromoError(
@@ -231,7 +235,11 @@ export default function CheckoutPage() {
     }
     setPromoCode(check.promo.code);
     setPromoError("");
-    setPromoToast({ code: check.promo.code, label: check.promo.label });
+    setPromoToast({
+      code: check.promo.code,
+      label: check.promo.label,
+      replacesWelcome: check.promo.replacesWelcome,
+    });
   };
 
   const promo = useMemo(
@@ -1143,9 +1151,11 @@ export default function CheckoutPage() {
                 Cupón de descuento
               </h2>
               <p className="mt-2 text-xs text-soft">
+                Un cupón por pedido. Los de campaña no se acumulan con el de
+                bienvenida.
                 {paymentMethod === "transferencia"
-                  ? "El cupón se aplica al precio con transferencia, no al precio de lista."
-                  : "El cupón se aplica al precio de lista."}
+                  ? " El descuento se aplica al precio con transferencia."
+                  : " El descuento se aplica al precio de lista."}
               </p>
               <div className="mt-4 flex flex-col gap-2 sm:flex-row">
                 <input

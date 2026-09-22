@@ -11,10 +11,15 @@ import {
   adminTd,
   adminTh,
 } from "@/components/admin/AdminSection";
-import { formatMoney } from "@/lib/mock/money";
+import { formatMoney, parseMoney } from "@/lib/mock/money";
 import { sumField, type VentaRow } from "@/lib/mock/business";
 import { resolveVentaArticulo } from "@/lib/mock/resolveVenta";
-import { ledgerFecha } from "@/lib/mock/orderLabels";
+import { itemLabel, ledgerFecha } from "@/lib/mock/orderLabels";
+import { sizeQty } from "@/lib/mock/stock";
+import { FancySelect } from "@/components/ui/FancySelect";
+import { isoToArgentinaParts } from "@/lib/argentinaTime";
+import type { ShopProduct } from "@/lib/mock/types";
+import type { ColorVariant } from "@/data/catalog";
 import {
   backfillTalleFromOrders,
   refreshBusinessFromServer,
@@ -40,17 +45,40 @@ function sortVentasNewest(a: VentaRow, b: VentaRow) {
 
 type Periodo = "todas" | "custom";
 
+const MEDIOS = [
+  { value: "Transferencia", label: "Transferencia" },
+  { value: "Mercado Pago", label: "Mercado Pago" },
+];
+
+function todayArgentina() {
+  return isoToArgentinaParts(new Date().toISOString()).date;
+}
+
+function firstSize(variant: ColorVariant | undefined): string {
+  if (!variant?.sizes.length) return "";
+  const withStock = variant.sizes.find((s) => sizeQty(s) > 0);
+  return (withStock ?? variant.sizes[0]).label;
+}
+
 export default function GestionVentasPage() {
   const { ready, data, addVenta, deleteVenta, fillVentaCosts } = useBusiness();
-  const { applyVentasToStock, getProduct, orders } = useStore();
+  const { applyVentasToStock, getProduct, orders, products } = useStore();
   const [q, setQ] = useState("");
   const [open, setOpen] = useState(false);
+  const [pickedSlug, setPickedSlug] = useState("");
+  const [pickedVariant, setPickedVariant] = useState("");
+  const [pickedTalle, setPickedTalle] = useState("");
+  const [medioPago, setMedioPago] = useState(MEDIOS[0].value);
+  const [cantidad, setCantidad] = useState(1);
+  const [totalInput, setTotalInput] = useState("");
+  const [costoInput, setCostoInput] = useState("");
   const [periodo, setPeriodo] = useState<Periodo>("todas");
   const [year, setYear] = useState<string>("all");
   const [desde, setDesde] = useState("");
   const [hasta, setHasta] = useState("");
   const [toast, setToast] = useState<string | null>(null);
   const importedOnce = useRef(false);
+  const costsFilledOnce = useRef(false);
   const hasApi = Boolean(getBackendUrl());
 
   // Sin API: importa pedidos mock a la planilla local una vez.
@@ -67,6 +95,12 @@ export default function GestionVentasPage() {
     if (talles > 0) parts.push(`${talles} talles completados`);
     if (parts.length) setToast(`Se sumaron: ${parts.join(" · ")}`);
   }, [ready, orders, hasApi]);
+
+  useEffect(() => {
+    if (!ready || costsFilledOnce.current || !data.ventas.length) return;
+    costsFilledOnce.current = true;
+    fillVentaCosts();
+  }, [ready, data.ventas.length, fillVentaCosts]);
 
   const years = useMemo(() => {
     const set = new Set<string>();
@@ -107,11 +141,20 @@ export default function GestionVentasPage() {
 
   const enrichedRows = useMemo(() => {
     return rows.map((v) => {
-      const link = resolveVentaArticulo(
+      const resolved = resolveVentaArticulo(
         v.articulo,
         data.costos,
         data.ecommerce
       );
+      const link = v.productSlug
+        ? {
+            ...resolved,
+            slug: v.productSlug,
+            variantId: v.variantId ?? resolved.variantId,
+            matched: true,
+            label: v.articulo,
+          }
+        : resolved;
       const costo =
         v.costo > 0
           ? v.costo
@@ -130,6 +173,78 @@ export default function GestionVentasPage() {
       };
     });
   }, [rows, data.costos, data.ecommerce, getProduct]);
+
+  const catalog = useMemo(
+    () =>
+      [...products]
+        .filter((p) => p.variants.length > 0)
+        .sort(
+          (a, b) =>
+            a.brand.localeCompare(b.brand, "es") ||
+            a.name.localeCompare(b.name, "es")
+        ),
+    [products]
+  );
+  const selectedProduct = catalog.find((p) => p.slug === pickedSlug);
+  const selectedVariant = selectedProduct?.variants.find(
+    (v) => v.id === pickedVariant
+  );
+
+  function fillMoney(
+    product: ShopProduct | undefined,
+    variant: ColorVariant | undefined,
+    qty: number,
+    medio: string
+  ) {
+    if (!variant) {
+      setTotalInput("");
+      setCostoInput("");
+      return;
+    }
+    const unit = /transfer/i.test(medio)
+      ? parseMoney(variant.transfer)
+      : parseMoney(variant.price);
+    const articulo = product
+      ? itemLabel({
+          brand: product.brand,
+          productName: product.name,
+          variantName: variant.name,
+        })
+      : "";
+    const link = resolveVentaArticulo(articulo, data.costos, data.ecommerce);
+    setTotalInput(String(Math.round(unit * Math.max(1, qty))));
+    setCostoInput(
+      link.costoUnit != null
+        ? String(Math.round(link.costoUnit * Math.max(1, qty)))
+        : ""
+    );
+  }
+
+  function pickProduct(slug: string) {
+    setPickedSlug(slug);
+    const product = catalog.find((p) => p.slug === slug);
+    const variant = product?.variants[0];
+    setPickedVariant(variant?.id ?? "");
+    setPickedTalle(firstSize(variant));
+    fillMoney(product, variant, cantidad, medioPago);
+  }
+
+  function pickVariant(id: string) {
+    setPickedVariant(id);
+    const variant = selectedProduct?.variants.find((v) => v.id === id);
+    setPickedTalle(firstSize(variant));
+    fillMoney(selectedProduct, variant, cantidad, medioPago);
+  }
+
+  function resetForm() {
+    setPickedSlug("");
+    setPickedVariant("");
+    setPickedTalle("");
+    setMedioPago(MEDIOS[0].value);
+    setCantidad(1);
+    setTotalInput("");
+    setCostoInput("");
+  }
 
   const total = sumField(enrichedRows, (v) => v.total);
   const costo = sumField(enrichedRows, (v) => v.displayCosto);
@@ -170,23 +285,6 @@ export default function GestionVentasPage() {
     setPeriodo("todas");
   }
 
-  function onFillCosts() {
-    const n = fillVentaCosts();
-    setToast(
-      n
-        ? `Completados ${n} costos desde la planilla COSTOS`
-        : "No había costos faltantes para completar"
-    );
-  }
-
-  function onApplyStock() {
-    const result = applyVentasToStock(rows);
-    setToast(
-      `Stock: −${result.applied} u. en catálogo` +
-        (result.skipped ? ` · ${result.skipped} sin stock suficiente` : "")
-    );
-  }
-
   function onImportOrders() {
     if (hasApi) {
       refreshBusinessFromServer();
@@ -203,30 +301,54 @@ export default function GestionVentasPage() {
     );
   }
 
-  function onSubmit(e: FormEvent<HTMLFormElement>) {
+  async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const fd = new FormData(e.currentTarget);
-    const t = Number(fd.get("total") || 0);
-    let c = Number(fd.get("costo") || 0);
-    const articulo = String(fd.get("articulo") || "").trim();
-    const cantidad = Number(fd.get("cantidad") || 1);
-    if (!c) {
-      const link = resolveVentaArticulo(articulo, data.costos, data.ecommerce);
-      if (link.costoUnit != null) c = link.costoUnit * cantidad;
+    if (!selectedProduct || !selectedVariant) {
+      setToast("Elegí un producto del catálogo.");
+      return;
     }
-    addVenta({
-      fecha: String(fd.get("fecha") || new Date().toISOString().slice(0, 10)),
+    const fd = new FormData(e.currentTarget);
+    const qty = Math.max(1, Number(fd.get("cantidad") || cantidad || 1));
+    const t = Number(fd.get("total") || totalInput || 0);
+    let c = Number(fd.get("costo") || costoInput || 0);
+    const articulo = itemLabel({
+      brand: selectedProduct.brand,
+      productName: selectedProduct.name,
+      variantName: selectedVariant.name,
+    });
+    const talle = pickedTalle.trim() || null;
+    const link = resolveVentaArticulo(articulo, data.costos, data.ecommerce);
+    if (!c && link.costoUnit != null) c = link.costoUnit * qty;
+    const venta = {
+      fecha: String(fd.get("fecha") || todayArgentina()),
       articulo,
-      talle: String(fd.get("talle") || "").trim() || null,
-      cantidad,
+      talle,
+      cantidad: qty,
       total: t,
       costo: c,
       ganancia: t - c,
       cliente: String(fd.get("cliente") || "") || null,
-      medioPago: String(fd.get("medioPago") || "") || null,
-    });
-    e.currentTarget.reset();
+      medioPago: String(fd.get("medioPago") || medioPago) || null,
+      productSlug: selectedProduct.slug,
+      variantId: selectedVariant.id,
+    };
+    addVenta(venta);
+    resetForm();
     setOpen(false);
+
+    const stock = await applyVentasToStock([{ ...venta, id: "venta-nueva" }]);
+    if (stock.error) {
+      setToast(`Venta anotada. Stock: ${stock.error}`);
+      return;
+    }
+    if (stock.applied > 0) {
+      setToast(
+        `Venta anotada · stock −${stock.applied} u.` +
+          (stock.skipped ? ` · ${stock.skipped} sin stock suficiente` : "")
+      );
+      return;
+    }
+    setToast("Venta anotada. No había stock para descontar en ese talle.");
   }
 
   if (!ready) return <p className="text-sm text-soft">Cargando…</p>;
@@ -252,21 +374,13 @@ export default function GestionVentasPage() {
             </button>
             <button
               type="button"
-              onClick={onFillCosts}
-              className="btn-press border border-[#222222] px-4 py-2.5 text-[11px] font-semibold uppercase"
-            >
-              Completar costos
-            </button>
-            <button
-              type="button"
-              onClick={onApplyStock}
-              className="btn-press border border-[#222222] px-4 py-2.5 text-[11px] font-semibold uppercase"
-            >
-              Descontar stock
-            </button>
-            <button
-              type="button"
-              onClick={() => setOpen((v) => !v)}
+              onClick={() => {
+                setOpen((v) => {
+                  const next = !v;
+                  if (!next) resetForm();
+                  return next;
+                });
+              }}
               className="btn-press bg-[#222222] px-4 py-2.5 text-[11px] font-semibold tracking-[0.14em] text-white uppercase"
             >
               {open ? "Cerrar" : "Nueva venta"}
@@ -394,22 +508,127 @@ export default function GestionVentasPage() {
           onSubmit={onSubmit}
           className="grid gap-3 border border-black/5 bg-white p-4 sm:grid-cols-2 lg:grid-cols-4"
         >
-          <input name="fecha" type="date" className="border border-black/10 px-3 py-2 text-sm" required />
-          <input name="articulo" placeholder="Artículo (Adidas Samba chocolate)" className="border border-black/10 px-3 py-2 text-sm" required />
-          <input name="talle" placeholder="Talle (ej. 38)" className="border border-black/10 px-3 py-2 text-sm" />
-          <input name="cliente" placeholder="Cliente" className="border border-black/10 px-3 py-2 text-sm" />
-          <input name="medioPago" placeholder="Medio de pago" className="border border-black/10 px-3 py-2 text-sm" />
-          <input name="cantidad" type="number" min={1} defaultValue={1} className="border border-black/10 px-3 py-2 text-sm" />
-          <input name="total" type="number" placeholder="Total $" className="border border-black/10 px-3 py-2 text-sm" required />
-          <input name="costo" type="number" placeholder="Costo $ (auto si hay modelo/color)" className="border border-black/10 px-3 py-2 text-sm" />
-          <button type="submit" className="btn-press bg-[#222222] px-4 py-2 text-[11px] font-semibold text-white uppercase sm:col-span-2 lg:col-span-4">
+          <label className="text-sm">
+            <span className="mb-1 block text-[10px] font-semibold tracking-[0.14em] text-soft uppercase">
+              Fecha
+            </span>
+            <input
+              name="fecha"
+              type="date"
+              defaultValue={todayArgentina()}
+              required
+              className="w-full border border-black/10 px-3 py-2 text-sm"
+            />
+          </label>
+          <FancySelect
+            label="Artículo"
+            value={pickedSlug}
+            placeholder="Elegí un producto"
+            options={catalog.map((p) => ({
+              value: p.slug,
+              label: `${p.brand} ${p.name}`,
+            }))}
+            onChange={pickProduct}
+            variant="field"
+          />
+          <FancySelect
+            label="Color"
+            value={pickedVariant}
+            placeholder="Color"
+            options={(selectedProduct?.variants || []).map((v) => ({
+              value: v.id,
+              label: v.name,
+            }))}
+            onChange={pickVariant}
+            variant="field"
+          />
+          <FancySelect
+            label="Talle"
+            value={pickedTalle}
+            placeholder="Talle"
+            options={(selectedVariant?.sizes || []).map((s) => ({
+              value: s.label,
+              label:
+                sizeQty(s) > 0 ? `${s.label} · ${sizeQty(s)} u.` : `${s.label} · sin stock`,
+            }))}
+            onChange={setPickedTalle}
+            variant="field"
+          />
+          <label className="text-sm">
+            <span className="mb-1 block text-[10px] font-semibold tracking-[0.14em] text-soft uppercase">
+              Cliente
+            </span>
+            <input
+              name="cliente"
+              placeholder="Nombre"
+              className="w-full border border-black/10 px-3 py-2 text-sm"
+            />
+          </label>
+          <FancySelect
+            label="Medio de pago"
+            value={medioPago}
+            options={MEDIOS}
+            onChange={(value) => {
+              setMedioPago(value);
+              fillMoney(selectedProduct, selectedVariant, cantidad, value);
+            }}
+            variant="field"
+          />
+          <label className="text-sm">
+            <span className="mb-1 block text-[10px] font-semibold tracking-[0.14em] text-soft uppercase">
+              Cantidad
+            </span>
+            <input
+              name="cantidad"
+              type="number"
+              min={1}
+              value={cantidad}
+              onChange={(e) => {
+                const qty = Math.max(1, Number(e.target.value) || 1);
+                setCantidad(qty);
+                fillMoney(selectedProduct, selectedVariant, qty, medioPago);
+              }}
+              className="w-full border border-black/10 px-3 py-2 text-sm"
+            />
+          </label>
+          <label className="text-sm">
+            <span className="mb-1 block text-[10px] font-semibold tracking-[0.14em] text-soft uppercase">
+              Total $
+            </span>
+            <input
+              name="total"
+              type="number"
+              value={totalInput}
+              onChange={(e) => setTotalInput(e.target.value)}
+              required
+              className="w-full border border-black/10 px-3 py-2 text-sm"
+            />
+          </label>
+          <label className="text-sm sm:col-span-2">
+            <span className="mb-1 block text-[10px] font-semibold tracking-[0.14em] text-soft uppercase">
+              Costo $
+            </span>
+            <input
+              name="costo"
+              type="number"
+              value={costoInput}
+              onChange={(e) => setCostoInput(e.target.value)}
+              placeholder="Se completa si hay costo del modelo"
+              className="w-full border border-black/10 px-3 py-2 text-sm"
+            />
+          </label>
+          <button
+            type="submit"
+            disabled={!pickedSlug || !pickedVariant}
+            className="btn-press bg-[#222222] px-4 py-2 text-[11px] font-semibold text-white uppercase disabled:opacity-40 sm:col-span-2 lg:col-span-4"
+          >
             Guardar
           </button>
         </form>
       )}
 
       <AdminTableShell
-        title="VENTAS · mismas columnas que el Excel (Fecha, Artículo, Cantidad, Total, Costo, Ganancia, Cliente, Medio de pago) + Talle de la tienda"
+        title="Historial"
       >
         <table className="min-w-full">
           <thead className="sticky top-0 z-10 bg-[#f5f4f0]">

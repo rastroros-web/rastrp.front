@@ -27,6 +27,24 @@ function scrollToProductImage() {
   pinWindowToTop();
 }
 
+function productModelLabel(product: {
+  brand: string;
+  name: string;
+  modelo?: string;
+}): string {
+  const brand = (product.brand || "").trim();
+  const modelo = (product.modelo || product.name || "").trim();
+  if (!modelo) return brand;
+  if (!brand) return modelo;
+  // Evita "Nike Slipper Nike Off White" si el nombre ya trae la marca.
+  const brandRe = new RegExp(
+    `\\b${brand.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`,
+    "i"
+  );
+  if (brandRe.test(modelo)) return modelo;
+  return `${brand} ${modelo}`;
+}
+
 export function ProductDetail({
   product,
   initialColor,
@@ -46,12 +64,12 @@ export function ProductDetail({
   } = useStore();
   const live = ready ? getProduct(product.slug) : undefined;
   const activeProduct = live ?? product;
-  const wishlisted = ready && isWishlisted(activeProduct.slug);
   const [colorId, setColorId] = useState(
     initialColor && activeProduct.variants.some((v) => v.id === initialColor)
       ? initialColor
       : activeProduct.variants[0].id
   );
+  const wishlisted = ready && isWishlisted(activeProduct.slug, colorId);
   const [size, setSize] = useState<string | null>(null);
   const [added, setAdded] = useState(false);
   const [toast, setToast] = useState<CartToastPayload | null>(null);
@@ -287,7 +305,7 @@ export function ProductDetail({
             <div className="flex gap-2">
               <button
                 type="button"
-                onClick={() => toggleWishlist(activeProduct.slug)}
+                onClick={() => toggleWishlist(activeProduct.slug, colorId)}
                 className={`chip-press flex size-10 items-center justify-center border ${
                   wishlisted
                     ? "border-brand text-brand"
@@ -419,17 +437,22 @@ export function ProductDetail({
             </div>
           )}
 
-          <div ref={sizeSectionRef} className="mt-8">
-            <div className="mb-3 flex items-baseline justify-between">
+          <div id="elegir-talle" ref={sizeSectionRef} className="mt-8 scroll-mt-28">
+            <div className="mb-3 flex items-baseline justify-between gap-3">
               <p className="text-[11px] font-semibold tracking-[0.16em] uppercase">
                 Talle
               </p>
-              <a
-                href={`/guia-de-talles?marca=${encodeURIComponent(activeProduct.brand)}`}
-                className="text-[11px] font-semibold tracking-[0.12em] text-soft uppercase underline-offset-2 hover:underline"
+              <button
+                type="button"
+                onClick={() => {
+                  document
+                    .getElementById("guia-talles")
+                    ?.scrollIntoView({ behavior: "smooth", block: "start" });
+                }}
+                className="shrink-0 text-[11px] font-semibold tracking-[0.12em] text-soft uppercase underline-offset-2 hover:text-[#222222] hover:underline"
               >
-                Guía de talles
-              </a>
+                ¿Cómo sé mi talle?
+              </button>
             </div>
             <div className="grid grid-cols-4 gap-2 sm:grid-cols-5 md:grid-cols-6">
               {variant.sizes.map((s) => {
@@ -500,21 +523,16 @@ export function ProductDetail({
             >
               <span className="inline-flex items-center gap-2">{addLabel}</span>
             </button>
-            <a
-              href="https://www.instagram.com/rastro.ros/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn-press border border-[#222222] px-6 py-3.5 text-center text-[12px] font-semibold tracking-[0.16em] uppercase hover:bg-[#222222] hover:text-white"
-            >
-              Consultar por Instagram
-            </a>
           </div>
 
           <div className="mt-8">
             <ShippingQuote />
           </div>
 
-          <ProductDescription text={activeProduct.description} />
+          <ProductDescription
+            text={activeProduct.description}
+            modelLabel={productModelLabel(activeProduct)}
+          />
 
           <ul className="mt-10 space-y-2 border-t border-black/5 pt-6 text-xs text-soft">
             <li>

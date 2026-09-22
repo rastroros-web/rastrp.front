@@ -25,12 +25,13 @@ import {
   valuarStock,
 } from "@/lib/mock/businessStats";
 import { FancySelect } from "@/components/ui/FancySelect";
+import { useAlert } from "@/components/ui/AlertProvider";
 
 const LINKS = [
   { href: "/admin/gestion/ventas", label: "Ventas", desc: "Historial de ventas y carga manual" },
   { href: "/admin/gestion/planilla", label: "Planilla diaria", desc: "Ingresos y egresos del día" },
   { href: "/admin/gestion/costos", label: "Costos", desc: "Costo final y margen por modelo" },
-  { href: "/admin/gestion/gastos-fijos", label: "Gastos fijos", desc: "Marketing y gastos mensuales" },
+  { href: "/admin/gestion/gastos-fijos", label: "Gastos fijos", desc: "Alquiler, sueldos y costos mensuales" },
 ];
 
 const ALL = "all";
@@ -41,6 +42,7 @@ function percent(value: number): string {
 
 export default function GestionHubPage() {
   const { ready, data, clearBusiness } = useBusiness();
+  const { confirm } = useAlert();
   const [period, setPeriod] = useState<string>(ALL);
 
   const months = useMemo(() => availableMonths(data), [data]);
@@ -91,10 +93,16 @@ export default function GestionHubPage() {
             />
             <button
               type="button"
-              onClick={() => {
-                const ok = window.confirm(
-                  "Esto borra todas las hojas de gestión cargadas. ¿Seguís?"
-                );
+              onClick={async () => {
+                const ok = await confirm({
+                  eyebrow: "Gestión",
+                  title: "¿Vaciar la planilla?",
+                  message:
+                    "Esto borra todas las hojas de gestión cargadas. No se puede deshacer.",
+                  confirmLabel: "Vaciar planilla",
+                  cancelLabel: "Conservar datos",
+                  tone: "danger",
+                });
                 if (ok) clearBusiness();
               }}
               className="btn-press border border-[#222222] px-4 py-2.5 text-[11px] font-semibold tracking-[0.14em] uppercase"

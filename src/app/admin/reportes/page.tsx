@@ -2,15 +2,41 @@
 
 import Link from "next/link";
 import { useMemo } from "react";
+import { useBusiness } from "@/components/admin/BusinessProvider";
 import { useStore } from "@/components/store/StoreProvider";
 import { formatMoney } from "@/lib/mock/money";
+import { orderCountsInLedger } from "@/lib/mock/orderVentas";
+import { getBackendUrl } from "@/lib/api/backend";
+import { RETIRED_CAMPAIGN_CODES } from "@/lib/mock/promos";
 
 export default function AdminReportesPage() {
   const { orders, products, promos } = useStore();
-  const valid = orders.filter((o) => o.status !== "cancelado");
+  const { data: business, ready: businessReady } = useBusiness();
+  const hasApi = Boolean(getBackendUrl());
+  const ventas = business.ventas || [];
 
-  const revenue = valid.reduce((s, o) => s + o.total, 0);
-  const avg = valid.length ? revenue / valid.length : 0;
+  /** Pedidos cobrados en la tienda (mismo criterio que la planilla). */
+  const collected = orders.filter((o) => orderCountsInLedger(o.status));
+
+  /**
+   * Con API, los importes salen de la planilla de Gestión · Ventas.
+   * Sin API (demo local) se usan los pedidos cobrados del store.
+   */
+  const useLedger = hasApi && businessReady;
+  const revenue = useLedger
+    ? ventas.reduce((s, v) => s + (Number(v.total) || 0), 0)
+    : collected.reduce((s, o) => s + o.total, 0);
+
+  const pedidoCount = useMemo(() => {
+    if (!useLedger) return collected.length;
+    const ids = new Set(
+      ventas.map((v) => v.orderId).filter((id): id is string => Boolean(id))
+    );
+    return ids.size || ventas.length;
+  }, [useLedger, ventas, collected.length]);
+
+  const avg = pedidoCount ? revenue / pedidoCount : 0;
+
   const byStatus = useMemo(() => {
     const map: Record<string, number> = {};
     for (const o of orders) {
@@ -21,41 +47,72 @@ export default function AdminReportesPage() {
 
   const byPayment = useMemo(() => {
     const map: Record<string, { count: number; total: number }> = {};
-    for (const o of valid) {
-      const cur = map[o.paymentMethod] ?? { count: 0, total: 0 };
-      cur.count += 1;
-      cur.total += o.total;
-      map[o.paymentMethod] = cur;
+    if (useLedger) {
+      for (const v of ventas) {
+        const key = (v.medioPago || "sin medio").toLowerCase();
+        const cur = map[key] ?? { count: 0, total: 0 };
+        cur.count += 1;
+        cur.total += Number(v.total) || 0;
+        map[key] = cur;
+      }
+    } else {
+      for (const o of collected) {
+        const cur = map[o.paymentMethod] ?? { count: 0, total: 0 };
+        cur.count += 1;
+        cur.total += o.total;
+        map[o.paymentMethod] = cur;
+      }
     }
     return Object.entries(map);
-  }, [valid]);
+  }, [useLedger, ventas, collected]);
 
   const topProducts = useMemo(() => {
     const map = new Map<string, { name: string; qty: number; revenue: number }>();
-    for (const o of valid) {
-      for (const item of o.items) {
-        const cur = map.get(item.productSlug) ?? {
-          name: item.productName,
-          qty: 0,
-          revenue: 0,
-        };
-        cur.qty += item.qty;
-        cur.revenue +=
-          (o.total / Math.max(o.items.reduce((s, i) => s + i.qty, 0), 1)) *
-          item.qty;
-        map.set(item.productSlug, cur);
+    if (useLedger) {
+      for (const v of ventas) {
+        const name = v.articulo || "Sin nombre";
+        const cur = map.get(name) ?? { name, qty: 0, revenue: 0 };
+        cur.qty += Number(v.cantidad) || 0;
+        cur.revenue += Number(v.total) || 0;
+        map.set(name, cur);
+      }
+    } else {
+      for (const o of collected) {
+        for (const item of o.items) {
+          const cur = map.get(item.productSlug) ?? {
+            name: item.productName,
+            qty: 0,
+            revenue: 0,
+          };
+          cur.qty += item.qty;
+          cur.revenue +=
+            (o.total / Math.max(o.items.reduce((s, i) => s + i.qty, 0), 1)) *
+            item.qty;
+          map.set(item.productSlug, cur);
+        }
       }
     }
     return [...map.values()].sort((a, b) => b.qty - a.qty).slice(0, 8);
-  }, [valid]);
+  }, [useLedger, ventas, collected]);
 
   const couponStats = useMemo(() => {
-    return promos.map((p) => {
-      const used = valid.filter((o) => o.promoCode === p.code);
-      const discount = used.reduce((s, o) => s + (o.discount ?? 0), 0);
-      return { code: p.code, label: p.label, uses: used.length, discount };
-    });
-  }, [valid, promos]);
+    const retired = new Set<string>(RETIRED_CAMPAIGN_CODES);
+    return promos
+      .map((p) => {
+        const used = collected.filter((o) => o.promoCode === p.code);
+        const discount = used.reduce((s, o) => s + (o.discount ?? 0), 0);
+        return {
+          code: p.code,
+          label: p.label,
+          uses: used.length,
+          discount,
+          active: p.active !== false,
+        };
+      })
+      .filter((c) => !retired.has(c.code) && (c.active || c.uses > 0));
+  }, [collected, promos]);
+
+  const ledgerGap = useLedger && collected.length > pedidoCount;
 
   return (
     <div className="space-y-6">
@@ -68,7 +125,8 @@ export default function AdminReportesPage() {
             Reportes
           </h1>
           <p className="mt-1 text-sm text-soft">
-            Ventas de tienda · {valid.length} pedidos válidos · {products.length}{" "}
+            Importes de la planilla de Gestión · Ventas · {pedidoCount}{" "}
+            {pedidoCount === 1 ? "venta" : "ventas"} · {products.length}{" "}
             productos
           </p>
         </div>
@@ -80,14 +138,25 @@ export default function AdminReportesPage() {
         </Link>
       </div>
 
+      {ledgerGap ? (
+        <p className="border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950">
+          Hay {collected.length} pedidos cobrados en la tienda y {pedidoCount}{" "}
+          en la planilla. Los importes de esta pantalla son los de{" "}
+          <Link href="/admin/gestion/ventas" className="underline">
+            Gestión · Ventas
+          </Link>
+          . Un pedido entra a la planilla cuando se marca como pagado.
+        </p>
+      ) : null}
+
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         {[
           { label: "Ingresos", value: formatMoney(revenue) },
           { label: "Ticket promedio", value: formatMoney(avg) },
-          { label: "Pedidos", value: String(valid.length) },
+          { label: "Ventas", value: String(pedidoCount) },
           {
             label: "Con cupón",
-            value: String(valid.filter((o) => o.promoCode).length),
+            value: String(collected.filter((o) => o.promoCode).length),
           },
         ].map((s) => (
           <div key={s.label} className="border border-black/5 bg-white p-4">
@@ -104,6 +173,7 @@ export default function AdminReportesPage() {
           <h2 className="text-sm font-semibold uppercase tracking-wide">
             Por estado
           </h2>
+          <p className="mt-1 text-xs text-soft">Todos los pedidos de la tienda</p>
           <ul className="mt-4 space-y-2 text-sm">
             {byStatus.map(([status, count]) => (
               <li key={status} className="flex justify-between capitalize">
@@ -121,6 +191,7 @@ export default function AdminReportesPage() {
           <h2 className="text-sm font-semibold uppercase tracking-wide">
             Por medio de pago
           </h2>
+          <p className="mt-1 text-xs text-soft">Según la planilla de ventas</p>
           <ul className="mt-4 space-y-2 text-sm">
             {byPayment.map(([method, data]) => (
               <li key={method} className="flex justify-between gap-3">
@@ -130,6 +201,9 @@ export default function AdminReportesPage() {
                 </span>
               </li>
             ))}
+            {byPayment.length === 0 && (
+              <li className="text-soft">Sin datos</li>
+            )}
           </ul>
         </section>
       </div>
@@ -181,25 +255,29 @@ export default function AdminReportesPage() {
             Ver reglas
           </Link>
         </div>
-        <ul className="divide-y divide-black/5">
-          {couponStats.map((c) => (
-            <li
-              key={c.code}
-              className="flex items-center justify-between gap-3 px-5 py-3 text-sm"
-            >
-              <div>
-                <p className="font-semibold">{c.code}</p>
-                <p className="text-xs text-soft">{c.label}</p>
-              </div>
-              <div className="text-right">
-                <p className="font-medium">{c.uses} usos</p>
-                <p className="text-xs text-[#16a34a]">
-                  −{formatMoney(c.discount)}
-                </p>
-              </div>
-            </li>
-          ))}
-        </ul>
+        {couponStats.length === 0 ? (
+          <p className="px-5 py-6 text-sm text-soft">No hay cupones activos.</p>
+        ) : (
+          <ul className="divide-y divide-black/5">
+            {couponStats.map((c) => (
+              <li
+                key={c.code}
+                className="flex items-center justify-between gap-3 px-5 py-3 text-sm"
+              >
+                <div>
+                  <p className="font-semibold">{c.code}</p>
+                  <p className="text-xs text-soft">{c.label}</p>
+                </div>
+                <div className="text-right">
+                  <p className="font-medium">{c.uses} usos</p>
+                  <p className="text-xs text-[#16a34a]">
+                    −{formatMoney(c.discount)}
+                  </p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
       </section>
     </div>
   );

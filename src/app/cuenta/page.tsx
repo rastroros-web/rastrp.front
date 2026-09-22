@@ -50,8 +50,9 @@ function WelcomeBanner({ firstName }: { firstName: string }) {
                 {cupon}
               </p>
               <p className="mt-1 text-sm text-white/70">
-                10% OFF en tu primera compra. Es tuyo, de un solo uso, y lo
-                aplicás en el checkout. También te lo mandamos por mail.
+                10% OFF en tu primera compra. Es tuyo, de un solo uso, y no se
+                acumula con otros cupones. Lo aplicás en el checkout. También te
+                lo mandamos por mail.
               </p>
             </div>
           ) : null}

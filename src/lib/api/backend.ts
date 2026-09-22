@@ -17,6 +17,7 @@ import {
   formatMoney,
   installmentFromPrice,
   installmentLabelFromPrice,
+  parseMoney,
   uid,
 } from "@/lib/mock/money";
 
@@ -121,6 +122,7 @@ function mapVariant(v: ApiVariant): ColorVariant {
   const colorName = (v.color || v.name || "").trim();
   return {
     id: v.slug || slugify(colorName),
+    numericId: Number.isFinite(Number(v.id)) ? Number(v.id) : undefined,
     name: colorName || v.name,
     color:
       v.colorHex ||
@@ -182,6 +184,22 @@ function readToken(): string {
   return localStorage.getItem(TOKEN_KEY) || "";
 }
 
+const DEAD_SESSION_CODES = new Set([
+  "INVALID_TOKEN",
+  "SESSION_EXPIRED",
+  "NO_TOKEN",
+  "USER_NOT_FOUND",
+  "ACCOUNT_DISABLED",
+]);
+
+function forgetDeadSession(status?: number, code?: string) {
+  if (DEAD_SESSION_CODES.has(String(code || ""))) {
+    clearApiToken();
+    return;
+  }
+  if (status === 401) clearApiToken();
+}
+
 const PRODUCTS_REVALIDATE_SEC = 60;
 const CLIENT_PRODUCTS_TTL_MS = 60_000;
 const PRODUCTS_FETCHED_AT_KEY = "rastro_products_fetched_at";
@@ -217,17 +235,12 @@ async function fetchShopProductsFromApi(): Promise<ShopProduct[] | null> {
   const base = getBackendUrl();
   if (!base) return null;
   try {
-    const token = readToken();
     const isServer = typeof window === "undefined";
-    const res = await fetch(
-      `${base}/api/products${token ? "?all=1" : ""}`,
-      {
-        ...(isServer && !token
-          ? { next: { revalidate: PRODUCTS_REVALIDATE_SEC } }
-          : { cache: "no-store" as RequestCache }),
-        headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-      }
-    );
+    const res = await fetch(`${base}/api/products`, {
+      ...(isServer
+        ? { next: { revalidate: PRODUCTS_REVALIDATE_SEC } }
+        : { cache: "no-store" as RequestCache }),
+    });
     if (!res.ok) return null;
     const data = (await res.json()) as ApiProduct[];
     if (!Array.isArray(data)) return null;
@@ -271,6 +284,26 @@ export async function fetchShopProducts(options?: {
   return clientProductsInflight;
 }
 
+export async function fetchAdminProducts(): Promise<ShopProduct[] | null> {
+  const base = getBackendUrl();
+  if (!base) return null;
+  try {
+    const res = await fetch(`${base}/api/admin/products`, {
+      headers: { Authorization: `Bearer ${requireSessionToken()}` },
+      cache: "no-store",
+    });
+    if (res.status === 401 || res.status === 403) failExpiredSession();
+    if (!res.ok) return null;
+    const data = (await res.json()) as ApiProduct[];
+    if (!Array.isArray(data)) return null;
+    const products = data.map(mapApiProduct).filter((p) => p.variants.length > 0);
+    if (products.length) rememberClientProducts(products);
+    return products;
+  } catch {
+    return null;
+  }
+}
+
 export type CreateProductPayload = {
   brand: string;
   modelo: string;
@@ -283,6 +316,7 @@ export type CreateProductPayload = {
   megaSalePercent?: number | null;
   megaSaleStartsAt?: string | null;
   megaSaleEndsAt?: string | null;
+  active?: boolean;
   variants: Array<{
     slug?: string;
     color: string;
@@ -296,9 +330,23 @@ export type CreateProductPayload = {
 
 export type UpsertVariantPayload = CreateProductPayload["variants"][number];
 
-async function loginAdmin(): Promise<string> {
-  const data = await loginShopUser("admin@rastro.com", "admin123");
-  return data.token;
+const SESSION_EXPIRED = "Tu sesión expiró. Volvé a ingresar.";
+
+/**
+ * Las pantallas de administración usan la sesión de quien está operando.
+ * No puede haber un usuario de respaldo con la contraseña escrita acá: el
+ * bundle se sirve entero al navegador y cualquier visitante podría leerla.
+ */
+function requireSessionToken(): string {
+  const token = readToken();
+  if (!token) throw new Error(SESSION_EXPIRED);
+  return token;
+}
+
+/** El backend rechazó el token: se descarta y se pide ingresar de nuevo. */
+function failExpiredSession(): never {
+  clearApiToken();
+  throw new Error(SESSION_EXPIRED);
 }
 
 export type ShopAuthUser = {
@@ -324,12 +372,19 @@ export async function loginShopUser(
 }> {
   const base = getBackendUrl();
   if (!base) throw new Error("Falta NEXT_PUBLIC_BACKEND_URL");
-  const res = await fetch(`${base}/api/users/login`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password }),
-  });
-  const data = await res.json();
+  let res: Response;
+  try {
+    res = await fetch(`${base}/api/users/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+  } catch {
+    throw new Error(
+      "No pudimos conectar con el servidor. Si estás en local, el API de producción tiene que permitir localhost en CORS."
+    );
+  }
+  const data = await res.json().catch(() => ({}));
   if (!res.ok || !data.token) {
     throw new Error(data.message || "Email o contraseña incorrectos.");
   }
@@ -407,9 +462,16 @@ export async function fetchShopMe(): Promise<ShopAuthUser> {
   const res = await fetch(`${base}/api/users/me`, {
     headers: { Authorization: `Bearer ${token}` },
   });
-  const data = await res.json();
+  const data = await res.json().catch(() => ({}));
   if (!res.ok) {
-    throw new Error(data.message || "No se pudo cargar el perfil.");
+    forgetDeadSession(res.status, data.code);
+    const error = new Error(data.message || "No se pudo cargar el perfil.") as Error & {
+      code?: string;
+      status?: number;
+    };
+    error.code = data.code;
+    error.status = res.status;
+    throw error;
   }
   return data;
 }
@@ -584,6 +646,7 @@ async function shopJson<T>(path: string, init?: RequestInit): Promise<T> {
   }
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {
+    forgetDeadSession(res.status, data.code);
     const error = new Error(data.message || "Error de API") as Error & {
       code?: string;
       status?: number;
@@ -603,6 +666,20 @@ async function shopAuthJson<T>(path: string, init?: RequestInit): Promise<T> {
 export async function fetchShopOrders(): Promise<MockOrder[]> {
   const data = await shopAuthJson<ApiOrder[]>("/api/orders");
   return (Array.isArray(data) ? data : []).map(mapApiOrder);
+}
+
+export async function fetchAdminOrders(): Promise<MockOrder[]> {
+  try {
+    const data = await shopAuthJson<ApiOrder[]>("/api/admin/orders");
+    return (Array.isArray(data) ? data : []).map(mapApiOrder);
+  } catch (err) {
+    const status = (err as Error & { status?: number }).status;
+    if (status === 404) {
+      const data = await shopAuthJson<ApiOrder[]>("/api/orders");
+      return (Array.isArray(data) ? data : []).map(mapApiOrder);
+    }
+    throw err;
+  }
 }
 
 export async function fetchShopOrder(id: string): Promise<MockOrder> {
@@ -689,7 +766,7 @@ export async function updateShopOrder(
   }
 ): Promise<MockOrder> {
   const data = await shopAuthJson<ApiOrder>(
-    `/api/orders/${encodeURIComponent(id)}`,
+    `/api/admin/orders/${encodeURIComponent(id)}`,
     {
       method: "PUT",
       body: JSON.stringify(payload),
@@ -751,6 +828,8 @@ export function mapApiPromo(p: PromoCode): PromoCode {
     oncePerUser: p.oncePerUser || undefined,
     maxUses: p.maxUses ? Number(p.maxUses) : undefined,
     expiresAt: p.expiresAt || undefined,
+    stackWithWelcome: p.stackWithWelcome,
+    replacesWelcome: p.replacesWelcome,
     active: p.active !== false,
   };
 }
@@ -760,15 +839,17 @@ export async function fetchShopPromos(all = false): Promise<PromoCode[] | null> 
   if (!base) return null;
   try {
     const token = readToken();
-    const params = all ? "?all=1" : "";
-    const res = await fetch(`${base}/api/promos${params}`, {
+    const path = all ? "/api/admin/promos" : "/api/promos";
+    if (all && !token) return null;
+    const res = await fetch(`${base}${path}`, {
       headers: token ? { Authorization: `Bearer ${token}` } : undefined,
       cache: "no-store",
     });
     if (!res.ok) return null;
     const data = await res.json();
     if (!Array.isArray(data)) return null;
-    return data.map(mapApiPromo);
+    const retired = new Set(["RASTRO10", "MEGA20"]);
+    return data.map(mapApiPromo).filter((p) => !retired.has(p.code));
   } catch {
     return null;
   }
@@ -792,7 +873,7 @@ export async function validateShopPromo(
 }
 
 export async function saveShopPromo(promo: PromoCode): Promise<PromoCode> {
-  const data = await shopAuthJson<PromoCode>("/api/promos", {
+  const data = await shopAuthJson<PromoCode>("/api/admin/promos", {
     method: "POST",
     body: JSON.stringify(promo),
   });
@@ -800,7 +881,7 @@ export async function saveShopPromo(promo: PromoCode): Promise<PromoCode> {
 }
 
 export async function deleteShopPromo(code: string): Promise<void> {
-  await shopAuthJson(`/api/promos/${encodeURIComponent(code)}`, {
+  await shopAuthJson(`/api/admin/promos/${encodeURIComponent(code)}`, {
     method: "DELETE",
   });
 }
@@ -916,6 +997,7 @@ async function bagRequest(
   });
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {
+    forgetDeadSession(res.status, data.code);
     throw new Error(data.message || "No se pudo sincronizar el carrito.");
   }
   return {
@@ -935,10 +1017,6 @@ export async function saveAccountBag(
   return bagRequest("PUT", bag);
 }
 
-async function adminToken(): Promise<string> {
-  return readToken() || loginAdmin();
-}
-
 export async function uploadShopImages(files: File[]): Promise<string[]> {
   const base = getBackendUrl();
   if (!base) throw new Error("Falta NEXT_PUBLIC_BACKEND_URL");
@@ -947,18 +1025,13 @@ export async function uploadShopImages(files: File[]): Promise<string[]> {
   const body = new FormData();
   for (const file of files) body.append("files", file);
 
-  const post = async (token: string) =>
-    fetch(`${base}/api/uploads`, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${token}` },
-      body,
-    });
+  const res = await fetch(`${base}/api/admin/uploads`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${requireSessionToken()}` },
+    body,
+  });
+  if (res.status === 401 || res.status === 403) failExpiredSession();
 
-  let res = await post(await adminToken());
-  if (res.status === 401 || res.status === 403) {
-    localStorage.removeItem(TOKEN_KEY);
-    res = await post(await loginAdmin());
-  }
   const data = await res.json();
   if (!res.ok) {
     throw new Error(data.message || "No se pudieron subir las imágenes");
@@ -972,21 +1045,15 @@ export async function createShopProduct(
   const base = getBackendUrl();
   if (!base) throw new Error("Falta NEXT_PUBLIC_BACKEND_URL");
 
-  const post = async (token: string) =>
-    fetch(`${base}/api/products`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(payload),
-    });
-
-  let res = await post(await adminToken());
-  if (res.status === 401 || res.status === 403) {
-    localStorage.removeItem(TOKEN_KEY);
-    res = await post(await loginAdmin());
-  }
+  const res = await fetch(`${base}/api/admin/products`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${requireSessionToken()}`,
+    },
+    body: JSON.stringify(payload),
+  });
+  if (res.status === 401 || res.status === 403) failExpiredSession();
 
   const data = await res.json();
   if (!res.ok) {
@@ -1004,21 +1071,15 @@ async function authedJson(
   const base = getBackendUrl();
   if (!base) throw new Error("Falta NEXT_PUBLIC_BACKEND_URL");
 
-  const send = async (token: string) =>
-    fetch(`${base}${path}`, {
-      method,
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(payload),
-    });
-
-  let res = await send(await adminToken());
-  if (res.status === 401 || res.status === 403) {
-    localStorage.removeItem(TOKEN_KEY);
-    res = await send(await loginAdmin());
-  }
+  const res = await fetch(`${base}${path}`, {
+    method,
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${requireSessionToken()}`,
+    },
+    body: JSON.stringify(payload),
+  });
+  if (res.status === 401 || res.status === 403) failExpiredSession();
 
   const data = await res.json();
   if (!res.ok) {
@@ -1033,7 +1094,7 @@ export async function updateShopProduct(
 ): Promise<ShopProduct> {
   const data = await authedJson(
     "PUT",
-    `/api/products/${id}`,
+    `/api/admin/products/${id}`,
     payload,
     "No se pudo actualizar el producto"
   );
@@ -1046,11 +1107,79 @@ export async function upsertShopVariant(
 ): Promise<ShopProduct> {
   const data = await authedJson(
     "POST",
-    `/api/products/${productId}/variants`,
+    `/api/admin/products/${productId}/variants`,
     payload,
     "No se pudo actualizar la variante"
   );
   return mapApiProduct(data as ApiProduct);
+}
+
+export async function deleteShopProduct(id: number): Promise<void> {
+  const base = getBackendUrl();
+  if (!base) throw new Error("Falta NEXT_PUBLIC_BACKEND_URL");
+
+  const res = await fetch(`${base}/api/admin/products/${id}`, {
+    method: "DELETE",
+    headers: { Authorization: `Bearer ${requireSessionToken()}` },
+  });
+  if (res.status === 401 || res.status === 403) failExpiredSession();
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new Error(
+      (data as { message?: string }).message || "No se pudo eliminar el producto"
+    );
+  }
+}
+
+export async function setShopVariantStock(
+  variantId: number,
+  stock: Record<string, number>
+): Promise<void> {
+  await authedJson(
+    "PUT",
+    `/api/admin/products/variants/${variantId}/stock`,
+    { stock },
+    "No se pudo actualizar el stock"
+  );
+}
+
+function productApiId(product: ShopProduct): number {
+  const id = Number(product.id);
+  if (!Number.isFinite(id) || id <= 0) {
+    throw new Error("Este producto no está en el servidor.");
+  }
+  return id;
+}
+
+export async function persistShopProductStock(
+  product: ShopProduct
+): Promise<void> {
+  const productId = productApiId(product);
+  for (const variant of product.variants) {
+    const stock: Record<string, number> = {};
+    for (const size of variant.sizes) {
+      stock[size.label] = Math.max(
+        0,
+        Math.floor(
+          typeof size.stock === "number" ? size.stock : size.inStock ? 1 : 0
+        )
+      );
+    }
+    const variantId = Number(variant.numericId);
+    if (Number.isFinite(variantId) && variantId > 0) {
+      await setShopVariantStock(variantId, stock);
+      continue;
+    }
+    await upsertShopVariant(productId, {
+      slug: variant.id,
+      color: variant.name,
+      colorHex: variant.color,
+      priceWeb: parseMoney(variant.price),
+      priceTransfer: parseMoney(variant.transfer),
+      images: variant.images,
+      stock,
+    });
+  }
 }
 
 export type ShopListUser = ShopAuthUser & {
@@ -1061,7 +1190,7 @@ export type ShopListUser = ShopAuthUser & {
 };
 
 export async function fetchShopUsers(): Promise<ShopListUser[]> {
-  const data = await shopAuthJson<ShopListUser[]>("/api/users");
+  const data = await shopAuthJson<ShopListUser[]>("/api/admin/users");
   return Array.isArray(data) ? data : [];
 }
 
@@ -1069,7 +1198,7 @@ export async function setShopUserRole(
   email: string,
   role: "ADMIN" | "STAFF" | "CUSTOMER"
 ): Promise<{ id: number; email: string; name: string; role: string }> {
-  return shopAuthJson("/api/users/role", {
+  return shopAuthJson("/api/admin/users/role", {
     method: "PUT",
     body: JSON.stringify({ email, role }),
   });
@@ -1143,7 +1272,7 @@ export async function fetchBusinessBook(): Promise<BusinessBookResponse | null> 
   if (!base) return null;
   try {
     const token = readToken();
-    const res = await fetch(`${base}/api/business`, {
+    const res = await fetch(`${base}/api/admin/business`, {
       headers: token ? { Authorization: `Bearer ${token}` } : undefined,
       cache: "no-store",
     });
@@ -1162,7 +1291,7 @@ export async function saveBusinessBook(
   book: BusinessData,
   rev?: number
 ): Promise<BusinessBookResponse> {
-  const data = await shopAuthJson<BusinessBookResponse>("/api/business", {
+  const data = await shopAuthJson<BusinessBookResponse>("/api/admin/business", {
     method: "PUT",
     body: JSON.stringify(rev == null ? book : { ...book, rev }),
   });
@@ -1192,10 +1321,14 @@ export async function fetchTransferBank(): Promise<TransferBankConfigApi> {
   return data as TransferBankConfigApi;
 }
 
+export async function fetchAdminTransferBank(): Promise<TransferBankConfigApi> {
+  return shopAuthJson<TransferBankConfigApi>("/api/admin/settings/transfer-bank");
+}
+
 export async function updateTransferBank(
   payload: TransferBankConfigApi
 ): Promise<TransferBankConfigApi> {
-  return shopAuthJson<TransferBankConfigApi>("/api/settings/transfer-bank", {
+  return shopAuthJson<TransferBankConfigApi>("/api/admin/settings/transfer-bank", {
     method: "PUT",
     body: JSON.stringify(payload),
   });

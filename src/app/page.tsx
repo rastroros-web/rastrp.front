@@ -235,7 +235,7 @@ export default function Home() {
                 <AnimatedContent key={review.name} distance={40} delay={0.1 * i}>
                   <blockquote className="border border-white/15 p-5 transition hover:border-brand sm:p-6">
                     <p className="text-sm leading-relaxed text-white/85">&ldquo;{review.text}&rdquo;</p>
-                    <footer className="mt-4 text-xs font-semibold tracking-[0.14em] text-brand uppercase">
+                    <footer className="mt-4 text-xs font-semibold tracking-[0.14em] text-[#efeeec] uppercase">
                       — {review.name}
                     </footer>
                   </blockquote>

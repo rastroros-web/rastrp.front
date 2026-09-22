@@ -134,13 +134,25 @@ export function ventasToStockDeductions(ventas: VentaRow[]): StockDeduction[] {
   const map = new Map<string, StockDeduction>();
   for (const v of ventas) {
     const talle = v.talle?.trim() || null;
-    const parts = splitCombo(v.articulo);
-    const links =
-      parts.length > 1
-        ? parts.map((part) => resolveVentaArticulo(part))
-        : [resolveVentaArticulo(v.articulo)];
-    const qtyEach = parts.length > 1 ? 1 : v.cantidad || 1;
-    for (const link of links) {
+    const linked =
+      v.productSlug && v.variantId
+        ? [
+            {
+              slug: v.productSlug,
+              variantId: v.variantId,
+            },
+          ]
+        : (() => {
+            const parts = splitCombo(v.articulo);
+            const links =
+              parts.length > 1
+                ? parts.map((part) => resolveVentaArticulo(part))
+                : [resolveVentaArticulo(v.articulo)];
+            return links;
+          })();
+    const qtyEach =
+      !v.productSlug && splitCombo(v.articulo).length > 1 ? 1 : v.cantidad || 1;
+    for (const link of linked) {
       if (!link.slug || !link.variantId) continue;
       const key = `${link.slug}::${link.variantId}::${talle ?? "*"}`;
       const cur = map.get(key) ?? {

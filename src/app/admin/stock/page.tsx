@@ -14,6 +14,7 @@ import {
 import { sizeQty } from "@/lib/mock/stock";
 import type { ShopProduct } from "@/lib/mock/types";
 import { FancySelect } from "@/components/ui/FancySelect";
+import { useAlert } from "@/components/ui/AlertProvider";
 
 type ToneFilter = "all" | "out" | "low";
 
@@ -32,7 +33,8 @@ function productImage(p: ShopProduct) {
 }
 
 export default function AdminStockPage() {
-  const { products, getProduct, saveProduct } = useStore();
+  const { products, getProduct, persistProductStock } = useStore();
+  const { confirm } = useAlert();
   const items = useMemo(() => getLowStockItems(products), [products]);
   const [q, setQ] = useState("");
   const [tone, setTone] = useState<ToneFilter>("all");
@@ -41,6 +43,8 @@ export default function AdminStockPage() {
   const [draft, setDraft] = useState<ShopProduct | null>(null);
   const [dirty, setDirty] = useState(false);
   const [savedMsg, setSavedMsg] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState("");
 
   useEffect(() => {
     if (!selectedSlug) {
@@ -84,11 +88,19 @@ export default function AdminStockPage() {
     });
     setDirty(true);
     setSavedMsg(false);
+    setSaveError("");
   };
 
-  const saveChanges = () => {
-    if (!draft || !dirty) return;
-    saveProduct(draft);
+  const saveChanges = async () => {
+    if (!draft || !dirty || saving) return;
+    setSaving(true);
+    setSaveError("");
+    const result = await persistProductStock(draft);
+    setSaving(false);
+    if (!result.ok) {
+      setSaveError(result.error);
+      return;
+    }
     setDirty(false);
     setSavedMsg(true);
     window.setTimeout(() => setSavedMsg(false), 2200);
@@ -102,11 +114,16 @@ export default function AdminStockPage() {
     setSavedMsg(false);
   };
 
-  const backToList = () => {
+  const backToList = async () => {
     if (dirty) {
-      const ok = window.confirm(
-        "Tenés cambios sin guardar. ¿Salir sin guardar?"
-      );
+      const ok = await confirm({
+        eyebrow: "Stock",
+        title: "¿Salir sin guardar?",
+        message: "Tenés cambios sin guardar en este producto.",
+        confirmLabel: "Salir sin guardar",
+        cancelLabel: "Seguir editando",
+        tone: "danger",
+      });
       if (!ok) return;
     }
     setSelectedSlug(null);
@@ -344,13 +361,15 @@ export default function AdminStockPage() {
         <div className="fixed right-0 bottom-0 left-0 z-40 border-t border-black/10 bg-white/95 px-4 py-3 backdrop-blur md:left-60">
           <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3">
             <p className="text-xs text-soft sm:text-sm">
-              {dirty ? (
+              {saveError ? (
+                <span className="font-semibold text-red-600">{saveError}</span>
+              ) : dirty ? (
                 <span className="font-semibold text-orange-700">
                   Hay cambios sin guardar
                 </span>
               ) : savedMsg ? (
                 <span className="font-semibold text-emerald-700">
-                  Cambios guardados
+                  Cambios guardados en la tienda
                 </span>
               ) : (
                 "Editá cantidades y guardá cuando termines"
@@ -367,11 +386,11 @@ export default function AdminStockPage() {
               </button>
               <button
                 type="button"
-                disabled={!dirty}
+                disabled={!dirty || saving}
                 onClick={saveChanges}
                 className="btn-press bg-[#222222] px-5 py-2.5 text-[11px] font-semibold tracking-[0.14em] text-white uppercase disabled:cursor-not-allowed disabled:opacity-40"
               >
-                Guardar cambios
+                {saving ? "Guardando…" : "Guardar cambios"}
               </button>
             </div>
           </div>

@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import {
-  fetchShopOrders,
+  fetchAdminOrders,
   fetchShopUsers,
   getBackendUrl,
   type ShopListUser,
@@ -108,7 +108,7 @@ export default function AdminCustomersPage() {
       try {
         const [list, remoteOrders] = await Promise.all([
           fetchShopUsers(),
-          fetchShopOrders(),
+          fetchAdminOrders(),
         ]);
         if (cancelled) return;
         setUsers(list);

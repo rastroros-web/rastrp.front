@@ -8,18 +8,8 @@ import {
   uid,
 } from "@/lib/mock/money";
 
+/** Usuarios locales para el modo sin API. Ninguno coincide con la cuenta real del backend. */
 export const SEED_USERS: MockUser[] = [
-  {
-    id: "user_admin",
-    name: "Admin Rastro",
-    email: "admin@rastro.com",
-    password: "admin123",
-    role: "admin",
-    phone: "+54 341 555-0100",
-    address: "Oficina central",
-    city: "Rosario",
-    createdAt: "2026-01-10T10:00:00.000Z",
-  },
   {
     id: "user_demo",
     name: "Martina Demo",
@@ -60,9 +50,7 @@ function withRealisticStock(product: ShopProduct): ShopProduct {
         const extreme =
           size.label === "34" ||
           size.label === "35" ||
-          size.label === "43" ||
-          size.label === "44" ||
-          size.label === "45";
+          size.label === "43";
 
         let stock: number;
         if (n === 0 || n === 1) stock = 0;
@@ -310,10 +298,5 @@ export function seedOrders(): MockOrder[] {
     },
   ];
 }
-
-export const DEMO_HINTS = {
-  admin: { email: "admin@rastro.com", password: "admin123" },
-  customer: { email: "demo@rastro.com", password: "demo123" },
-};
 
 export { formatMoney, parseMoney };

@@ -2,6 +2,7 @@
 
 import { ShopImage as Image } from "@/components/ShopImage";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Search, X } from "lucide-react";
 import { useStore } from "@/components/store/StoreProvider";
@@ -15,8 +16,16 @@ export function SearchModal({
   onClose: () => void;
 }) {
   const { products, ready } = useStore();
+  const router = useRouter();
   const [q, setQ] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const goSearch = () => {
+    const query = (inputRef.current?.value ?? q).trim();
+    if (!query) return;
+    router.push(`/productos?q=${encodeURIComponent(query)}`);
+    onClose();
+  };
 
   useEffect(() => {
     if (!open) return;
@@ -50,13 +59,32 @@ export function SearchModal({
         onClick={onClose}
       />
       <div className="relative mx-auto mt-[12vh] w-[min(92vw,560px)] border border-black/10 bg-white shadow-[0_24px_80px_rgba(0,0,0,0.2)]">
-        <div className="flex items-center gap-3 border-b border-black/5 px-4 py-3">
-          <Search className="size-4 shrink-0 text-soft" />
+        <form
+          className="flex items-center gap-3 border-b border-black/5 px-4 py-3"
+          onSubmit={(e) => {
+            e.preventDefault();
+            goSearch();
+          }}
+        >
+          <button
+            type="submit"
+            className="shrink-0 text-soft transition hover:text-[#222222]"
+            aria-label="Buscar"
+          >
+            <Search className="size-4" />
+          </button>
           <input
             ref={inputRef}
             value={q}
             onChange={(e) => setQ(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key !== "Enter") return;
+              e.preventDefault();
+              goSearch();
+            }}
             placeholder="Buscar marca o modelo"
+            enterKeyHint="search"
+            autoComplete="off"
             className="w-full bg-transparent text-sm outline-none placeholder:text-soft"
           />
           <button
@@ -67,7 +95,7 @@ export function SearchModal({
           >
             <X className="size-4" />
           </button>
-        </div>
+        </form>
 
         <div className="max-h-[50vh] overflow-y-auto">
           {q.trim() && results.length === 0 && (

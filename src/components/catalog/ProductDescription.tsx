@@ -1,73 +1,108 @@
-type SizeRow = { size: string; cm: string };
+"use client";
 
-type ParsedDescription = {
-  intro: string;
-  range: string | null;
-  rows: SizeRow[];
-  extras: string[];
-  fallback: string | null;
-};
+import { whatsappUrl, WHATSAPP_DISPLAY } from "@/data/brand";
+import {
+  parseProductSizeChart,
+  type ParsedProductSizeChart,
+} from "@/lib/productSizeChart";
 
-function parseDescription(raw: string): ParsedDescription {
-  const text = raw.replace(/\s+/g, " ").trim();
-  if (!text) {
-    return { intro: "", range: null, rows: [], extras: [], fallback: null };
-  }
-
-  const tableIdx = text.search(
-    /LARGO DE PLANTILLA|Medida de plantilla|Tabla de medidas|plantilla por talle/i
-  );
-
-  const rows: SizeRow[] = [];
-  const searchIn = tableIdx >= 0 ? text.slice(tableIdx) : text;
-  const pairRe = /(\d{2})\s+(\d{1,2}(?:[.,]\d{1,2})?)\s*cm/gi;
-  let match: RegExpExecArray | null;
-  while ((match = pairRe.exec(searchIn)) !== null) {
-    const size = match[1];
-    const cmNum = match[2].replace(".", ",");
-    const sizeN = Number(size);
-    const cmN = Number(cmNum.replace(",", "."));
-    // talle 34-50, plantilla ~20-35 cm
-    if (sizeN < 34 || sizeN > 50) continue;
-    if (cmN < 20 || cmN > 36) continue;
-    if (rows.some((r) => r.size === size)) continue;
-    rows.push({ size, cm: `${cmNum} cm` });
-  }
-  rows.sort((a, b) => Number(a.size) - Number(b.size));
-
-  let intro = tableIdx >= 0 ? text.slice(0, tableIdx).trim() : text;
-  const rangeMatch = intro.match(/Vienen del talle\s+([^.:]+)/i);
-  const range = rangeMatch ? rangeMatch[1].trim() : null;
-  if (rangeMatch) {
-    intro = intro.replace(rangeMatch[0], "").replace(/\s{2,}/g, " ").trim();
-  }
-  intro = intro.replace(/\.\s*$/, "").trim();
-
-  const extras: string[] = [];
-  const incluye = text.match(/Incluye[^.!]*/i);
-  if (incluye) {
-    extras.push(incluye[0].trim());
-  }
-
-  if (!rows.length) {
-    return { intro: "", range: null, rows: [], extras: [], fallback: text };
-  }
-
-  if (!intro) {
-    intro =
-      "Te recomendamos que midas tu plantilla con centímetro o regla para elegir el talle más adecuado.";
-  }
-
-  return { intro, range, rows, extras, fallback: null };
+function scrollToSizePicker() {
+  document
+    .getElementById("elegir-talle")
+    ?.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
-export function ProductDescription({ text }: { text: string }) {
-  const parsed = parseDescription(text);
+function HowToSteps({ modelLabel }: { modelLabel?: string }) {
+  const model = modelLabel?.trim() || "este modelo";
+  return (
+    <ol className="mt-3 list-none space-y-2 text-sm leading-relaxed text-[#444]">
+      <li className="flex gap-2">
+        <span className="font-semibold tabular-nums text-brand">1.</span>
+        <span>
+          Medí el largo de tu plantilla (pie descalzo o plantilla de una zapa
+          que te calce bien) con regla o centímetro.
+        </span>
+      </li>
+      <li className="flex gap-2">
+        <span className="font-semibold tabular-nums text-brand">2.</span>
+        <span>
+          Buscá ese número en cm en la tabla de{" "}
+          <span className="font-semibold text-[#222]">{model}</span> (cada
+          modelo calza distinto).
+        </span>
+      </li>
+      <li className="flex gap-2">
+        <span className="font-semibold tabular-nums text-brand">3.</span>
+        <span>Volvé arriba y elegí ese talle para agregar al carrito.</span>
+      </li>
+    </ol>
+  );
+}
 
-  if (parsed.fallback) {
+function GuideActions({ waText }: { waText: string }) {
+  return (
+    <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
+      <button
+        type="button"
+        onClick={scrollToSizePicker}
+        className="bg-[#222222] px-4 py-2.5 text-[11px] font-semibold tracking-[0.14em] text-white uppercase transition hover:bg-black"
+      >
+        Ya sé mi talle → elegirlo
+      </button>
+      <a
+        href={whatsappUrl(waText)}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-[11px] font-semibold tracking-[0.12em] text-soft uppercase underline-offset-2 hover:text-[#222222] hover:underline"
+      >
+        Dudás · WhatsApp {WHATSAPP_DISPLAY}
+      </a>
+    </div>
+  );
+}
+
+export function ProductDescription({
+  text,
+  modelLabel,
+}: {
+  text: string;
+  /** Ej: "Nike Air Force 1" — título de la guía de este producto. */
+  modelLabel?: string;
+}) {
+  const parsed: ParsedProductSizeChart = parseProductSizeChart(text);
+  const title = modelLabel?.trim()
+    ? `Guía de talles · ${modelLabel.trim()}`
+    : "Guía de talles";
+  const waText = modelLabel?.trim()
+    ? `Hola! Dudé del talle de ${modelLabel.trim()}. Mi plantilla mide __ cm.`
+    : "Hola! Dudé del talle. Mi plantilla mide __ cm.";
+
+  const blurb = (parsed.fallback || parsed.body || "").trim();
+  const hasTable = parsed.rows.length > 0;
+
+  if (!hasTable) {
     return (
-      <div id="guia-talles" className="mt-6 max-w-lg scroll-mt-28 rounded-sm border border-black/8 bg-[#f5f4f0] px-4 py-4">
-        <p className="text-sm leading-relaxed text-[#444]">{parsed.fallback}</p>
+      <div className="mt-6 max-w-lg space-y-4">
+        {blurb ? (
+          <div className="rounded-sm border border-black/8 bg-[#f5f4f0] px-4 py-4">
+            <p className="text-[11px] font-semibold tracking-[0.16em] text-soft uppercase">
+              Detalle
+            </p>
+            <p className="mt-2 text-sm leading-relaxed text-[#444]">{blurb}</p>
+          </div>
+        ) : null}
+
+        <div id="guia-talles" className="scroll-mt-28 space-y-3">
+          <p className="text-[11px] font-semibold tracking-[0.16em] text-brand uppercase">
+            {title}
+          </p>
+          <p className="text-sm leading-relaxed text-[#444]">
+            Este modelo todavía no tiene tabla de plantilla en cm. Medí tu
+            plantilla y escribinos por WhatsApp con la medida (o tu talle
+            habitual) y te decimos cuál pedir.
+          </p>
+          <GuideActions waText={waText} />
+        </div>
       </div>
     );
   }
@@ -76,9 +111,17 @@ export function ProductDescription({ text }: { text: string }) {
     <div id="guia-talles" className="mt-6 max-w-lg scroll-mt-28 space-y-4">
       <div>
         <p className="text-[11px] font-semibold tracking-[0.16em] text-brand uppercase">
-          Guía de talles
+          {title}
         </p>
-        <p className="mt-2 text-sm leading-relaxed text-[#444]">{parsed.intro}</p>
+        <HowToSteps modelLabel={modelLabel} />
+        {parsed.body ? (
+          <p className="mt-3 text-sm leading-relaxed text-[#444]">{parsed.body}</p>
+        ) : null}
+        {parsed.fitNote ? (
+          <p className="mt-2 text-sm leading-relaxed text-[#444]">
+            {parsed.fitNote}
+          </p>
+        ) : null}
         {parsed.range && (
           <p className="mt-2 text-xs font-semibold tracking-[0.08em] text-soft uppercase">
             Disponibles: talles {parsed.range}
@@ -100,7 +143,9 @@ export function ProductDescription({ text }: { text: string }) {
               }`}
             >
               <span className="font-semibold tabular-nums">{row.size}</span>
-              <span className="text-right tabular-nums text-[#444]">{row.cm}</span>
+              <span className="text-right tabular-nums text-[#444]">
+                {row.cm} cm
+              </span>
             </li>
           ))}
         </ul>
@@ -119,6 +164,8 @@ export function ProductDescription({ text }: { text: string }) {
           ))}
         </ul>
       )}
+
+      <GuideActions waText={waText} />
     </div>
   );
 }

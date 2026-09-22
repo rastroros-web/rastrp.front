@@ -83,9 +83,6 @@ export default function AdminDashboardPage() {
     session?.role === "admin" || session?.role === "staff";
   const [customerCount, setCustomerCount] = useState(0);
   const activeProducts = products.filter((p) => p.active !== false).length;
-  const revenue = orders
-    .filter((o) => o.status !== "cancelado")
-    .reduce((s, o) => s + o.total, 0);
   const pending = orders.filter((o) => o.status === "pendiente").length;
   const lowStock = useMemo(() => getLowStockItems(products), [products]);
 
@@ -116,7 +113,7 @@ export default function AdminDashboardPage() {
     : 0;
 
   const stats = [
-    { label: "Ventas tienda", value: formatMoney(revenue) },
+    { label: "Ventas", value: formatMoney(excelVentas) },
     { label: "Pedidos", value: String(orders.length) },
     { label: "Pendientes", value: String(pending) },
     { label: "Productos activos", value: String(activeProducts) },

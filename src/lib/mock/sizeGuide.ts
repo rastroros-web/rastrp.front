@@ -40,8 +40,6 @@ export const SIZE_CHARTS: BrandSizeChart[] = [
       { cmMin: 25.5, cmMax: 26.0, size: "41" },
       { cmMin: 26.0, cmMax: 26.5, size: "42" },
       { cmMin: 26.5, cmMax: 27.0, size: "43" },
-      { cmMin: 27.0, cmMax: 27.5, size: "44" },
-      { cmMin: 27.5, cmMax: 28.2, size: "45" },
     ],
   },
   {
@@ -57,7 +55,6 @@ export const SIZE_CHARTS: BrandSizeChart[] = [
       { cmMin: 25.6, cmMax: 26.2, size: "41" },
       { cmMin: 26.2, cmMax: 26.8, size: "42" },
       { cmMin: 26.8, cmMax: 27.4, size: "43" },
-      { cmMin: 27.4, cmMax: 28.0, size: "44" },
     ],
   },
   {
@@ -87,7 +84,6 @@ export const SIZE_CHARTS: BrandSizeChart[] = [
       { cmMin: 25.4, cmMax: 26.0, size: "41" },
       { cmMin: 26.0, cmMax: 26.6, size: "42" },
       { cmMin: 26.6, cmMax: 27.2, size: "43" },
-      { cmMin: 27.2, cmMax: 28.0, size: "44" },
     ],
   },
 ];

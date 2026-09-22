@@ -7,7 +7,7 @@ import {
   type TransferBankConfig,
 } from "@/lib/mock/payment";
 import {
-  fetchTransferBank,
+  fetchAdminTransferBank,
   updateTransferBank,
 } from "@/lib/api/backend";
 
@@ -55,7 +55,7 @@ export function TransferBankSettings() {
     setLoadError("");
     setLoading(true);
     try {
-      const data = await fetchTransferBank();
+      const data = await fetchAdminTransferBank();
       setForm(data);
     } catch {
       setForm(DEFAULT_TRANSFER_BANK);

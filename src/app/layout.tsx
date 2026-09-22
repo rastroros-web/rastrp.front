@@ -6,6 +6,7 @@ import { CookieBanner } from "@/components/CookieBanner";
 import { WelcomePopup } from "@/components/WelcomePopup";
 import { WhatsAppButton } from "@/components/WhatsAppButton";
 import { StoreProvider } from "@/components/store/StoreProvider";
+import { AlertProvider } from "@/components/ui/AlertProvider";
 import { RouteScroll } from "@/components/RouteScroll";
 import { JsonLd } from "@/components/seo/JsonLd";
 import {
@@ -55,11 +56,13 @@ export default function RootLayout({
       </head>
       <body className="flex min-h-full flex-col bg-cream text-ink">
         <StoreProvider>
-          <RouteScroll />
-          {children}
-          <WelcomePopup />
-          <CookieBanner />
-          <WhatsAppButton />
+          <AlertProvider>
+            <RouteScroll />
+            {children}
+            <WelcomePopup />
+            <CookieBanner />
+            <WhatsAppButton />
+          </AlertProvider>
         </StoreProvider>
       </body>
     </html>

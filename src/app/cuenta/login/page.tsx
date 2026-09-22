@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Eye, EyeOff } from "lucide-react";
 import { ShopChrome } from "@/components/ShopChrome";
 import { useStore } from "@/components/store/StoreProvider";
+import { safeInternalPath } from "@/lib/safeInternalPath";
 
 const fieldClass =
   "w-full border border-black/10 px-3 py-2.5 outline-none focus:border-[#222222]";
@@ -14,7 +15,7 @@ function LoginForm() {
   const { login, register, session, ready } = useStore();
   const router = useRouter();
   const search = useSearchParams();
-  const next = search.get("next") || "/cuenta";
+  const next = safeInternalPath(search.get("next"));
   const [mode, setMode] = useState<"login" | "register">(
     search.get("mode") === "register" ? "register" : "login"
   );

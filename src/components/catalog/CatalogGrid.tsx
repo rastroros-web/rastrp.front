@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import Link from "next/link";
 import { ProductCard } from "@/components/ProductCard";
 import { FancySelect } from "@/components/ui/FancySelect";
 import { useStore } from "@/components/store/StoreProvider";
@@ -11,7 +10,6 @@ import {
   categories,
   flattenCatalog,
   isMegaSale,
-  storeCategoryRoutes,
   productMatchesQuery,
   type ProductCardModel,
 } from "@/data/catalog";
@@ -39,8 +37,6 @@ const SIZE_OPTIONS = [
   "41",
   "42",
   "43",
-  "44",
-  "45",
 ];
 
 const SORT_OPTIONS: { value: SortKey; label: string }[] = [
@@ -120,7 +116,11 @@ export function CatalogGrid() {
   useEffect(() => {
     const handle = window.setTimeout(() => {
       if (qDraft.trim() === qUrl.trim()) return;
-      patchQuery({ q: qDraft.trim() || null, page: null });
+      patchQuery({
+        q: qDraft.trim() || null,
+        page: null,
+        marca: null,
+      });
     }, 280);
     return () => window.clearTimeout(handle);
   }, [qDraft, qUrl, patchQuery]);
@@ -132,17 +132,6 @@ export function CatalogGrid() {
     []
   );
 
-  const brandOptions = useMemo(
-    () => [
-      { value: "all", label: "Todas" },
-      ...(liveBrands.length ? liveBrands : brands).map((b) => ({
-        value: b,
-        label: b,
-      })),
-    ],
-    [liveBrands]
-  );
-
   const sizeOptions = useMemo(
     () => [
       { value: "all", label: "Todos" },
@@ -151,10 +140,8 @@ export function CatalogGrid() {
     []
   );
 
-  const items = useMemo(() => {
-    const source = ready ? products.filter((p) => p.active !== false) : [];
-    const list = flattenCatalog(source).filter((p) => {
-      if (brand !== "all" && p.brand !== brand) return false;
+  const matchesBase = useCallback(
+    (p: ProductCardModel) => {
       if (q.trim() && !productMatchesQuery(p, q)) return false;
       if (size !== "all") {
         const live = getProduct(p.slug);
@@ -165,9 +152,7 @@ export function CatalogGrid() {
         if (!hasSize) return false;
       }
       if (category === "all") return true;
-      if (category === "sale") {
-        return isMegaSale(p);
-      }
+      if (category === "sale") return isMegaSale(p);
       if (category === "sandalias") {
         return /sandalia|ojota|zueco/i.test(p.name);
       }
@@ -175,7 +160,42 @@ export function CatalogGrid() {
         return !/sandalia|ojota|zueco/i.test(p.name);
       }
       return true;
-    });
+    },
+    [q, size, category, getProduct]
+  );
+
+  const searched = useMemo(() => {
+    const source = ready ? products.filter((p) => p.active !== false) : [];
+    return flattenCatalog(source).filter(matchesBase);
+  }, [products, ready, matchesBase]);
+
+  const availableBrands = useMemo(() => {
+    const fromSearch = [
+      ...new Set(searched.map((p) => p.brand).filter(Boolean)),
+    ].sort((a, b) => a.localeCompare(b, "es"));
+    if (q.trim()) return fromSearch;
+    return liveBrands.length ? liveBrands : brands;
+  }, [searched, liveBrands, q]);
+
+  const brandOptions = useMemo(
+    () => [
+      { value: "all", label: "Todas" },
+      ...availableBrands.map((b) => ({ value: b, label: b })),
+    ],
+    [availableBrands]
+  );
+
+  useEffect(() => {
+    if (brand === "all") return;
+    if (availableBrands.some((b) => b === brand)) return;
+    patchQuery({ marca: null, page: null });
+  }, [brand, availableBrands, patchQuery]);
+
+  const items = useMemo(() => {
+    const list =
+      brand === "all"
+        ? searched
+        : searched.filter((p) => p.brand === brand);
 
     const sorted = [...list];
     if (sort === "price-asc") {
@@ -188,7 +208,7 @@ export function CatalogGrid() {
       sorted.reverse();
     }
     return sorted as ProductCardModel[];
-  }, [brand, category, products, ready, q, sort, size, getProduct]);
+  }, [searched, brand, sort]);
 
   const totalPages = Math.max(1, Math.ceil(items.length / PAGE_SIZE));
   const safePage = Math.min(page, totalPages);
@@ -218,7 +238,7 @@ export function CatalogGrid() {
             Shop
           </p>
           <h1 className="mt-2 font-display text-3xl font-bold tracking-wide uppercase sm:text-4xl md:text-6xl">
-            Catálogo
+            {q.trim() ? q.trim() : "Catálogo"}
           </h1>
           <p className="mt-2 text-sm text-soft">
             {items.length} producto{items.length === 1 ? "" : "s"}
@@ -237,7 +257,11 @@ export function CatalogGrid() {
               onKeyDown={(e) => {
                 if (e.key !== "Enter") return;
                 e.preventDefault();
-                patchQuery({ q: qDraft.trim() || null, page: null });
+                patchQuery({
+                  q: qDraft.trim() || null,
+                  page: null,
+                  marca: null,
+                });
               }}
               placeholder="Marca, modelo o color…"
               className="w-full border border-black/10 bg-white px-3 py-2.5 text-xs font-semibold tracking-[0.04em] text-[#222222] normal-case outline-none transition hover:border-[#222222] focus:border-[#222222]"
@@ -273,24 +297,30 @@ export function CatalogGrid() {
         </div>
       </div>
 
-      <div className="-mx-4 mt-4 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:mx-0 md:flex-wrap md:overflow-visible md:px-0">
-        {storeCategoryRoutes.map((c) => (
-          <Link
-            key={c.slug}
-            href={c.href}
-            className="shrink-0 bg-[#f5f4f0] px-3 py-1.5 text-[10px] font-semibold tracking-[0.14em] uppercase transition hover:bg-black/10"
-          >
-            {c.label}
-          </Link>
-        ))}
-      </div>
-
       {!ready ? (
         <p className="mt-16 text-center text-sm text-soft">Cargando catálogo…</p>
       ) : items.length === 0 ? (
-        <p className="mt-16 text-center text-sm text-soft">
-          No hay productos con estos filtros.
-        </p>
+        <div className="mt-16 text-center">
+          <p className="text-sm text-soft">
+            No hay productos con estos filtros
+            {q.trim() ? ` para “${q.trim()}”` : ""}.
+          </p>
+          <button
+            type="button"
+            onClick={() =>
+              patchQuery({
+                q: q.trim() || null,
+                marca: null,
+                categoria: null,
+                talle: null,
+                page: null,
+              })
+            }
+            className="btn-press mt-4 border border-[#222222] px-4 py-2 text-[11px] font-semibold tracking-[0.14em] uppercase"
+          >
+            Ver todos los resultados
+          </button>
+        </div>
       ) : (
         <>
           <div className="mt-8 grid grid-cols-2 gap-x-2.5 gap-y-7 sm:gap-x-3 sm:gap-y-8 md:mt-10 md:grid-cols-3 md:gap-x-5 md:gap-y-10 lg:grid-cols-4">

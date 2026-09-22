@@ -18,6 +18,8 @@ export type GastoFijo = {
   area: string;
   nombre: string;
   montoMensual: number;
+  /** Desde cuándo rige (YYYY-MM-DD). El filtro de año/mes usa esta fecha. */
+  fecha?: string | null;
 };
 
 export type GastoMensual = {
@@ -69,6 +71,9 @@ export type VentaRow = {
   medioPago: string | null;
   /** Pedido de la tienda que originó la fila, si aplica */
   orderId?: string | null;
+  /** Catálogo: si está, el stock y el link no dependen del texto del artículo. */
+  productSlug?: string | null;
+  variantId?: string | null;
 };
 
 export type CostoRow = {
@@ -195,6 +200,13 @@ export function normalizeBusiness(data: BusinessData): BusinessData {
       ...row,
       sku: row.sku ?? null,
       color: row.color ?? null,
+    })),
+    gastosFijos: (data.gastosFijos || []).map((row) => ({
+      ...row,
+      fecha:
+        row.fecha == null || row.fecha === ""
+          ? row.fecha ?? null
+          : ledgerFecha(row.fecha),
     })),
     ventas: (data.ventas || []).map((row) => ({
       ...row,

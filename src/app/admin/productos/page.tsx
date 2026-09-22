@@ -4,10 +4,39 @@ import { ShopImage as Image } from "@/components/ShopImage";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useStore } from "@/components/store/StoreProvider";
+import { useAlert } from "@/components/ui/AlertProvider";
 
 export default function AdminProductsPage() {
   const { products, deleteProduct, toggleProductActive } = useStore();
+  const { confirm } = useAlert();
   const [q, setQ] = useState("");
+  const [busySlug, setBusySlug] = useState<string | null>(null);
+  const [actionError, setActionError] = useState("");
+
+  async function onToggle(slug: string) {
+    setActionError("");
+    setBusySlug(slug);
+    const result = await toggleProductActive(slug);
+    if (!result.ok) setActionError(result.error);
+    setBusySlug(null);
+  }
+
+  async function onDelete(name: string, slug: string) {
+    const ok = await confirm({
+      eyebrow: "Productos",
+      title: `¿Eliminar ${name}?`,
+      message: "Se borra del catálogo de la tienda. No se puede deshacer.",
+      confirmLabel: "Eliminar",
+      cancelLabel: "Conservar",
+      tone: "danger",
+    });
+    if (!ok) return;
+    setActionError("");
+    setBusySlug(slug);
+    const result = await deleteProduct(slug);
+    if (!result.ok) setActionError(result.error);
+    setBusySlug(null);
+  }
 
   const filtered = useMemo(() => {
     const query = q.trim().toLowerCase();
@@ -31,6 +60,9 @@ export default function AdminProductsPage() {
             Productos
           </h1>
           <p className="mt-1 text-sm text-soft">{products.length} productos</p>
+          {actionError ? (
+            <p className="mt-2 text-sm text-red-600">{actionError}</p>
+          ) : null}
         </div>
         <Link
           href="/admin/productos/nuevo"
@@ -72,8 +104,9 @@ export default function AdminProductsPage() {
                   </p>
                   <button
                     type="button"
-                    onClick={() => toggleProductActive(p.slug)}
-                    className={`mt-1 text-[11px] font-semibold uppercase ${
+                    disabled={busySlug === p.slug}
+                    onClick={() => onToggle(p.slug)}
+                    className={`mt-1 text-[11px] font-semibold uppercase disabled:opacity-40 ${
                       p.active === false ? "text-soft" : "text-[#16a34a]"
                     }`}
                   >
@@ -96,10 +129,9 @@ export default function AdminProductsPage() {
                 </Link>
                 <button
                   type="button"
-                  onClick={() => {
-                    if (confirm(`¿Eliminar ${p.name}?`)) deleteProduct(p.slug);
-                  }}
-                  className="text-[11px] font-semibold text-red-600 uppercase"
+                  disabled={busySlug === p.slug}
+                  onClick={() => onDelete(p.name, p.slug)}
+                  className="text-[11px] font-semibold text-red-600 uppercase disabled:opacity-40"
                 >
                   Borrar
                 </button>
@@ -152,8 +184,9 @@ export default function AdminProductsPage() {
                   <td className="px-4 py-3">
                     <button
                       type="button"
-                      onClick={() => toggleProductActive(p.slug)}
-                      className={`text-[11px] font-semibold uppercase ${
+                      disabled={busySlug === p.slug}
+                      onClick={() => onToggle(p.slug)}
+                      className={`text-[11px] font-semibold uppercase disabled:opacity-40 ${
                         p.active === false ? "text-soft" : "text-[#16a34a]"
                       }`}
                     >
@@ -176,10 +209,9 @@ export default function AdminProductsPage() {
                       </Link>
                       <button
                         type="button"
-                        onClick={() => {
-                          if (confirm(`¿Eliminar ${p.name}?`)) deleteProduct(p.slug);
-                        }}
-                        className="text-[11px] font-semibold text-red-600 uppercase"
+                        disabled={busySlug === p.slug}
+                        onClick={() => onDelete(p.name, p.slug)}
+                        className="text-[11px] font-semibold text-red-600 uppercase disabled:opacity-40"
                       >
                         Borrar
                       </button>
