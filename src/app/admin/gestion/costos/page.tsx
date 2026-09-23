@@ -19,7 +19,6 @@ type FormState = {
   id: string | null;
   marca: string;
   modelo: string;
-  sku: string;
   grada: string;
   calidad: string;
   cantidadXCaja: string;
@@ -35,7 +34,6 @@ const EMPTY_FORM: FormState = {
   id: null,
   marca: "",
   modelo: "",
-  sku: "",
   grada: "",
   calidad: "",
   cantidadXCaja: "",
@@ -68,7 +66,6 @@ function formFromRow(row: CostoRow): FormState {
     id: row.id,
     marca: txt(row.marca),
     modelo: txt(row.modelo),
-    sku: txt(row.sku),
     grada: txt(row.grada),
     calidad: txt(row.calidad),
     cantidadXCaja: txt(row.cantidadXCaja),
@@ -125,7 +122,6 @@ export default function GestionCostosPage() {
       (c) =>
         c.modelo.toLowerCase().includes(term) ||
         c.marca.toLowerCase().includes(term) ||
-        (c.sku ?? "").toLowerCase().includes(term) ||
         (c.grada ?? "").toLowerCase().includes(term) ||
         (c.calidad ?? "").toLowerCase().includes(term)
     );
@@ -184,7 +180,7 @@ export default function GestionCostosPage() {
       id: form.id ?? uid("cos"),
       marca: form.marca.trim(),
       modelo: form.modelo.trim(),
-      sku: form.sku.trim() || null,
+      sku: null,
       color: null,
       grada: form.grada.trim() || null,
       calidad: form.calidad.trim() || null,
@@ -243,12 +239,6 @@ export default function GestionCostosPage() {
               value={form.modelo}
               onChange={(v) => setField("modelo", v)}
               placeholder="SAMBA NEGRA"
-            />
-            <Field
-              label="Código SKU"
-              value={form.sku}
-              onChange={(v) => setField("sku", v)}
-              placeholder="NIK-AF1-GRI"
             />
             <Field
               label="Grada"
@@ -373,17 +363,16 @@ export default function GestionCostosPage() {
       <input
         value={q}
         onChange={(e) => setQ(e.target.value)}
-        placeholder="Buscar marca, modelo, SKU, grada, calidad…"
+        placeholder="Buscar marca, modelo, grada, calidad…"
         className="w-full max-w-md border border-black/10 bg-white px-3 py-2.5 text-sm"
       />
 
-      <AdminTableShell title="COSTOS · mismas columnas que el Excel">
+      <AdminTableShell title="Costos por modelo">
         <table className="min-w-max">
           <thead className="bg-[#f5f4f0]">
             <tr>
               <th className={adminTh}>Marca</th>
               <th className={adminTh}>Modelo</th>
-              <th className={adminTh}>Código SKU</th>
               <th className={adminTh}>Grada</th>
               <th className={adminTh}>Calidad</th>
               <th className={adminTh}>Cantidad x caja</th>
@@ -407,10 +396,10 @@ export default function GestionCostosPage() {
               <tr>
                 <td
                   className={`${adminTd} text-soft`}
-                  colSpan={14 + SHEET_SIZES.length}
+                  colSpan={13 + SHEET_SIZES.length}
                 >
-                  Todavía no hay modelos. Usá “Restaurar Excel” para cargar la
-                  hoja COSTOS original, o “Nuevo modelo”.
+                  Todavía no hay modelos. Tocá “Nuevo modelo” para cargar el
+                  primero.
                 </td>
               </tr>
             ) : (
@@ -420,7 +409,6 @@ export default function GestionCostosPage() {
                   <td className={`${adminTdWrap} min-w-[160px]`}>
                     {cell(c.modelo)}
                   </td>
-                  <td className={adminTd}>{cell(c.sku)}</td>
                   <td className={adminTd}>{cell(c.grada)}</td>
                   <td className={adminTd}>{cell(c.calidad)}</td>
                   <td className={adminTd}>{cell(c.cantidadXCaja)}</td>

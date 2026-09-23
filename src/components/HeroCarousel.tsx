@@ -15,6 +15,7 @@ export type HeroSlide = string | { mobile: string; desktop: string };
 const DESKTOP_MEDIA = "(min-width: 640px)";
 const SWIPE_PX = 48;
 const AUTOPLAY_MS = 8000;
+const TRANSITION_MS = 520;
 
 function sources(slide: HeroSlide): { mobile: string; desktop: string } {
   return typeof slide === "string"
@@ -27,16 +28,25 @@ function keyOf(slide: HeroSlide, slot: string): string {
   return `${slot}|${mobile}|${desktop}`;
 }
 
+function wrapIndex(i: number, count: number) {
+  if (count <= 0) return 0;
+  return ((i % count) + count) % count;
+}
+
 type HeroCarouselProps = {
   slides: HeroSlide[];
 };
 
+/**
+ * Carrusel sin clones infinitos: el índice siempre está en 0..n-1.
+ * Así el autoplay no puede “pasarse” al vacío (fondo negro).
+ * Al cerrar el loop (último → primero) el salto es instantáneo.
+ */
 export function HeroCarousel({ slides }: HeroCarouselProps) {
   const count = slides.length;
   const loop = count > 1;
-  const extended = loop ? [slides[count - 1], ...slides, slides[0]] : slides;
 
-  const [pos, setPos] = useState(loop ? 1 : 0);
+  const [index, setIndex] = useState(0);
   const [dragPx, setDragPx] = useState(0);
   const [animate, setAnimate] = useState(true);
 
@@ -46,61 +56,60 @@ export function HeroCarousel({ slides }: HeroCarouselProps) {
   const startY = useRef(0);
   const lastDx = useRef(0);
   const axis = useRef<"h" | "v" | null>(null);
-  const jumping = useRef(false);
+  const indexRef = useRef(index);
+  const paused = useRef(false);
 
-  const realIndex = loop
-    ? pos === 0
-      ? count - 1
-      : pos === count + 1
-        ? 0
-        : pos - 1
-    : pos;
+  useEffect(() => {
+    indexRef.current = index;
+  }, [index]);
 
-  const goToReal = useCallback(
-    (i: number) => {
+  const goTo = useCallback(
+    (next: number, { instant = false }: { instant?: boolean } = {}) => {
       if (!loop) {
-        setPos(i);
+        setIndex(0);
         return;
       }
-      setAnimate(true);
-      setPos(i + 1);
+      const target = wrapIndex(next, count);
+      const current = indexRef.current;
+      const wrapping =
+        (current === count - 1 && target === 0) ||
+        (current === 0 && target === count - 1);
+      setAnimate(!instant && !wrapping);
+      setIndex(target);
+      if (wrapping || instant) {
+        // Rehabilitar transición en el próximo frame para el swipe/autoplay.
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => setAnimate(true));
+        });
+      }
     },
-    [loop]
+    [loop, count]
   );
+
+  const goNext = useCallback(() => {
+    if (!loop || dragging.current || paused.current) return;
+    goTo(indexRef.current + 1);
+  }, [loop, goTo]);
+
+  const goPrev = useCallback(() => {
+    if (!loop || dragging.current || paused.current) return;
+    goTo(indexRef.current - 1);
+  }, [loop, goTo]);
 
   useEffect(() => {
     if (!loop) return;
-    const id = window.setInterval(() => {
-      if (dragging.current) return;
-      setAnimate(true);
-      setPos((current) => current + 1);
-    }, AUTOPLAY_MS);
+    const id = window.setInterval(goNext, AUTOPLAY_MS);
     return () => window.clearInterval(id);
-  }, [loop]);
+  }, [loop, goNext]);
 
-  const settleClones = useCallback(() => {
-    if (!loop || jumping.current) return;
-    if (pos === 0) {
-      jumping.current = true;
-      setAnimate(false);
-      setPos(count);
-    } else if (pos === count + 1) {
-      jumping.current = true;
-      setAnimate(false);
-      setPos(1);
-    }
-  }, [loop, pos, count]);
-
+  // Pausar autoplay con la pestaña oculta (evita ticks acumulados).
   useEffect(() => {
-    if (!jumping.current) return;
-    const frame = requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        jumping.current = false;
-        setAnimate(true);
-      });
-    });
-    return () => cancelAnimationFrame(frame);
-  }, [pos]);
+    const onVis = () => {
+      paused.current = document.hidden;
+    };
+    document.addEventListener("visibilitychange", onVis);
+    return () => document.removeEventListener("visibilitychange", onVis);
+  }, []);
 
   const endDrag = useCallback(() => {
     if (!dragging.current) return;
@@ -109,11 +118,14 @@ export function HeroCarousel({ slides }: HeroCarouselProps) {
     lastDx.current = 0;
     axis.current = null;
     setDragPx(0);
-    setAnimate(true);
-    if (!loop) return;
-    if (dx <= -SWIPE_PX) setPos((current) => current + 1);
-    else if (dx >= SWIPE_PX) setPos((current) => current - 1);
-  }, [loop]);
+    if (!loop) {
+      setAnimate(true);
+      return;
+    }
+    if (dx <= -SWIPE_PX) goNext();
+    else if (dx >= SWIPE_PX) goPrev();
+    else setAnimate(true);
+  }, [loop, goNext, goPrev]);
 
   const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
     if (!loop) return;
@@ -146,6 +158,8 @@ export function HeroCarousel({ slides }: HeroCarouselProps) {
     setDragPx(dx);
   };
 
+  if (count === 0) return null;
+
   return (
     <section className="relative w-full overflow-hidden bg-[#222222]">
       <div
@@ -159,29 +173,30 @@ export function HeroCarousel({ slides }: HeroCarouselProps) {
         <div
           className="flex h-full w-full"
           style={{
-            transform: `translate3d(calc(${-pos * 100}% + ${dragPx}px), 0, 0)`,
-            transition: animate && dragPx === 0 ? "transform 520ms ease" : "none",
-          }}
-          onTransitionEnd={(e) => {
-            if (e.target !== e.currentTarget) return;
-            settleClones();
+            width: `${count * 100}%`,
+            transform: `translate3d(calc(${(-index * 100) / count}% + ${dragPx}px), 0, 0)`,
+            transition:
+              animate && dragPx === 0
+                ? `transform ${TRANSITION_MS}ms ease`
+                : "none",
           }}
         >
-          {extended.map((slide, i) => {
+          {slides.map((slide, i) => {
             const { mobile, desktop } = sources(slide);
             return (
               <div
                 key={keyOf(slide, String(i))}
-                className="relative h-full w-full shrink-0 grow-0 basis-full"
+                className="relative h-full shrink-0 grow-0"
+                style={{ width: `${100 / count}%` }}
               >
                 <picture>
                   <source media={DESKTOP_MEDIA} srcSet={desktop} />
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={mobile}
-                    alt={`Banner Rastro ${((i - (loop ? 1 : 0) + count) % count) + 1}`}
-                    loading={i <= 1 ? "eager" : "lazy"}
-                    fetchPriority={i <= 1 ? "high" : "auto"}
+                    alt={`Banner Rastro ${i + 1}`}
+                    loading="eager"
+                    fetchPriority={i === 0 ? "high" : "auto"}
                     decoding="async"
                     draggable={false}
                     className="pointer-events-none h-full w-full select-none object-cover object-center"
@@ -202,10 +217,10 @@ export function HeroCarousel({ slides }: HeroCarouselProps) {
               key={keyOf(slide, "dot")}
               type="button"
               aria-label={`Ir al slide ${i + 1}`}
-              aria-current={i === realIndex ? true : undefined}
-              onClick={() => goToReal(i)}
+              aria-current={i === index ? true : undefined}
+              onClick={() => goTo(i)}
               className={`pointer-events-auto h-1.5 rounded-full transition-all ${
-                i === realIndex ? "w-6 bg-white" : "w-1.5 bg-white/45"
+                i === index ? "w-6 bg-white" : "w-1.5 bg-white/45"
               }`}
             />
           ))}

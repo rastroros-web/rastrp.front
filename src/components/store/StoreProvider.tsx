@@ -213,7 +213,10 @@ type StoreContextValue = {
   savePromo: (
     promo: PromoCode
   ) => Promise<{ ok: true } | { ok: false; error: string }>;
-  deletePromo: (code: string) => Promise<void>;
+  deletePromo: (
+    code: string
+  ) => Promise<{ ok: true } | { ok: false; error: string }>;
+  reloadPromos: () => Promise<void>;
   syncFromEcommerce: (rows: EcommerceRow[]) => SyncEcommerceResult;
   /** Descuenta stock del catálogo según ventas de la planilla */
   applyVentasToStock: (ventas: VentaRow[]) => Promise<{
@@ -1353,6 +1356,13 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     return { ok: true as const };
   }, [products]);
 
+  const reloadPromos = useCallback(async () => {
+    if (!getBackendUrl()) return;
+    const asStaff = isStaffSession(session) || hasApiAuth();
+    const fromPromos = await fetchShopPromos(asStaff);
+    if (fromPromos != null) setPromos(fromPromos);
+  }, [session]);
+
   const savePromo = useCallback(
     async (
       promo: PromoCode
@@ -1378,18 +1388,24 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         active: promo.active !== false,
       };
 
-      if (hasApiAuth()) {
+      // Con backend, el cupón tiene que vivir en el servidor. Si no hay sesión,
+      // no fingimos un guardado local: al recargar se borraba.
+      if (getBackendUrl()) {
+        if (!hasApiAuth()) {
+          return {
+            ok: false,
+            error: "Tu sesión expiró. Volvé a ingresar para guardar el cupón.",
+          };
+        }
         try {
           const saved = await saveShopPromo(next);
-          setPromos((prev) => {
-            const idx = prev.findIndex((p) => p.code === saved.code);
-            if (idx >= 0) {
-              const copy = [...prev];
-              copy[idx] = saved;
-              return copy;
-            }
-            return [saved, ...prev];
-          });
+          const fresh = await fetchShopPromos(true);
+          if (fresh != null) {
+            const hasSaved = fresh.some((p) => p.code === saved.code);
+            setPromos(hasSaved ? fresh : [saved, ...fresh]);
+          } else {
+            setPromos([saved]);
+          }
           return { ok: true };
         } catch (err) {
           return {
@@ -1416,14 +1432,25 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   const deletePromo = useCallback(async (code: string) => {
     const normalized = code.trim().toUpperCase();
-    if (hasApiAuth()) {
+    if (getBackendUrl()) {
+      if (!hasApiAuth()) {
+        return {
+          ok: false as const,
+          error: "Tu sesión expiró. Volvé a ingresar para borrar el cupón.",
+        };
+      }
       try {
         await deleteShopPromo(normalized);
-      } catch {
-        return;
+      } catch (err) {
+        return {
+          ok: false as const,
+          error:
+            err instanceof Error ? err.message : "No se pudo borrar el cupón.",
+        };
       }
     }
     setPromos((prev) => prev.filter((p) => p.code !== normalized));
+    return { ok: true as const };
   }, []);
 
   const syncFromEcommerce = useCallback((rows: EcommerceRow[]) => {
@@ -1590,6 +1617,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       toggleProductActive,
       savePromo,
       deletePromo,
+      reloadPromos,
       syncFromEcommerce,
       applyVentasToStock,
       resetDemoData,
@@ -1633,6 +1661,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       toggleProductActive,
       savePromo,
       deletePromo,
+      reloadPromos,
       syncFromEcommerce,
       applyVentasToStock,
       resetDemoData,
