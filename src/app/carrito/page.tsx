@@ -5,12 +5,13 @@ import Link from "next/link";
 import { useCallback, useMemo, useState } from "react";
 import { RosarioDeliveryFields } from "@/components/cart/RosarioDeliveryFields";
 import { ShippingMethodPicker } from "@/components/cart/ShippingMethodPicker";
+import { CartAddresses } from "@/components/cart/CartAddresses";
 import { ShopChrome } from "@/components/ShopChrome";
 import { useStore } from "@/components/store/StoreProvider";
 import { formatMoney } from "@/lib/mock/money";
 import { isFreeShipping, quoteShipping } from "@/lib/mock/shipping";
 import { STORES } from "@/lib/mock/stores";
-import type { ShippingZone } from "@/lib/mock/types";
+import type { SavedAddress, ShippingZone } from "@/lib/mock/types";
 
 const ZONES: { id: ShippingZone; label: string }[] = [
   { id: "rosario", label: "Rosario" },
@@ -31,6 +32,27 @@ export default function CartPage() {
     cartCount,
   } = useStore();
   const [leaving, setLeaving] = useState<Record<string, boolean>>({});
+  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(
+    null
+  );
+
+  const applySavedAddress = useCallback(
+    (address: SavedAddress) => {
+      setSelectedAddressId(address.id);
+      if (address.postalCode) {
+        setCartShipping({
+          postalCode: address.postalCode,
+          zone:
+            /rosario/i.test(address.city || "") || address.postalCode === "2000"
+              ? "rosario"
+              : cartShipping.zone === "retiro"
+                ? "interior"
+                : cartShipping.zone,
+        });
+      }
+    },
+    [cartShipping.zone, setCartShipping]
+  );
 
   const onRosarioChange = useCallback(
     (next: { deliveryDate?: string; deliverySlot?: string }) => {
@@ -281,6 +303,13 @@ export default function CartPage() {
                     </Link>
                   </div>
                 </div>
+
+                {cartShipping.zone !== "retiro" && (
+                  <CartAddresses
+                    selectedId={selectedAddressId}
+                    onSelect={applySavedAddress}
+                  />
+                )}
               </section>
 
               <button

@@ -55,7 +55,7 @@ export function CatalogGrid() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const { products, ready, getProduct } = useStore();
+  const { products, catalogReady: ready, getProduct } = useStore();
 
   const qUrl = searchParams.get("q") ?? "";
   const [qDraft, setQDraft] = useState(qUrl);

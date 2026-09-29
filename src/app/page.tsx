@@ -54,9 +54,9 @@ const reviews = [
 ];
 
 export default function Home() {
-  const { products: shopProducts, ready } = useStore();
+  const { products: shopProducts, catalogReady } = useStore();
   const products = flattenCatalog(
-    ready ? shopProducts.filter((p) => p.active !== false) : []
+    catalogReady ? shopProducts.filter((p) => p.active !== false) : []
   );
 
   return (

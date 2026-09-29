@@ -17,6 +17,7 @@ import type {
   MockOrder,
   MockUser,
   OrderStatus,
+  SavedAddress,
   SessionUser,
   ShippingDetails,
   ShippingZone,
@@ -73,6 +74,8 @@ import {
   clearApiToken,
   saveAccountBag,
   updateShopProfile,
+  addShopAddress,
+  removeShopAddress,
   createShopOrder,
   updateShopOrder,
   cancelShopOrder,
@@ -139,6 +142,8 @@ type PlaceOrderResult =
 
 type StoreContextValue = {
   ready: boolean;
+  /** Catálogo ya vino de la API (o del fallback); no espera sesión, carrito ni pedidos. */
+  catalogReady: boolean;
   session: SessionUser | null;
   users: MockUser[];
   products: ShopProduct[];
@@ -161,8 +166,16 @@ type StoreContextValue = {
   }) => Promise<LoginResult>;
   logout: () => void;
   updateProfile: (
-    data: Partial<Pick<MockUser, "name" | "phone" | "address" | "city">>
+    data: Partial<
+      Pick<MockUser, "name" | "phone" | "address" | "city" | "province" | "dni" | "addresses">
+    >
   ) => Promise<{ ok: boolean; error?: string }>;
+  saveAddress: (
+    address: SavedAddress
+  ) => Promise<{ ok: true; addresses: SavedAddress[] } | { ok: false; error: string }>;
+  deleteAddress: (
+    addressId: string
+  ) => Promise<{ ok: true; addresses: SavedAddress[] } | { ok: false; error: string }>;
   addToCart: (item: Omit<CartItem, "id" | "qty"> & { qty?: number }) => void;
   updateCartQty: (id: string, qty: number) => void;
   removeFromCart: (id: string) => void;
@@ -271,6 +284,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const [ready, setReady] = useState(false);
+  const [catalogReady, setCatalogReady] = useState(false);
   const [users, setUsers] = useState<MockUser[]>(SEED_USERS);
   const [session, setSession] = useState<SessionUser | null>(null);
   const [products, setProducts] = useState<ShopProduct[]>(seedProducts());
@@ -355,6 +369,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           );
           writeJson(STORAGE_KEYS.products, synced.updatedProducts);
         }
+        setCatalogReady(true);
 
         let sessionNow = storedSession;
         if (hasApiAuth()) {
@@ -373,43 +388,54 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           }
         }
 
+        const staff = isStaffSession(sessionNow);
+        const loadPromos = async () => {
+          const fromPromos = await fetchShopPromos(staff);
+          if (cancelled) return;
+          if (fromPromos) setPromos(fromPromos);
+        };
+
         if (sessionNow && hasApiAuth()) {
-          try {
-            const remote = normalizeBag(await fetchAccountBag());
-            if (cancelled) return;
-            const guestWish = readBag(GUEST_BAG_ID).wishlist;
-            const bag = {
-              ...remote,
-              wishlist: mergeWishlists(remote.wishlist, guestWish),
-            };
-            writeBag(GUEST_BAG_ID, {
-              ...readBag(GUEST_BAG_ID),
-              wishlist: [],
-            });
-            bagOwnerRef.current = sessionNow.id;
-            writeBag(sessionNow.id, { ...bag, wishlist: [] });
-            setCart(bag.cart);
-            setWishlist(bag.wishlist);
-            setCartShippingState(bag.shipping);
-            lastRemoteBagKeyRef.current = remoteBagKey(bag);
-            if (guestWish.length > 0) {
-              saveAccountBag(bag).catch(() => {});
+          const owner = sessionNow;
+          const loadBag = async () => {
+            try {
+              const remote = normalizeBag(await fetchAccountBag());
+              if (cancelled) return;
+              const guestWish = readBag(GUEST_BAG_ID).wishlist;
+              const bag = {
+                ...remote,
+                wishlist: mergeWishlists(remote.wishlist, guestWish),
+              };
+              writeBag(GUEST_BAG_ID, {
+                ...readBag(GUEST_BAG_ID),
+                wishlist: [],
+              });
+              bagOwnerRef.current = owner.id;
+              writeBag(owner.id, { ...bag, wishlist: [] });
+              setCart(bag.cart);
+              setWishlist(bag.wishlist);
+              setCartShippingState(bag.shipping);
+              lastRemoteBagKeyRef.current = remoteBagKey(bag);
+              if (guestWish.length > 0) {
+                saveAccountBag(bag).catch(() => {});
+              }
+            } catch {
+              setWishlist([]);
             }
-          } catch {
-            setWishlist([]);
-          }
-
-          try {
-            const remoteOrders = isStaffSession(sessionNow)
-              ? await fetchAdminOrders()
-              : await fetchShopOrders();
-            if (cancelled) return;
-            setOrders(remoteOrders);
-          } catch {
-            /* sin pedidos de API */
-          }
-
-          if (isStaffSession(sessionNow)) {
+          };
+          const loadOrders = async () => {
+            try {
+              const remoteOrders = staff
+                ? await fetchAdminOrders()
+                : await fetchShopOrders();
+              if (cancelled) return;
+              setOrders(remoteOrders);
+            } catch {
+              /* sin pedidos de API */
+            }
+          };
+          const loadAdminProducts = async () => {
+            if (!staff) return;
             const adminProducts = await fetchAdminProducts();
             if (cancelled) return;
             if (adminProducts?.length) {
@@ -419,16 +445,21 @@ export function StoreProvider({ children }: { children: ReactNode }) {
                 )
               );
             }
-          }
+          };
+          await Promise.allSettled([
+            loadBag(),
+            loadOrders(),
+            loadAdminProducts(),
+            loadPromos(),
+          ]);
+        } else {
+          await loadPromos();
         }
-
-        const fromPromos = await fetchShopPromos(isStaffSession(sessionNow));
-        if (cancelled) return;
-        if (fromPromos) setPromos(fromPromos);
       } catch {
         /* la tienda tiene que abrir igual */
       } finally {
         if (!cancelled) {
+          setCatalogReady(true);
           setBagSynced(true);
           setReady(true);
         }
@@ -706,7 +737,12 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   const updateProfile = useCallback(
     async (
-      data: Partial<Pick<MockUser, "name" | "phone" | "address" | "city">>
+      data: Partial<
+        Pick<
+          MockUser,
+          "name" | "phone" | "address" | "city" | "province" | "dni" | "addresses"
+        >
+      >
     ): Promise<{ ok: boolean; error?: string }> => {
       if (!session) return { ok: false, error: "No hay sesión." };
 
@@ -734,6 +770,111 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       );
       setSession((prev) => (prev ? { ...prev, ...data } : prev));
       return { ok: true };
+    },
+    [session]
+  );
+
+  const saveAddress = useCallback(
+    async (
+      address: SavedAddress
+    ): Promise<
+      { ok: true; addresses: SavedAddress[] } | { ok: false; error: string }
+    > => {
+      if (hasApiAuth() && session) {
+        try {
+          const user = await addShopAddress(address);
+          const next = sessionFromApi(user);
+          setSession(next);
+          return { ok: true, addresses: next.addresses || [] };
+        } catch (err) {
+          return {
+            ok: false,
+            error:
+              err instanceof Error
+                ? err.message
+                : "No se pudo guardar la dirección.",
+          };
+        }
+      }
+
+      const guestKey = "rastro_guest_addresses";
+      const readGuest = (): SavedAddress[] => {
+        if (typeof window === "undefined") return [];
+        try {
+          const raw = window.localStorage.getItem(guestKey);
+          const parsed = raw ? JSON.parse(raw) : [];
+          return Array.isArray(parsed) ? parsed : [];
+        } catch {
+          return [];
+        }
+      };
+
+      const current = session?.addresses?.length
+        ? session.addresses
+        : readGuest();
+      const without = current.filter((row) => row.id !== address.id);
+      const addresses = [address, ...without].slice(0, 5);
+      if (session) {
+        setSession((prev) => (prev ? { ...prev, addresses } : prev));
+        setUsers((prev) =>
+          prev.map((u) => (u.id === session.id ? { ...u, addresses } : u))
+        );
+      } else if (typeof window !== "undefined") {
+        window.localStorage.setItem(guestKey, JSON.stringify(addresses));
+      }
+      return { ok: true, addresses };
+    },
+    [session]
+  );
+
+  const deleteAddress = useCallback(
+    async (
+      addressId: string
+    ): Promise<
+      { ok: true; addresses: SavedAddress[] } | { ok: false; error: string }
+    > => {
+      if (hasApiAuth() && session) {
+        try {
+          const user = await removeShopAddress(addressId);
+          const next = sessionFromApi(user);
+          setSession(next);
+          return { ok: true, addresses: next.addresses || [] };
+        } catch (err) {
+          return {
+            ok: false,
+            error:
+              err instanceof Error
+                ? err.message
+                : "No se pudo borrar la dirección.",
+          };
+        }
+      }
+
+      const guestKey = "rastro_guest_addresses";
+      const readGuest = (): SavedAddress[] => {
+        if (typeof window === "undefined") return [];
+        try {
+          const raw = window.localStorage.getItem(guestKey);
+          const parsed = raw ? JSON.parse(raw) : [];
+          return Array.isArray(parsed) ? parsed : [];
+        } catch {
+          return [];
+        }
+      };
+
+      const current = session?.addresses?.length
+        ? session.addresses
+        : readGuest();
+      const addresses = current.filter((row) => row.id !== addressId);
+      if (session) {
+        setSession((prev) => (prev ? { ...prev, addresses } : prev));
+        setUsers((prev) =>
+          prev.map((u) => (u.id === session.id ? { ...u, addresses } : u))
+        );
+      } else if (typeof window !== "undefined") {
+        window.localStorage.setItem(guestKey, JSON.stringify(addresses));
+      }
+      return { ok: true, addresses };
     },
     [session]
   );
@@ -1580,6 +1721,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const value = useMemo<StoreContextValue>(
     () => ({
       ready,
+      catalogReady,
       session,
       users,
       products,
@@ -1597,6 +1739,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       register,
       logout,
       updateProfile,
+      saveAddress,
+      deleteAddress,
       addToCart,
       updateCartQty,
       removeFromCart,
@@ -1624,6 +1768,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     }),
     [
       ready,
+      catalogReady,
       session,
       users,
       products,
@@ -1641,6 +1786,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       register,
       logout,
       updateProfile,
+      saveAddress,
+      deleteAddress,
       addToCart,
       updateCartQty,
       removeFromCart,

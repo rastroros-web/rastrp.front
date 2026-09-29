@@ -12,7 +12,7 @@ export function CategoryPage({
   slug: string;
   title: string;
 }) {
-  const { products, ready } = useStore();
+  const { products, catalogReady: ready } = useStore();
   const source = ready ? products.filter((p) => p.active !== false) : [];
   const items = filterByCategory(slug, source);
 

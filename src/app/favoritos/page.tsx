@@ -9,9 +9,11 @@ import { getBackendUrl } from "@/lib/api/backend";
 import { parseWishlistKey } from "@/lib/mock/accountBags";
 
 export default function FavoritosPage() {
-  const { wishlist, products, ready, session } = useStore();
+  const { wishlist, products, ready, catalogReady, session } = useStore();
   const needsLogin = Boolean(getBackendUrl()) && ready && !session;
-  const source = ready ? products.filter((p) => p.active !== false) : [];
+  const source = catalogReady
+    ? products.filter((p) => p.active !== false)
+    : [];
   const cards = flattenCatalog(source);
   const items = wishlist.flatMap((key) => {
     const { slug, variantId } = parseWishlistKey(key);

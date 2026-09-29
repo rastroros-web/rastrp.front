@@ -56,13 +56,14 @@ export function ProductDetail({
     addToCart,
     getProduct,
     ready,
+    catalogReady,
     toggleWishlist,
     isWishlisted,
     trackView,
     recentlyViewed,
     products,
   } = useStore();
-  const live = ready ? getProduct(product.slug) : undefined;
+  const live = catalogReady ? getProduct(product.slug) : undefined;
   const activeProduct = live ?? product;
   const [colorId, setColorId] = useState(
     initialColor && activeProduct.variants.some((v) => v.id === initialColor)
@@ -112,7 +113,7 @@ export function ProductDetail({
   }, [ready, products, recentlyViewed, activeProduct.slug]);
 
   const relatedItems = useMemo(() => {
-    if (!ready) return [];
+    if (!catalogReady) return [];
     const source = products.filter((p) => p.active !== false);
     return uniqueCardsBySlug(
       flattenCatalog(source).filter(
@@ -120,7 +121,7 @@ export function ProductDetail({
           p.brand === activeProduct.brand && p.slug !== activeProduct.slug
       )
     ).slice(0, 4);
-  }, [ready, products, activeProduct.brand, activeProduct.slug]);
+  }, [catalogReady, products, activeProduct.brand, activeProduct.slug]);
 
   useEffect(() => {
     if (!ready) return;

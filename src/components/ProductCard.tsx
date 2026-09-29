@@ -17,9 +17,10 @@ export function ProductCard({
   product: ProductCardModel;
   index?: number;
 }) {
-  const { toggleWishlist, isWishlisted, getProduct, ready } = useStore();
+  const { toggleWishlist, isWishlisted, getProduct, ready, catalogReady } =
+    useStore();
   const wishlisted = ready && isWishlisted(product.slug, product.variantId);
-  const live = ready ? getProduct(product.slug) : undefined;
+  const live = catalogReady ? getProduct(product.slug) : undefined;
   const variant = live?.variants.find((v) => v.id === product.variantId);
   const salePercent = variant?.salePercent;
   const source = live ?? product;

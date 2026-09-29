@@ -508,6 +508,24 @@ export async function updateShopProfile(
   return data;
 }
 
+export async function addShopAddress(
+  address: SavedAddress
+): Promise<ShopAuthUser> {
+  return shopAuthJson<ShopAuthUser>("/api/users/me/addresses", {
+    method: "POST",
+    body: JSON.stringify(address),
+  });
+}
+
+export async function removeShopAddress(
+  addressId: string
+): Promise<ShopAuthUser> {
+  return shopAuthJson<ShopAuthUser>(
+    `/api/users/me/addresses/${encodeURIComponent(addressId)}`,
+    { method: "DELETE" }
+  );
+}
+
 type ApiOrderItem = {
   id: string;
   productSlug: string;
