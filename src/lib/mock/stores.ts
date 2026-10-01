@@ -7,41 +7,9 @@ export type StoreLocation = {
   city: string;
   hours: string;
   phone: string;
-  /** Si es true, el checkout no bloquea retiro por slug. */
-  alwaysInStock?: boolean;
-  /** Slugs con stock disponible para retiro (solo si alwaysInStock es false). */
-  stockSlugs: string[];
 };
 
-/** Stock amplio en ambos puntos (demo): no bloquea el retiro. */
-const ALL_PICKUP_STOCK = [
-  "nike-air-force-1",
-  "nike-dunk-low",
-  "nike-jordan-1-low-azul",
-  "nike-sb-black",
-  "adidas-samba",
-  "adidas-samba-ballet",
-  "adidas-sambae",
-  "adidas-samba-xlg",
-  "adidas-campus",
-  "adidas-gazelle",
-  "adidas-spezial",
-  "adidas-sl-72",
-  "adidas-busenitz",
-  "vans-old-skool",
-  "vans-ultrarange",
-  "vans-vr3",
-  "vans-hylane",
-  "new-balance-574",
-  "new-balance-327",
-  "converse-all-star",
-  "zueco-kala",
-  "zueco-india",
-  "zueco-birk",
-  "zueco-bour",
-  "sandalia-birk",
-];
-
+/** Ambos locales tienen todo el stock de la tienda online. */
 export const STORES: StoreLocation[] = [
   {
     id: "centro",
@@ -50,7 +18,6 @@ export const STORES: StoreLocation[] = [
     city: "Rosario",
     hours: "Horario a coordinar",
     phone: "",
-    stockSlugs: ALL_PICKUP_STOCK,
   },
   {
     id: "sur",
@@ -59,22 +26,11 @@ export const STORES: StoreLocation[] = [
     city: "Rosario",
     hours: "Horario a coordinar",
     phone: "",
-    alwaysInStock: true,
-    stockSlugs: ALL_PICKUP_STOCK,
   },
 ];
 
 export function getStore(id: string) {
   return STORES.find((s) => s.id === id);
-}
-
-export function storeHasCartStock(
-  store: StoreLocation,
-  productSlugs: string[]
-): { ok: boolean; missing: string[] } {
-  if (store.alwaysInStock) return { ok: true, missing: [] };
-  const missing = productSlugs.filter((s) => !store.stockSlugs.includes(s));
-  return { ok: missing.length === 0, missing };
 }
 
 /** Tip carrier para retiro en tienda (no envío). */

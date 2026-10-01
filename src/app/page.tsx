@@ -1,11 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import { HeroCarousel } from "@/components/HeroCarousel";
+import { HeroCarousel, type HeroSlide } from "@/components/HeroCarousel";
 import { SiteHeader } from "@/components/SiteHeader";
-import Link from "next/link";
-import { ProductCard } from "@/components/ProductCard";
-import LogoLoop from "@/components/LogoLoop";
+import { ShopByStyle } from "@/components/ShopByStyle";
 import BlurText from "@/components/BlurText";
 import AnimatedContent from "@/components/AnimatedContent";
 import FadeContent from "@/components/FadeContent";
@@ -21,22 +19,27 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { PageEnter } from "@/components/PageEnter";
 import { RecentlyViewedRail } from "@/components/RecentlyViewedRail";
 
-const heroSlides = banners.slice(1, 4);
+const heroSlides: HeroSlide[] = [
+  {
+    mobile: "/assets/banners/new-season-mobile.webp",
+    desktop: "/assets/banners/new-season-desktop.webp",
+  },
+  {
+    mobile: "/assets/banners/dia-de-la-madre-mobile.webp",
+    desktop: "/assets/banners/dia-de-la-madre-desktop.webp",
+  },
+  {
+    mobile: "/assets/banners/basicos-mobile.webp",
+    desktop: "/assets/banners/basicos-desktop.webp",
+    position: "bottom",
+  },
+];
 const promoTiles = banners.slice(4, 7);
 const collectionBanners = banners.slice(7, 10);
 
 /** Banners promo / colección → rutas de catálogo */
 const promoLinks = ["/productos", "/productos", "/talles-bajos"] as const;
 const collectionLinks = ["/talles-altos", "/samba", "/nike"] as const;
-
-const brandLogos = [
-  { node: <span className="text-lg font-bold tracking-[0.2em] uppercase md:text-2xl">Nike</span> },
-  { node: <span className="text-lg font-bold tracking-[0.2em] uppercase md:text-2xl">Adidas</span> },
-  { node: <span className="text-lg font-bold tracking-[0.2em] uppercase md:text-2xl">Vans</span> },
-  { node: <span className="text-lg font-bold tracking-[0.2em] uppercase md:text-2xl">New Balance</span> },
-  { node: <span className="text-lg font-bold tracking-[0.2em] uppercase md:text-2xl">Puma</span> },
-  { node: <span className="text-lg font-bold tracking-[0.2em] uppercase md:text-2xl">Converse</span> },
-];
 
 const reviews = [
   {
@@ -66,21 +69,6 @@ export default function Home() {
 
         <PageEnter className="overflow-x-hidden">
         <HeroCarousel slides={heroSlides} />
-
-        <section id="marcas" className="border-b border-black/5 py-6 md:py-8">
-          <LogoLoop
-            logos={brandLogos}
-            speed={28}
-            direction="left"
-            logoHeight={28}
-            gap={48}
-            pauseOnHover
-            fadeOut
-            fadeOutColor="#ffffff"
-            scaleOnHover
-            ariaLabel="Marcas Rastro"
-          />
-        </section>
 
         <section className="mx-auto grid max-w-7xl gap-2 px-4 py-5 sm:gap-3 sm:py-6 md:grid-cols-3 md:px-6 md:py-10">
           {promoTiles.map((src, i) => (
@@ -118,36 +106,7 @@ export default function Home() {
           ))}
         </section>
 
-        <section id="mas-vendidos" className="mx-auto max-w-7xl px-4 py-7 md:px-6 md:py-14">
-          <div className="mb-7 flex flex-col items-center text-center md:mb-10">
-            <p className="mb-2 text-[11px] font-semibold tracking-[0.2em] text-brand uppercase">
-              Favoritos
-            </p>
-            <BlurText
-              text="¡Lo más vendido!"
-              delay={80}
-              animateBy="words"
-              direction="top"
-              className="justify-center font-display text-3xl font-bold tracking-wide uppercase sm:text-4xl md:text-6xl"
-            />
-            <Link
-              href="/productos"
-              className="mt-4 text-[11px] font-semibold tracking-[0.16em] uppercase underline-offset-4 hover:underline"
-            >
-              Ver catálogo completo
-            </Link>
-          </div>
-
-          <div className="grid grid-cols-2 gap-x-2.5 gap-y-7 sm:gap-x-3 sm:gap-y-8 md:grid-cols-4 md:gap-x-5 md:gap-y-10">
-            {products.slice(0, 12).map((product, index) => (
-              <ProductCard
-                key={`${product.slug}-${product.variantId}`}
-                product={product}
-                index={index}
-              />
-            ))}
-          </div>
-        </section>
+        <ShopByStyle products={products} />
 
         <section className="border-y border-black/5 bg-[#f5f4f0]">
           <div className="mx-auto grid max-w-7xl gap-8 px-4 py-10 text-center md:grid-cols-3 md:px-6 md:py-14">
@@ -265,7 +224,7 @@ export default function Home() {
               ))}
             </div>
 
-            <div className="mt-8 grid grid-cols-3 gap-2 sm:gap-4">
+            <div className="mx-auto mt-8 grid max-w-md grid-cols-2 gap-2 sm:gap-4">
               <FadeContent blur duration={800}>
                 <p className="font-display text-2xl font-bold sm:text-3xl md:text-4xl">
                   <CountUp to={BRAND.posts} duration={1.4} />
@@ -280,14 +239,6 @@ export default function Home() {
                 </p>
                 <p className="mt-1 text-[10px] font-semibold tracking-[0.12em] text-soft uppercase sm:text-[11px] sm:tracking-[0.14em]">
                   Seguidores
-                </p>
-              </FadeContent>
-              <FadeContent blur duration={800} delay={0.2}>
-                <p className="font-display text-2xl font-bold sm:text-3xl md:text-4xl">
-                  <CountUp to={BRAND.following} duration={1.2} />
-                </p>
-                <p className="mt-1 text-[10px] font-semibold tracking-[0.12em] text-soft uppercase sm:text-[11px] sm:tracking-[0.14em]">
-                  Seguidos
                 </p>
               </FadeContent>
             </div>

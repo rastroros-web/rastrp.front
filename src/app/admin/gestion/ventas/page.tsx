@@ -48,6 +48,7 @@ type Periodo = "todas" | "custom";
 const MEDIOS = [
   { value: "Transferencia", label: "Transferencia" },
   { value: "Mercado Pago", label: "Mercado Pago" },
+  { value: "Efectivo", label: "Efectivo" },
 ];
 
 function todayArgentina() {

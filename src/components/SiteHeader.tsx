@@ -6,9 +6,12 @@ import { useEffect, useState } from "react";
 import { Heart, Search, ShoppingBag, User } from "lucide-react";
 import { AdBar } from "@/components/AdBar";
 import { SearchModal } from "@/components/SearchModal";
-import { StaggeredMenu } from "@/components/StaggeredMenu";
+import {
+  StaggeredMenu,
+  type StaggeredMenuItem,
+} from "@/components/StaggeredMenu";
 import { useStore } from "@/components/store/StoreProvider";
-import { INSTAGRAM_URL, WHATSAPP_URL } from "@/data/brand";
+import { INSTAGRAM_URL, SHOP_BRANDS, WHATSAPP_URL } from "@/data/brand";
 import { storeCategoryRoutes } from "@/data/catalog";
 
 const NAV_HIDDEN = new Set([
@@ -33,15 +36,23 @@ const DESKTOP_NAV_LINK =
   "relative inline-block py-1 text-[10px] font-semibold tracking-[0.12em] text-[#222222] uppercase transition-colors duration-200 hover:text-brand after:absolute after:inset-x-0 after:bottom-0 after:h-px after:origin-left after:scale-x-0 after:bg-brand after:transition-transform after:duration-200 hover:after:scale-x-100 lg:text-[11px] lg:tracking-[0.14em]";
 
 const DESKTOP_NAV_ICON =
-  "relative inline-flex size-8 items-center justify-center text-[#222222] transition duration-200 hover:scale-105 hover:bg-[#f5f4f0] hover:text-brand";
+  "relative inline-flex size-10 items-center justify-center text-[#222222] transition duration-200 hover:scale-105 hover:bg-[#f5f4f0] hover:text-brand";
 
-const EXTRA_NAV = [
-  { label: "Favoritos", ariaLabel: "Favoritos", link: "/favoritos" },
-  { label: "Quiénes somos", ariaLabel: "Quiénes somos", link: "/quienes-somos" },
+const DESKTOP_NAV_BADGE =
+  "absolute top-0 right-0 flex h-4 min-w-4 items-center justify-center bg-brand px-1 text-[9px] leading-none font-bold text-white";
+
+const MOBILE_NAV: StaggeredMenuItem[] = [
+  { label: "Inicio", ariaLabel: "Inicio", link: "/" },
+  {
+    label: "Productos",
+    ariaLabel: "Productos",
+    link: "#",
+    children: [
+      { label: "Ver todos los productos", link: "/productos" },
+      ...SHOP_BRANDS.map(({ label, href }) => ({ label, link: href })),
+    ],
+  },
   { label: "Contacto", ariaLabel: "Contacto", link: "/contacto" },
-  { label: "FAQ", ariaLabel: "FAQ", link: "/faq" },
-  { label: "Carrito", ariaLabel: "Carrito", link: "/carrito" },
-  { label: "Cuenta", ariaLabel: "Cuenta", link: "/cuenta" },
 ];
 
 function lockBodyScroll() {
@@ -69,8 +80,8 @@ function unlockBodyScroll() {
 }
 
 export function SiteHeader() {
-  const { cartCount, session, wishlist } = useStore();
-  const mobileItems = [...NAV, ...EXTRA_NAV];
+  const { cartCount, session, wishlistItems } = useStore();
+  const wishlistCount = wishlistItems.length;
   const accountHref = session ? "/cuenta" : "/cuenta/login";
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -107,7 +118,7 @@ export function SiteHeader() {
       <AdBar />
 
       <div
-        className={`relative border-b border-black/5 bg-white md:hidden ${
+        className={`relative border-b border-black/5 bg-white [--sm-embedded-top:var(--adbar-height)] md:hidden ${
           menuOpen ? "z-[70]" : ""
         }`}
       >
@@ -115,7 +126,7 @@ export function SiteHeader() {
           position="right"
           isFixed={false}
           colors={["#222222", "#222222", "#333333"]}
-          items={mobileItems}
+          items={MOBILE_NAV}
           socialItems={[
             { label: "WhatsApp", link: WHATSAPP_URL },
             { label: "Instagram", link: INSTAGRAM_URL },
@@ -147,9 +158,9 @@ export function SiteHeader() {
           </button>
           <Link href="/favoritos" className="relative text-[#222222]" aria-label="Favoritos">
             <Heart className="size-4" />
-            {wishlist.length > 0 && (
+            {wishlistCount > 0 && (
               <span className="absolute -top-2 -right-2 flex size-4 items-center justify-center bg-brand text-[9px] font-bold text-white">
-                {wishlist.length > 9 ? "9+" : wishlist.length}
+                {wishlistCount > 9 ? "9+" : wishlistCount}
               </span>
             )}
           </Link>
@@ -188,6 +199,7 @@ export function SiteHeader() {
               width={140}
               height={48}
               className="h-10 w-auto object-contain brightness-0 lg:h-12"
+              style={{ width: "auto" }}
               priority
             />
           </Link>
@@ -211,17 +223,17 @@ export function SiteHeader() {
               aria-label="Buscar"
               title="Buscar (⌘K)"
             >
-              <Search className="size-4" />
+              <Search className="size-5" />
             </button>
             <Link
               href="/favoritos"
               className={DESKTOP_NAV_ICON}
               aria-label="Favoritos"
             >
-              <Heart className="size-4" />
-              {wishlist.length > 0 && (
-                <span className="absolute top-0.5 right-0.5 flex size-4 items-center justify-center bg-brand text-[9px] font-bold text-white">
-                  {wishlist.length > 9 ? "9+" : wishlist.length}
+              <Heart className="size-5" />
+              {wishlistCount > 0 && (
+                <span className={DESKTOP_NAV_BADGE}>
+                  {wishlistCount > 9 ? "9+" : wishlistCount}
                 </span>
               )}
             </Link>
@@ -230,16 +242,16 @@ export function SiteHeader() {
               className={DESKTOP_NAV_ICON}
               aria-label="Cuenta"
             >
-              <User className="size-4" />
+              <User className="size-5" />
             </Link>
             <Link
               href="/carrito"
               className={DESKTOP_NAV_ICON}
               aria-label="Carrito"
             >
-              <ShoppingBag className="size-4" />
+              <ShoppingBag className="size-5" />
               {cartCount > 0 && (
-                <span className="absolute top-0.5 right-0.5 flex size-4 items-center justify-center bg-brand text-[9px] font-bold text-white">
+                <span className={DESKTOP_NAV_BADGE}>
                   {cartCount > 9 ? "9+" : cartCount}
                 </span>
               )}

@@ -6,7 +6,7 @@ import { pageMetadata } from "@/lib/seo";
 export function categoryMetadata(title: string, path: string): Metadata {
   return pageMetadata({
     title,
-    description: `Comprá ${title} en Rastro. Zapatillas originales, 25% OFF por transferencia, 3 cuotas sin interés y envíos a todo el país.`,
+    description: `Comprá ${title} en Rastro. Calzado en tendencia, 25% OFF por transferencia, 3 cuotas sin interés y envíos a todo el país.`,
     path,
   });
 }

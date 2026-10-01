@@ -128,7 +128,7 @@ export type MockOrder = {
   discount: number;
   promoCode?: string;
   total: number;
-  paymentMethod: "transferencia" | "mercadopago";
+  paymentMethod: "transferencia" | "mercadopago" | "efectivo";
   status: OrderStatus;
   mpPaymentId?: string;
   paidAt?: string;

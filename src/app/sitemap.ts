@@ -14,6 +14,7 @@ const STATIC_ROUTES = [
   "/converse",
   "/samba",
   "/summer",
+  "/birk-cuero",
   "/promo",
   "/nuevos-ingresos",
   "/ultimos-pares",

@@ -55,6 +55,11 @@ function trackingMessage(order: {
   const zone = String(order.shippingDetails?.zone || "").toLowerCase();
   switch (order.status) {
     case "pendiente":
+      if (order.paymentMethod === "efectivo") {
+        return zone === "retiro"
+          ? "Reservamos tu pedido. Lo pagás en efectivo cuando lo retirás en el local."
+          : "Reservamos tu pedido. Lo pagás en efectivo al recibirlo; te escribimos para coordinar la entrega.";
+      }
       return order.paymentMethod === "transferencia"
         ? "Estamos esperando tu transferencia. Mandanos el comprobante por WhatsApp; cuando acredite, el pedido pasa a pagado."
         : "Tu pedido está pendiente de pago con Mercado Pago. Completá el cobro para confirmarlo.";

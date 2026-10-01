@@ -101,7 +101,16 @@ export function paymentMethodLabel(
   const value = String(method || "").trim().toLowerCase();
   if (value === "transferencia") return "Transferencia";
   if (value === "mercadopago") return "Mercado Pago";
+  if (value === "efectivo") return "Efectivo";
   return method ? String(method) : "—";
+}
+
+/** Transferencia y efectivo pagan el precio con 25% OFF. */
+export function paysDiscountedPrice(
+  method: string | null | undefined
+): boolean {
+  const value = String(method || "").trim().toLowerCase();
+  return value === "transferencia" || value === "efectivo";
 }
 
 /** Link al checkout MP para reintentar / completar pago. */

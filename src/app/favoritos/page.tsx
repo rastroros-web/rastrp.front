@@ -4,27 +4,11 @@ import Link from "next/link";
 import { ShopChrome } from "@/components/ShopChrome";
 import { ProductCard } from "@/components/ProductCard";
 import { useStore } from "@/components/store/StoreProvider";
-import { flattenCatalog } from "@/data/catalog";
 import { getBackendUrl } from "@/lib/api/backend";
-import { parseWishlistKey } from "@/lib/mock/accountBags";
 
 export default function FavoritosPage() {
-  const { wishlist, products, ready, catalogReady, session } = useStore();
+  const { wishlistItems: items, ready, session } = useStore();
   const needsLogin = Boolean(getBackendUrl()) && ready && !session;
-  const source = catalogReady
-    ? products.filter((p) => p.active !== false)
-    : [];
-  const cards = flattenCatalog(source);
-  const items = wishlist.flatMap((key) => {
-    const { slug, variantId } = parseWishlistKey(key);
-    const matches = cards.filter((p) => p.slug === slug);
-    if (!matches.length) return [];
-    if (variantId) {
-      const color = matches.find((p) => p.variantId === variantId);
-      return color ? [color] : [];
-    }
-    return [matches[0]];
-  });
 
   return (
     <ShopChrome>

@@ -20,8 +20,7 @@ function orderActionLabel(order: MockOrder) {
   if (canRetryMercadoPago(order)) return "Ir a pagar";
   if (order.status === "pendiente" && order.paymentMethod === "transferencia") {
     return "Ver datos";
-  }
-  return "Ver";
+  }  return "Ver";
 }
 
 function orderActionHref(order: MockOrder) {

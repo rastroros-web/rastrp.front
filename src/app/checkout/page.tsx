@@ -29,7 +29,7 @@ import {
   argentinaProvinceOptions,
   matchArgentinaProvince,
 } from "@/lib/argentinaProvinces";
-import { getStore, STORES, storeHasCartStock } from "@/lib/mock/stores";
+import { getStore, STORES } from "@/lib/mock/stores";
 import type {
   MockOrder,
   SavedAddress,
@@ -137,9 +137,16 @@ export default function CheckoutPage() {
     cartCount,
   } = useStore();
   const { config: transferBank } = useTransferBank();
-  const [paymentMethod, setPaymentMethod] =
+  const [selectedPayment, setPaymentMethod] =
     useState<MockOrder["paymentMethod"]>("transferencia");
   const zone = cartShipping.zone;
+  /** El efectivo se cobra al entregar en Rosario o al retirar; no aplica a envíos al interior. */
+  const cashAllowed = zone !== "interior";
+  const paymentMethod: MockOrder["paymentMethod"] =
+    selectedPayment === "efectivo" && !cashAllowed
+      ? "transferencia"
+      : selectedPayment;
+  const discountedPayment = paymentMethod !== "mercadopago";
   const postalCode =
     zone === "rosario"
       ? cartShipping.postalCode || "2000"
@@ -157,10 +164,7 @@ export default function CheckoutPage() {
     });
   };
   const [storeId, setStoreId] = useState(
-    () =>
-      cartShipping.storeId ||
-      STORES.find((s) => s.alwaysInStock)?.id ||
-      STORES[0].id
+    () => cartShipping.storeId || STORES[0].id
   );
   const [done, setDone] = useState<MockOrder | null>(null);
   const [error, setError] = useState("");
@@ -194,9 +198,8 @@ export default function CheckoutPage() {
   );
 
   const merchandise = useMemo(
-    () =>
-      paymentMethod === "transferencia" ? cartTransferTotal : cartSubtotal,
-    [paymentMethod, cartTransferTotal, cartSubtotal]
+    () => (discountedPayment ? cartTransferTotal : cartSubtotal),
+    [discountedPayment, cartTransferTotal, cartSubtotal]
   );
 
   const listTotal = cartSubtotal;
@@ -305,26 +308,7 @@ export default function CheckoutPage() {
       (!cartShipping.deliveryDate || !cartShipping.deliverySlot)
     );
 
-  const cartSlugs = useMemo(
-    () => [...new Set(cart.map((c) => c.productSlug))],
-    [cart]
-  );
   const selectedStore = getStore(storeId);
-  const storeStock = selectedStore
-    ? storeHasCartStock(selectedStore, cartSlugs)
-    : { ok: true, missing: [] as string[] };
-
-  useEffect(() => {
-    if (zone !== "retiro") return;
-    const current = getStore(storeId);
-    if (current && storeHasCartStock(current, cartSlugs).ok) return;
-    const fallback = STORES.find(
-      (store) => storeHasCartStock(store, cartSlugs).ok
-    );
-    if (!fallback) return;
-    setStoreId(fallback.id);
-    setCartShipping({ storeId: fallback.id });
-  }, [zone, storeId, cartSlugs, setCartShipping]);
 
   useEffect(() => {
     if (!session) return;
@@ -397,13 +381,15 @@ export default function CheckoutPage() {
 
   if (done) {
     const isTransfer = done.paymentMethod === "transferencia";
-    const mpPaid = !isTransfer && done.status === "pagado";
+    const isCash = done.paymentMethod === "efectivo";
+    const cashPickup = done.shippingDetails?.zone === "retiro";
+    const mpPaid = !isTransfer && !isCash && done.status === "pagado";
     return (
       <ShopChrome>
         <main className="mx-auto max-w-xl flex-1 px-4 py-10 md:px-6 md:py-16">
           <div className="text-center">
             <p className="text-[11px] font-semibold tracking-[0.2em] text-brand uppercase">
-              {isTransfer
+              {isTransfer || isCash
                 ? "Pedido reservado"
                 : mpPaid
                   ? "Pago confirmado"
@@ -412,7 +398,9 @@ export default function CheckoutPage() {
             <h1 className="mt-2 font-display text-4xl font-bold tracking-wide uppercase">
               {isTransfer
                 ? "Transferí para confirmar"
-                : mpPaid
+                : isCash
+                  ? "¡Listo!"
+                  : mpPaid
                   ? "¡Listo!"
                   : "Seguí con Mercado Pago"}
             </h1>
@@ -424,7 +412,11 @@ export default function CheckoutPage() {
               Estado: {done.status}
               {isTransfer
                 ? " — pendiente hasta acreditar el pago"
-                : mpPaid
+                : isCash
+                  ? cashPickup
+                    ? " — pagás en efectivo al retirar"
+                    : " — pagás en efectivo al recibir"
+                  : mpPaid
                   ? " — pago aprobado"
                   : " — pendiente de pago online"}
             </p>
@@ -432,6 +424,18 @@ export default function CheckoutPage() {
 
           {isTransfer ? (
             <TransferAccountBox orderId={done.id} total={done.total} />
+          ) : isCash ? (
+            <section className="mt-8 border border-black/10 bg-[#f5f4f0] p-5 text-left">
+              <p className="text-sm font-semibold">Pago en efectivo</p>
+              <p className="mt-2 text-sm text-soft">
+                {cashPickup
+                  ? "Tus productos quedan reservados. Pagás en efectivo cuando retirás el pedido en el local."
+                  : "Tus productos quedan reservados. Pagás en efectivo al recibir el pedido; te escribimos para coordinar la entrega."}
+              </p>
+              <p className="mt-3 text-sm font-semibold">
+                Total a pagar: {formatMoney(done.total)}
+              </p>
+            </section>
           ) : (
             <section className="mt-8 border border-[#009ee3]/25 bg-[#f0f9ff] p-5 text-left">
               <p className="text-sm font-semibold text-[#009ee3]">
@@ -536,12 +540,6 @@ export default function CheckoutPage() {
             if (zone === "retiro") {
               if (!storeId || !selectedStore) {
                 setError("Elegí un punto de retiro.");
-                return;
-              }
-              if (!storeStock.ok) {
-                setError(
-                  "Ese local no tiene stock de todos los productos de tu carrito. Elegí otro punto o envío a domicilio."
-                );
                 return;
               }
             }
@@ -718,10 +716,9 @@ export default function CheckoutPage() {
               {zone === "retiro" && (
                 <div className="mt-4 space-y-3">
                   <p className="text-sm text-soft">
-                    Retiro gratis. Elegí el local con stock de tu carrito.
+                    Retiro gratis. Elegí el local que te quede más cómodo.
                   </p>
                   {STORES.map((store) => {
-                    const stock = storeHasCartStock(store, cartSlugs);
                     return (
                       <button
                         key={store.id}
@@ -748,18 +745,12 @@ export default function CheckoutPage() {
                         </p>
                         <p
                           className={`mt-1 text-[10px] font-bold uppercase tracking-wide ${
-                            stock.ok
-                              ? storeId === store.id
-                                ? "text-[#86efac]"
-                                : "text-[#16a34a]"
-                              : storeId === store.id
-                                ? "text-red-200"
-                                : "text-red-600"
+                            storeId === store.id
+                              ? "text-[#86efac]"
+                              : "text-[#16a34a]"
                           }`}
                         >
-                          {stock.ok
-                            ? "Stock OK"
-                            : `Sin stock de ${stock.missing.length} ítem(s)`}
+                          Stock disponible
                         </p>
                       </button>
                     );
@@ -1089,9 +1080,12 @@ export default function CheckoutPage() {
                 {(
                   [
                     ["transferencia", "Transferencia (−25%)"],
+                    ["efectivo", "Efectivo (−25%)"],
                     ["mercadopago", "Mercado Pago"],
                   ] as const
-                ).map(([value, label]) => (
+                )
+                  .filter(([value]) => value !== "efectivo" || cashAllowed)
+                  .map(([value, label]) => (
                   <label
                     key={value}
                     className={`chip-press flex cursor-pointer items-center gap-3 border px-3 py-3 text-sm ${
@@ -1130,6 +1124,22 @@ export default function CheckoutPage() {
                     Alias: {transferBank.alias}
                   </p>
                 </div>
+              ) : paymentMethod === "efectivo" ? (
+                <div className="mt-4 border border-black/10 bg-[#f5f4f0] p-4 text-sm">
+                  <p className="text-[11px] font-semibold tracking-[0.14em] uppercase">
+                    Vas a pagar en efectivo
+                  </p>
+                  <p className="mt-2 text-soft">
+                    {zone === "retiro"
+                      ? "Pagás en efectivo cuando retirás el pedido en el local."
+                      : "Pagás en efectivo al recibir el pedido."}{" "}
+                    Al confirmar reservamos tus productos y te escribimos para
+                    coordinar.
+                  </p>
+                  <p className="mt-3 font-semibold">
+                    Total a pagar: {formatMoney(total)}
+                  </p>
+                </div>
               ) : (
                 <div className="mt-4 border border-[#009ee3]/25 bg-[#e8f7fc] p-4 text-sm">
                   <p className="text-[11px] font-semibold tracking-[0.14em] uppercase text-[#009ee3]">
@@ -1153,8 +1163,8 @@ export default function CheckoutPage() {
               <p className="mt-2 text-xs text-soft">
                 Un cupón por pedido. Los de campaña no se acumulan con el de
                 bienvenida.
-                {paymentMethod === "transferencia"
-                  ? " El descuento se aplica al precio con transferencia."
+                {discountedPayment
+                  ? " El descuento se aplica al precio con 25% OFF."
                   : " El descuento se aplica al precio de lista."}
               </p>
               <div className="mt-4 flex flex-col gap-2 sm:flex-row">
@@ -1221,13 +1231,13 @@ export default function CheckoutPage() {
                     </span>
                   </span>
                   <span className="shrink-0">
-                    {paymentMethod === "transferencia" ? i.transfer : i.price}
+                    {discountedPayment ? i.transfer : i.price}
                   </span>
                 </li>
               ))}
             </ul>
             <div className="mt-4 space-y-1 border-t border-black/10 pt-4 text-sm">
-              {paymentMethod === "transferencia" ? (
+              {discountedPayment ? (
                 <>
                   <div className="flex justify-between">
                     <span className="text-soft">Productos</span>
@@ -1236,7 +1246,10 @@ export default function CheckoutPage() {
                     </span>
                   </div>
                   <div className="flex justify-between text-[#16a34a]">
-                    <span>25% OFF transferencia</span>
+                    <span>
+                      25% OFF{" "}
+                      {paymentMethod === "efectivo" ? "efectivo" : "transferencia"}
+                    </span>
                     <span>
                       -{formatMoney(listTotal - cartTransferTotal)}
                     </span>
@@ -1257,8 +1270,8 @@ export default function CheckoutPage() {
                   <span>
                     Cupón {promo?.code}
                     {promo?.type === "percent"
-                      ? paymentMethod === "transferencia"
-                        ? ` (${promo.value}% sobre transferencia)`
+                      ? discountedPayment
+                        ? ` (${promo.value}% sobre precio con descuento)`
                         : ` (${promo.value}% sobre lista)`
                       : ""}
                   </span>
@@ -1292,7 +1305,9 @@ export default function CheckoutPage() {
                   : "Pagar con Mercado Pago"
                 : submitting
                   ? "Confirmando…"
-                  : "Confirmar y ver datos de transferencia"}
+                  : paymentMethod === "efectivo"
+                    ? "Confirmar pedido"
+                    : "Confirmar y ver datos de transferencia"}
             </button>
           </aside>
 

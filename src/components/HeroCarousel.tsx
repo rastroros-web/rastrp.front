@@ -1,26 +1,59 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
 import { AnimatePresence, motion } from "motion/react";
 
 /**
  * Un slide puede traer arte distinto por formato. Con un solo string se usa
- * la misma imagen en ambos y el recorte lo hace el navegador.
+ * la misma imagen en ambos y el recorte lo hace el navegador. Un slide con
+ * un solo formato se muestra solo en ese formato.
  *
  * Medidas de entrega:
  *   mobile  1080 × 1350  (4:5)   — se ve abajo de 640px
- *   desktop 2400 × 1030  (21:9)  — se ve de 640px para arriba
+ *   desktop 2400 × 1350  (16:9)  — se ve de 640px para arriba. El hero toma
+ *     el alto de la pantalla, pero nunca menos que una franja 2400 × 1030
+ *     centrada (o apoyada abajo con position "bottom"): ahí va lo importante.
  */
-export type HeroSlide = string | { mobile: string; desktop: string };
+type SlidePosition = "top" | "center" | "bottom";
+
+export type HeroSlide =
+  | string
+  | { mobile: string; desktop?: string; position?: SlidePosition }
+  | { mobile?: string; desktop: string; position?: SlidePosition };
+
+const OBJECT_POSITION: Record<SlidePosition, string> = {
+  top: "object-top",
+  center: "object-center",
+  bottom: "object-bottom",
+};
 
 const DESKTOP_MEDIA = "(min-width: 640px)";
 const AUTOPLAY_MS = 8000;
 const SWIPE_PX = 50;
 
 function sources(slide: HeroSlide): { mobile: string; desktop: string } {
-  return typeof slide === "string"
-    ? { mobile: slide, desktop: slide }
-    : slide;
+  if (typeof slide === "string") return { mobile: slide, desktop: slide };
+  const mobile = slide.mobile ?? slide.desktop ?? "";
+  return { mobile, desktop: slide.desktop ?? mobile };
+}
+
+function showsOn(slide: HeroSlide, desktop: boolean): boolean {
+  if (typeof slide === "string") return true;
+  return Boolean(desktop ? slide.desktop : slide.mobile);
+}
+
+function subscribeDesktop(onChange: () => void) {
+  const mq = window.matchMedia(DESKTOP_MEDIA);
+  mq.addEventListener("change", onChange);
+  return () => mq.removeEventListener("change", onChange);
+}
+
+function useIsDesktop(): boolean {
+  return useSyncExternalStore(
+    subscribeDesktop,
+    () => window.matchMedia(DESKTOP_MEDIA).matches,
+    () => false
+  );
 }
 
 function keyOf(slide: HeroSlide): string {
@@ -37,9 +70,12 @@ type HeroCarouselProps = {
  * El índice siempre es módulo n (loop infinito limpio, sin track que se pase
  * al vacío / fondo negro).
  */
-export function HeroCarousel({ slides }: HeroCarouselProps) {
+export function HeroCarousel({ slides: allSlides }: HeroCarouselProps) {
+  const isDesktop = useIsDesktop();
+  const slides = allSlides.filter((s) => showsOn(s, isDesktop));
   const count = slides.length;
-  const [index, setIndex] = useState(0);
+  const [rawIndex, setIndex] = useState(0);
+  const index = count > 0 ? rawIndex % count : 0;
   const [direction, setDirection] = useState(1);
   const [hovered, setHovered] = useState(false);
   const [touchStart, setTouchStart] = useState({ x: 0, y: 0 });
@@ -107,8 +143,13 @@ export function HeroCarousel({ slides }: HeroCarouselProps) {
 
   const slide = slides[index];
   const { mobile, desktop } = sources(slide);
+  const position = OBJECT_POSITION[
+    isDesktop && typeof slide !== "string" && slide.position
+      ? slide.position
+      : "center"
+  ];
 
-  const variants = {
+  const mobileVariants = {
     enter: (dir: number) => ({
       x: dir > 0 ? "100%" : "-100%",
       opacity: 0,
@@ -122,6 +163,27 @@ export function HeroCarousel({ slides }: HeroCarouselProps) {
       opacity: 0,
     }),
   };
+  const mobileTransition = {
+    x: { type: "spring" as const, stiffness: 300, damping: 30 },
+    opacity: { duration: 0.2 },
+  };
+
+  /** Desktop: fundido cruzado con zoom leve, sin hueco entre slides (como Leprita). */
+  const ease = [0.4, 0, 0.2, 1] as const;
+  const desktopVariants = {
+    enter: { opacity: 0, scale: 1.04, zIndex: 1 },
+    center: { opacity: 1, scale: 1, zIndex: 1 },
+    exit: {
+      opacity: 0,
+      scale: 1.01,
+      zIndex: 0,
+      transition: { opacity: { duration: 0.2, delay: 0.55 } },
+    },
+  };
+  const desktopTransition = {
+    opacity: { duration: 0.55, ease },
+    scale: { duration: 0.7, ease },
+  };
 
   return (
     <section
@@ -130,23 +192,25 @@ export function HeroCarousel({ slides }: HeroCarouselProps) {
       onMouseLeave={() => setHovered(false)}
     >
       <div
-        className="relative aspect-[4/5] w-full overflow-hidden touch-pan-y sm:aspect-[21/9]"
+        className="relative h-[calc(100svh-var(--adbar-height)-64px)] min-h-[420px] w-full overflow-hidden touch-pan-y sm:h-[clamp(calc(100vw*1030/2400),calc(100svh-var(--adbar-height)-73px),calc(100vw*1350/2400))] sm:min-h-0"
         onTouchStart={onTouchStart}
         onTouchMove={onTouchMove}
         onTouchEnd={onTouchEnd}
       >
-        <AnimatePresence initial={false} custom={direction} mode="wait">
+        <AnimatePresence
+          key={isDesktop ? "desktop" : "mobile"}
+          initial={false}
+          custom={direction}
+          mode={isDesktop ? "sync" : "wait"}
+        >
           <motion.div
             key={keyOf(slide)}
             custom={direction}
-            variants={variants}
+            variants={isDesktop ? desktopVariants : mobileVariants}
             initial="enter"
             animate="center"
             exit="exit"
-            transition={{
-              x: { type: "spring", stiffness: 300, damping: 30 },
-              opacity: { duration: 0.2 },
-            }}
+            transition={isDesktop ? desktopTransition : mobileTransition}
             className="absolute inset-0"
           >
             <picture>
@@ -159,16 +223,37 @@ export function HeroCarousel({ slides }: HeroCarouselProps) {
                 fetchPriority="high"
                 decoding="async"
                 draggable={false}
-                className="pointer-events-none h-full w-full select-none object-cover object-center"
+                className={`pointer-events-none h-full w-full select-none object-cover ${position}`}
               />
             </picture>
           </motion.div>
         </AnimatePresence>
       </div>
 
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-transparent" />
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/30 to-transparent" />
 
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 flex flex-col items-center gap-4 px-4 pb-5 sm:flex-row sm:items-end sm:justify-between sm:px-6 sm:pb-6 md:px-8 md:pb-8">
+      {count > 1 && (
+        <>
+          <button
+            type="button"
+            onClick={prev}
+            aria-label="Anterior"
+            className="absolute top-1/2 left-4 z-20 hidden -translate-y-1/2 rounded-full bg-black/50 p-3 text-white transition-all hover:scale-110 hover:bg-black/70 sm:block"
+          >
+            ❮
+          </button>
+          <button
+            type="button"
+            onClick={next}
+            aria-label="Siguiente"
+            className="absolute top-1/2 right-4 z-20 hidden -translate-y-1/2 rounded-full bg-black/50 p-3 text-white transition-all hover:scale-110 hover:bg-black/70 sm:block"
+          >
+            ❯
+          </button>
+        </>
+      )}
+
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 flex justify-center px-4 pb-5 sm:pb-6 md:pb-8">
         <div className="flex gap-2">
           {slides.map((s, i) => (
             <button
@@ -183,12 +268,6 @@ export function HeroCarousel({ slides }: HeroCarouselProps) {
             />
           ))}
         </div>
-        <a
-          href="#mas-vendidos"
-          className="pointer-events-auto border border-white bg-white/95 px-5 py-2.5 text-[11px] font-semibold tracking-[0.15em] text-[#222222] uppercase backdrop-blur transition hover:bg-white"
-        >
-          Ver más
-        </a>
       </div>
     </section>
   );

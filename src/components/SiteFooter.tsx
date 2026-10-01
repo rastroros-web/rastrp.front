@@ -37,6 +37,7 @@ export function SiteFooter() {
             width={120}
             height={40}
             className="h-9 w-auto object-contain brightness-0 md:h-10"
+            style={{ width: "auto" }}
           />
           <p className="mt-4 max-w-xs text-sm text-soft">{BRAND.bio}.</p>
           <div className="mt-4 flex flex-col gap-2.5">

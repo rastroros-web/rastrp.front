@@ -1,6 +1,17 @@
 export const INSTAGRAM_URL = "https://www.instagram.com/rastro.ros/";
 export const INSTAGRAM_HANDLE = "@rastro.ros";
 
+/** Marcas y colecciones del desplegable "Productos" del menú mobile. */
+export const SHOP_BRANDS = [
+  { label: "Adidas", href: "/adidas" },
+  { label: "Nike", href: "/nike" },
+  { label: "New Balance", href: "/new-balance" },
+  { label: "Vans", href: "/vans" },
+  { label: "Birk cuero", href: "/birk-cuero" },
+  { label: "Verano", href: "/summer" },
+  { label: "Mega Sale", href: "/mega-sale" },
+] as const;
+
 /** WhatsApp Rosario — sin + ni espacios en el link */
 export const WHATSAPP_NUMBER = "3413515773";
 export const WHATSAPP_DISPLAY = "341 351-5773";
@@ -24,8 +35,11 @@ export const BRAND = {
   name: "RASTRO",
   tagline: "Zapatillas",
   bio: "Calzado en tendencia al alcance de todos",
-  highlights: ["Tienda online", "Envíos a todo el país", "Puntos de retiro"],
+  highlights: [
+    "Tienda online",
+    "Envíos a todo el país",
+    "Puntos de retiro Rosario",
+  ],
   posts: 92,
-  followers: 1390,
-  following: 68,
+  followers: 1419,
 } as const;

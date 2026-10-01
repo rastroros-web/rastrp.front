@@ -6,6 +6,8 @@ export interface StaggeredMenuItem {
   label: string;
   ariaLabel: string;
   link: string;
+  /** Si tiene hijos, el ítem abre un desplegable en vez de navegar. */
+  children?: { label: string; link: string }[];
 }
 export interface StaggeredMenuSocialItem {
   label: string;
@@ -53,6 +55,7 @@ export const StaggeredMenu: React.FC<StaggeredMenuProps> = ({
 }: StaggeredMenuProps) => {
   const [open, setOpen] = useState(false);
   const [ready, setReady] = useState(false);
+  const [expanded, setExpanded] = useState<string | null>(null);
   const openRef = useRef(false);
 
   const panelRef = useRef<HTMLDivElement | null>(null);
@@ -110,6 +113,20 @@ export const StaggeredMenu: React.FC<StaggeredMenuProps> = ({
 
     setReady(true);
   }, [menuButtonColor, position]);
+
+  useLayoutEffect(() => {
+    if (!expanded) return;
+    const labels = panelRef.current?.querySelectorAll('.sm-panel-sublist .sm-panel-subLabel');
+    if (!labels?.length) return;
+    const tween = gsap.fromTo(
+      labels,
+      { yPercent: 140, rotate: 10 },
+      { yPercent: 0, rotate: 0, duration: 1, ease: 'power4.out', stagger: { each: 0.1, from: 'start' } }
+    );
+    return () => {
+      tween.kill();
+    };
+  }, [expanded]);
 
   const buildOpenTimeline = useCallback(() => {
     const panel = panelRef.current;
@@ -344,6 +361,7 @@ export const StaggeredMenu: React.FC<StaggeredMenuProps> = ({
       onMenuOpen?.();
       playOpen();
     } else {
+      setExpanded(null);
       onMenuClose?.();
       playClose();
     }
@@ -357,6 +375,7 @@ export const StaggeredMenu: React.FC<StaggeredMenuProps> = ({
     if (openRef.current) {
       openRef.current = false;
       setOpen(false);
+      setExpanded(null);
       onMenuClose?.();
       playClose();
       animateIcon(false);
@@ -517,6 +536,42 @@ export const StaggeredMenu: React.FC<StaggeredMenuProps> = ({
               {items && items.length ? (
                 items.map((it, idx) => (
                   <li className="sm-panel-itemWrap relative overflow-hidden leading-none" key={it.label + idx}>
+                    {it.children?.length ? (
+                      <>
+                        <button
+                          type="button"
+                          className="sm-panel-item sm-panel-toggle"
+                          aria-expanded={expanded === it.label}
+                          aria-label={it.ariaLabel}
+                          data-index={idx + 1}
+                          onClick={() =>
+                            setExpanded(prev => (prev === it.label ? null : it.label))
+                          }
+                        >
+                          <span className="sm-panel-itemLabel inline-block will-change-transform origin-[50%_100%]">
+                            {it.label}
+                            <span
+                              className="sm-panel-caret"
+                              data-open={expanded === it.label || undefined}
+                              aria-hidden="true"
+                            >
+                              ▾
+                            </span>
+                          </span>
+                        </button>
+                        {expanded === it.label && (
+                          <ul className="sm-panel-sublist" role="list">
+                            {it.children.map(child => (
+                              <li key={child.link} className="sm-panel-subWrap">
+                                <a className="sm-panel-subitem" href={child.link} onClick={closeMenu}>
+                                  <span className="sm-panel-subLabel">{child.label}</span>
+                                </a>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </>
+                    ) : (
                     <a
                       className="sm-panel-item relative text-black font-semibold text-[4rem] cursor-pointer leading-none tracking-[-2px] uppercase transition-[background,color] duration-150 ease-linear inline-block no-underline pr-[1.4em]"
                       href={it.link}
@@ -528,6 +583,7 @@ export const StaggeredMenu: React.FC<StaggeredMenuProps> = ({
                         {it.label}
                       </span>
                     </a>
+                    )}
                   </li>
                 ))
               ) : (
@@ -583,12 +639,12 @@ export const StaggeredMenu: React.FC<StaggeredMenuProps> = ({
 .sm-scope .sm-panel-itemWrap { position: relative; overflow: hidden; line-height: 1; }
 .sm-scope .sm-icon-line { position: absolute; left: 50%; top: 50%; width: 100%; height: 2px; background: currentColor; border-radius: 2px; transform: translate(-50%, -50%); will-change: transform; }
 .sm-scope .staggered-menu-panel { position: absolute; top: 0; right: 0; width: clamp(260px, 38vw, 420px); height: 100%; background: white; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); display: flex; flex-direction: column; padding: 7rem 1.5rem 2rem 1.5rem; overflow-y: auto; z-index: 10; overscroll-behavior: contain; }
-.sm-scope[data-embedded] .staggered-menu-panel { position: fixed; inset: 0; width: 100%; height: 100dvh; max-height: 100dvh; z-index: 40; }
+.sm-scope[data-embedded] .staggered-menu-panel { position: fixed; inset: var(--sm-embedded-top, 0px) 0 0 0; width: 100%; height: calc(100dvh - var(--sm-embedded-top, 0px)); max-height: calc(100dvh - var(--sm-embedded-top, 0px)); z-index: 40; }
 .sm-scope .sm-prelayers { position: absolute; top: 0; right: 0; bottom: 0; width: clamp(260px, 38vw, 420px); pointer-events: none; z-index: 5; }
-.sm-scope[data-embedded] .sm-prelayers { position: fixed; inset: 0; width: 100%; height: 100dvh; z-index: 30; }
+.sm-scope[data-embedded] .sm-prelayers { position: fixed; inset: var(--sm-embedded-top, 0px) 0 0 0; width: 100%; height: calc(100dvh - var(--sm-embedded-top, 0px)); z-index: 30; }
 .sm-scope[data-embedded][data-open] .staggered-menu-header {
   position: fixed;
-  top: 0;
+  top: var(--sm-embedded-top, 0px);
   left: 0;
   right: 0;
   z-index: 60;
@@ -620,7 +676,14 @@ export const StaggeredMenu: React.FC<StaggeredMenuProps> = ({
 .sm-scope .sm-panel-item { position: relative; color: #000; font-weight: 600; font-size: clamp(1.65rem, 7vw, 2.75rem); cursor: pointer; line-height: 1.05; letter-spacing: -0.5px; text-transform: uppercase; transition: background 0.25s, color 0.25s; display: inline-block; text-decoration: none; padding-right: 0.5em; max-width: 100%; word-break: break-word; }
 .sm-scope .sm-panel-itemLabel { display: inline-block; will-change: transform; transform-origin: 50% 100%; }
 .sm-scope .sm-panel-item:hover { color: var(--sm-accent, #563128); }
-.sm-scope .sm-panel-list[data-numbering] { counter-reset: smItem; }
+.sm-scope .sm-panel-toggle { background: transparent; border: 0; padding-left: 0; text-align: left; font-family: inherit; -webkit-tap-highlight-color: transparent; }
+.sm-scope .sm-panel-caret { display: inline-block; margin-left: 0.3em; font-size: 0.6em; vertical-align: middle; transition: transform 0.2s ease; }
+.sm-scope .sm-panel-caret[data-open] { transform: rotate(180deg); }
+.sm-scope .sm-panel-sublist { list-style: none; margin: 0.6rem 0 0.2rem; padding: 0 0 0 0.25rem; display: flex; flex-direction: column; gap: 0.55rem; }
+.sm-scope .sm-panel-subitem { font-size: 1.15rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #222222; text-decoration: none; transition: color 0.2s ease; }
+.sm-scope .sm-panel-subitem:hover { color: var(--sm-accent, #563128); }
+.sm-scope .sm-panel-subWrap { overflow: hidden; line-height: 1.2; }
+.sm-scope .sm-panel-subLabel { display: inline-block; will-change: transform; transform-origin: 50% 100%; }.sm-scope .sm-panel-list[data-numbering] { counter-reset: smItem; }
 .sm-scope .sm-panel-list[data-numbering] .sm-panel-item::after { counter-increment: smItem; content: counter(smItem, decimal-leading-zero); position: absolute; top: 0.1em; right: 3.2em; font-size: 18px; font-weight: 400; color: var(--sm-accent, #563128); letter-spacing: 0; pointer-events: none; user-select: none; opacity: var(--sm-num-opacity, 0); }
 @media (max-width: 1024px) {
   .sm-scope .staggered-menu-panel,

@@ -82,7 +82,12 @@ import {
   saveShopPromo,
   deleteShopPromo,
 } from "@/lib/api/backend";
-import { fillEmptyVariantImages, pricedForMegaSale } from "@/data/catalog";
+import {
+  fillEmptyVariantImages,
+  flattenCatalog,
+  pricedForMegaSale,
+  type ProductCardModel,
+} from "@/data/catalog";
 import {
   bagOwnerId,
   clearAllBags,
@@ -94,6 +99,7 @@ import {
   mergeWishlists,
   migrateLegacyBag,
   normalizeBag,
+  parseWishlistKey,
   readBag,
   wishlistKey,
   writeBag,
@@ -151,6 +157,8 @@ type StoreContextValue = {
   orders: MockOrder[];
   promos: PromoCode[];
   wishlist: string[];
+  /** Favoritos que siguen existiendo y activos en el catálogo; vacío hasta `catalogReady`. */
+  wishlistItems: ProductCardModel[];
   recentlyViewed: string[];
   cartCount: number;
   cartSubtotal: number;
@@ -1112,7 +1120,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         (s, i) => s + parseMoney(i.transfer) * i.qty,
         0
       );
-      const useTransfer = input.paymentMethod === "transferencia";
+      const useTransfer = input.paymentMethod !== "mercadopago";
       const merchandise = useTransfer ? transferTotal : subtotal;
 
       const promoCheck = input.promoCode
@@ -1717,6 +1725,23 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     () => pricedCart.reduce((s, i) => s + parseMoney(i.transfer) * i.qty, 0),
     [pricedCart]
   );
+  const wishlistItems = useMemo(() => {
+    if (!catalogReady) return [];
+    const cards = flattenCatalog(products.filter((p) => p.active !== false));
+    const seen = new Set<string>();
+    return wishlist.flatMap((key) => {
+      const { slug, variantId } = parseWishlistKey(key);
+      const matches = cards.filter((p) => p.slug === slug);
+      const card = variantId
+        ? matches.find((p) => p.variantId === variantId)
+        : matches[0];
+      if (!card) return [];
+      const id = `${card.slug}::${card.variantId}`;
+      if (seen.has(id)) return [];
+      seen.add(id);
+      return [card];
+    });
+  }, [catalogReady, products, wishlist]);
 
   const value = useMemo<StoreContextValue>(
     () => ({
@@ -1729,6 +1754,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       orders,
       promos,
       wishlist,
+      wishlistItems,
       recentlyViewed,
       cartCount,
       cartSubtotal,
@@ -1776,6 +1802,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       orders,
       promos,
       wishlist,
+      wishlistItems,
       recentlyViewed,
       cartCount,
       cartSubtotal,

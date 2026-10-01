@@ -469,6 +469,16 @@ export function filterByCategory(
     );
   }
 
+  if (key === "birk-cuero") {
+    return flattenCatalog(
+      source.filter(
+        (p) =>
+          /vacuno/i.test(`${p.name} ${p.description}`) ||
+          p.storeCategories.some((c) => c.includes("birk-cuero"))
+      )
+    );
+  }
+
   if (key === "mega-sale" || key === "sale") {
     return flattenCatalog(source.filter(isMegaSale));
   }

@@ -2,7 +2,14 @@ import type { BusinessData, EcommerceRow, PlanillaRow, VentaRow } from "@/lib/mo
 import { resolveVentaArticulo } from "@/lib/mock/resolveVenta";
 import { catalogTargetFromSheet } from "@/lib/mock/sheetMatch";
 import { sanitizeStockQty } from "@/lib/mock/syncEcommerce";
-import { itemLabel, ledgerFecha, localIsoDate, planillaDescripcion } from "@/lib/mock/orderLabels";
+import {
+  itemLabel,
+  ledgerFecha,
+  localIsoDate,
+  paymentMethodLabel,
+  paysDiscountedPrice,
+  planillaDescripcion,
+} from "@/lib/mock/orderLabels";
 import { parseMoney, uid } from "@/lib/mock/money";
 import { readJson, writeJson } from "@/lib/mock/storage";
 import type { MockOrder, ShopProduct } from "@/lib/mock/types";
@@ -86,24 +93,19 @@ function resolveTargetFromRow(
   return catalogTargetFromSheet(row);
 }
 
-function medioFromOrder(order: MockOrder): string {
-  if (order.paymentMethod === "transferencia") return "Transferencia";
-  return "Mercado Pago";
-}
-
 export function orderToVentas(
   order: MockOrder,
   costos: BusinessData["costos"] = [],
   ecommerce: BusinessData["ecommerce"] = []
 ): VentaRow[] {
   const fecha = ledgerFecha(order.createdAt, localIsoDate(new Date()));
-  const medio = medioFromOrder(order);
+  const medio = paymentMethodLabel(order.paymentMethod);
   const cliente = order.userName || order.userEmail || "Cliente web";
 
   return order.items.map((item) => {
     const articulo = itemLabel(item) || "";
     const unitPrice =
-      order.paymentMethod === "transferencia"
+      paysDiscountedPrice(order.paymentMethod)
         ? parseMoney(item.transfer)
         : parseMoney(item.price);
     const total = unitPrice * item.qty;
