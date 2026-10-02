@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { ProductCard } from "@/components/ProductCard";
 import { FancySelect } from "@/components/ui/FancySelect";
@@ -8,9 +9,13 @@ import { useStore } from "@/components/store/StoreProvider";
 import {
   brands,
   categories,
+  filterByCategory,
   flattenCatalog,
   isMegaSale,
+  productInGender,
   productMatchesQuery,
+  storeCategoryRoutes,
+  type GenderKey,
   type ProductCardModel,
 } from "@/data/catalog";
 import { parseMoney } from "@/lib/mock/money";
@@ -47,11 +52,23 @@ const SORT_OPTIONS: { value: SortKey; label: string }[] = [
   { value: "name", label: "Nombre A–Z" },
 ];
 
+const GENDER_OPTIONS: { value: "all" | GenderKey; label: string }[] = [
+  { value: "all", label: "Todos" },
+  { value: "mujer", label: "Mujer" },
+  { value: "hombre", label: "Hombre" },
+];
+
 function isSortKey(value: string): value is SortKey {
   return SORT_KEYS.includes(value as SortKey);
 }
 
-export function CatalogGrid() {
+export function CatalogGrid({
+  title = "Catálogo",
+  categorySlug,
+}: {
+  title?: string;
+  categorySlug?: string;
+}) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -84,6 +101,17 @@ export function CatalogGrid() {
     return raw === "all" || SIZE_OPTIONS.includes(raw) ? raw : "all";
   }, [searchParams]);
 
+  const genderPage: GenderKey | null =
+    categorySlug === "mujer" || categorySlug === "hombre"
+      ? categorySlug
+      : null;
+
+  const gender = useMemo<"all" | GenderKey>(() => {
+    if (genderPage) return genderPage;
+    const raw = searchParams.get("genero") ?? "all";
+    return raw === "mujer" || raw === "hombre" ? raw : "all";
+  }, [searchParams, genderPage]);
+
   const sort = useMemo<SortKey>(() => {
     const raw = searchParams.get("orden") ?? "featured";
     return isSortKey(raw) ? raw : "featured";
@@ -107,6 +135,28 @@ export function CatalogGrid() {
       router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
     },
     [pathname, router, searchParams]
+  );
+
+  const setGender = useCallback(
+    (value: string) => {
+      const next = value === "mujer" || value === "hombre" ? value : "all";
+      if (genderPage) {
+        const params = new URLSearchParams(searchParams.toString());
+        params.delete("page");
+        params.delete("genero");
+        const qs = params.toString();
+        const dest =
+          next === "mujer"
+            ? "/mujer"
+            : next === "hombre"
+              ? "/hombre"
+              : "/productos";
+        router.replace(qs ? `${dest}?${qs}` : dest, { scroll: false });
+        return;
+      }
+      patchQuery({ genero: next === "all" ? null : next, page: null });
+    },
+    [genderPage, patchQuery, router, searchParams]
   );
 
   useEffect(() => {
@@ -166,16 +216,23 @@ export function CatalogGrid() {
 
   const searched = useMemo(() => {
     const source = ready ? products.filter((p) => p.active !== false) : [];
-    return flattenCatalog(source).filter(matchesBase);
-  }, [products, ready, matchesBase]);
+    const scoped = categorySlug
+      ? filterByCategory(categorySlug, source)
+      : flattenCatalog(source);
+    const gendered =
+      gender === "all" || genderPage
+        ? scoped
+        : scoped.filter((p) => productInGender(p, gender));
+    return gendered.filter(matchesBase);
+  }, [products, ready, matchesBase, categorySlug, gender, genderPage]);
 
   const availableBrands = useMemo(() => {
     const fromSearch = [
       ...new Set(searched.map((p) => p.brand).filter(Boolean)),
     ].sort((a, b) => a.localeCompare(b, "es"));
-    if (q.trim()) return fromSearch;
+    if (q.trim() || categorySlug) return fromSearch;
     return liveBrands.length ? liveBrands : brands;
-  }, [searched, liveBrands, q]);
+  }, [searched, liveBrands, q, categorySlug]);
 
   const brandOptions = useMemo(
     () => [
@@ -238,17 +295,18 @@ export function CatalogGrid() {
             Shop
           </p>
           <h1 className="mt-2 font-display text-3xl font-bold tracking-wide uppercase sm:text-4xl md:text-6xl">
-            {q.trim() ? q.trim() : "Catálogo"}
+            {q.trim() ? q.trim() : title}
           </h1>
           <p className="mt-2 text-sm text-soft">
             {items.length} producto{items.length === 1 ? "" : "s"}
             {q.trim() ? ` para “${q.trim()}”` : ""}
+            {gender !== "all" ? ` · ${gender}` : ""}
             {size !== "all" ? ` · talle ${size}` : ""}
             {items.length > 0 ? ` · mostrando ${from}–${to}` : ""}
           </p>
         </div>
 
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
           <label className="col-span-2 flex min-w-0 flex-col gap-1 text-[10px] font-semibold tracking-[0.16em] uppercase text-soft sm:col-span-1">
             Buscar
             <input
@@ -267,6 +325,12 @@ export function CatalogGrid() {
               className="w-full border border-black/10 bg-white px-3 py-2.5 text-xs font-semibold tracking-[0.04em] text-[#222222] normal-case outline-none transition hover:border-[#222222] focus:border-[#222222]"
             />
           </label>
+          <FancySelect
+            label="Género"
+            value={gender}
+            options={GENDER_OPTIONS}
+            onChange={setGender}
+          />
           <FancySelect
             label="Categoría"
             value={category}
@@ -297,6 +361,24 @@ export function CatalogGrid() {
         </div>
       </div>
 
+      {categorySlug ? (
+        <div className="-mx-4 mt-5 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:mx-0 md:flex-wrap md:overflow-visible md:px-0">
+          {storeCategoryRoutes.map((c) => (
+            <Link
+              key={c.slug}
+              href={c.href}
+              className={`shrink-0 px-3 py-1.5 text-[10px] font-semibold tracking-[0.14em] uppercase transition ${
+                c.slug === categorySlug
+                  ? "bg-[#222222] text-white"
+                  : "bg-[#f5f4f0] text-[#222222] hover:bg-black/10"
+              }`}
+            >
+              {c.label}
+            </Link>
+          ))}
+        </div>
+      ) : null}
+
       {!ready ? (
         <p className="mt-16 text-center text-sm text-soft">Cargando catálogo…</p>
       ) : items.length === 0 ? (
@@ -313,6 +395,7 @@ export function CatalogGrid() {
                 marca: null,
                 categoria: null,
                 talle: null,
+                genero: null,
                 page: null,
               })
             }

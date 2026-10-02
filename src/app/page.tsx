@@ -38,8 +38,8 @@ const promoTiles = banners.slice(4, 7);
 const collectionBanners = banners.slice(7, 10);
 
 /** Banners promo / colección → rutas de catálogo */
-const promoLinks = ["/productos", "/productos", "/talles-bajos"] as const;
-const collectionLinks = ["/talles-altos", "/samba", "/nike"] as const;
+const promoLinks = ["/productos", "/productos", "/mujer"] as const;
+const collectionLinks = ["/hombre", "/samba", "/nike"] as const;
 
 const reviews = [
   {

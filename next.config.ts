@@ -50,6 +50,12 @@ if (mediaUrl) {
 }
 
 const nextConfig: NextConfig = {
+  async redirects() {
+    return [
+      { source: "/talles-altos", destination: "/hombre", permanent: true },
+      { source: "/talles-bajos", destination: "/mujer", permanent: true },
+    ];
+  },
   images: {
     dangerouslyAllowLocalIP: true,
     remotePatterns,

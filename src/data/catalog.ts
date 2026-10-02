@@ -422,43 +422,50 @@ export function productMatchesQuery(
   return raw.split(/\s+/).every((part) => haystack.includes(part));
 }
 
+export type GenderKey = "mujer" | "hombre";
+
+/** Colecciones curadas (Tienda Nube: talles bajos → mujer, talles altos → hombre). */
+const MUJER_SLUGS = new Set([
+  "adidas-spezial",
+  "adidas-gazelle",
+  "adidas-samba",
+  "vans-vr3",
+]);
+const HOMBRE_SLUGS = new Set([
+  "adidas-busenitz",
+  "adidas-campus",
+  "nike-jordan-1-low-azul",
+]);
+
+export function productInGender(
+  product: { slug: string; storeCategories?: string[] },
+  gender: GenderKey
+): boolean {
+  const cats = product.storeCategories ?? [];
+  if (gender === "mujer") {
+    return (
+      MUJER_SLUGS.has(product.slug) ||
+      cats.some((c) => c.includes("talles-bajos") || c.includes("mujer"))
+    );
+  }
+  return (
+    HOMBRE_SLUGS.has(product.slug) ||
+    cats.some((c) => c.includes("talles-altos") || c.includes("hombre"))
+  );
+}
+
 export function filterByCategory(
   categorySlug: string,
   source: CatalogProduct[] = catalog
 ): ProductCardModel[] {
   const key = categorySlug.toLowerCase();
 
-  // Colecciones curadas (mismas que Tienda Nube)
-  const TALLES_BAJOS = new Set([
-    "adidas-spezial",
-    "adidas-gazelle",
-    "adidas-samba",
-    "vans-vr3",
-  ]);
-  const TALLES_ALTOS = new Set([
-    "adidas-busenitz",
-    "adidas-campus",
-    "nike-jordan-1-low-azul",
-  ]);
-
-  if (key === "talles-bajos") {
-    return flattenCatalog(
-      source.filter(
-        (p) =>
-          TALLES_BAJOS.has(p.slug) ||
-          p.storeCategories.some((c) => c.includes("talles-bajos"))
-      )
-    );
+  if (key === "mujer" || key === "talles-bajos") {
+    return flattenCatalog(source.filter((p) => productInGender(p, "mujer")));
   }
 
-  if (key === "talles-altos") {
-    return flattenCatalog(
-      source.filter(
-        (p) =>
-          TALLES_ALTOS.has(p.slug) ||
-          p.storeCategories.some((c) => c.includes("talles-altos"))
-      )
-    );
+  if (key === "hombre" || key === "talles-altos") {
+    return flattenCatalog(source.filter((p) => productInGender(p, "hombre")));
   }
 
   if (key === "samba") {
@@ -513,8 +520,8 @@ export const storeCategoryRoutes = [
   { slug: "nike", label: "Nike", href: "/nike" },
   { slug: "adidas", label: "Adidas", href: "/adidas" },
   { slug: "samba", label: "Samba", href: "/samba" },
-  { slug: "talles-bajos", label: "Talles bajos", href: "/talles-bajos" },
-  { slug: "talles-altos", label: "Talles altos", href: "/talles-altos" },
+  { slug: "mujer", label: "Mujer", href: "/mujer" },
+  { slug: "hombre", label: "Hombre", href: "/hombre" },
   { slug: "vans", label: "Vans", href: "/vans" },
   { slug: "summer", label: "Summer", href: "/summer" },
 ] as const;

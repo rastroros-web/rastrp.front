@@ -8,6 +8,8 @@ export const SHOP_BRANDS = [
   { label: "New Balance", href: "/new-balance" },
   { label: "Vans", href: "/vans" },
   { label: "Birk cuero", href: "/birk-cuero" },
+  { label: "Mujer", href: "/mujer" },
+  { label: "Hombre", href: "/hombre" },
   { label: "Verano", href: "/summer" },
   { label: "Mega Sale", href: "/mega-sale" },
 ] as const;

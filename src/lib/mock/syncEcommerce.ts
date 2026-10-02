@@ -103,8 +103,8 @@ function parseCategoryTokens(raw: string): string[] {
     const t = part.trim().toLowerCase();
     if (!t) continue;
     if (t.includes("mega")) out.add("mega-sale");
-    if (t.includes("talles bajos")) out.add("talles-bajos");
-    if (t.includes("talles altos")) out.add("talles-altos");
+    if (t.includes("talles bajos") || t === "mujer") out.add("talles-bajos");
+    if (t.includes("talles altos") || t === "hombre") out.add("talles-altos");
     if (t.includes("summer") || t.includes("zueco") || t.includes("verano")) {
       out.add("summer");
     }

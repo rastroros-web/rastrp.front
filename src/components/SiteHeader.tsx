@@ -20,8 +20,8 @@ const NAV_HIDDEN = new Set([
   "converse",
   "summer",
   "samba",
-  "talles-bajos",
-  "talles-altos",
+  "mujer",
+  "hombre",
 ]);
 
 const NAV = storeCategoryRoutes
