@@ -374,7 +374,11 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     let cancelled = false;
     (async () => {
       try {
-        let fromApi = await fetchShopProducts();
+        // El equipo usa el catálogo del admin (incluye inactivos): bajarlo una sola vez.
+        const staffStored = isStaffSession(storedSession) && hasApiAuth();
+        let fromApi = staffStored ? await fetchAdminProducts() : null;
+        const adminLoaded = Boolean(fromApi?.length);
+        if (!adminLoaded) fromApi = await fetchShopProducts();
         if (cancelled) return;
 
         if (fromApi?.length) {
@@ -459,7 +463,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
             }
           };
           const loadAdminProducts = async () => {
-            if (!staff) return;
+            if (!staff || adminLoaded) return;
             const adminProducts = await fetchAdminProducts();
             if (cancelled) return;
             if (adminProducts?.length) {

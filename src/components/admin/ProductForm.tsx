@@ -22,10 +22,10 @@ import {
 import {
   createShopProduct,
   getBackendUrl,
+  invalidateShopProductsCache,
   resolveMediaUrl,
   updateShopProduct,
   uploadShopImages,
-  upsertShopVariant,
 } from "@/lib/api/backend";
 import { FancySelect } from "@/components/ui/FancySelect";
 import { readJson, writeJson } from "@/lib/mock/storage";
@@ -588,9 +588,12 @@ export function ProductForm({
       }
       try {
         setSaving(true);
+        if (draft.variants.some((variant) => !variant.name.trim())) {
+          throw new Error("Cada variante necesita un color");
+        }
         const brand = draft.brand;
         const primary = slugify(brand);
-        await updateShopProduct(draft.id, {
+        const saved = await updateShopProduct(draft.id, {
           brand,
           ...(draft.modelo ? { modelo: draft.modelo } : {}),
           tipo: draft.category === "sandalias" ? "OTRO" : "ZAPATILLA",
@@ -608,29 +611,14 @@ export function ProductForm({
           storeCategories: Array.from(
             new Set([primary, ...(draft.storeCategories || [])])
           ),
+          variants: draft.variants.map((variant) =>
+            variantApiPayload(variant, { includeZeros: true, slug: true })
+          ),
         });
-        for (const variant of draft.variants) {
-          if (!variant.name.trim()) {
-            throw new Error("Cada variante necesita un color");
-          }
-          await upsertShopVariant(draft.id, {
-            ...variantApiPayload(variant, { includeZeros: true, slug: true }),
-          });
-        }
-        await reloadProducts();
-        saveProduct({
-          ...draft,
-          variants: draft.variants.map((variant) => {
-            const images = (variant.images || [])
-              .map((src) => src.trim())
-              .filter(Boolean);
-            return {
-              ...variant,
-              images,
-              image: images[0] || variant.image || "",
-            };
-          }),
-        });
+        invalidateShopProductsCache();
+        // Si cambió el modelo cambia el slug: hay que sacar la entrada vieja.
+        if (saved.slug === draft.slug) saveProduct(saved);
+        else await reloadProducts();
         router.push("/admin/productos");
       } catch (err) {
         setError(err instanceof Error ? err.message : "No se pudo guardar");

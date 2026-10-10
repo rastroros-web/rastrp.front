@@ -1191,7 +1191,7 @@ export async function persistShopProductStock(
   product: ShopProduct
 ): Promise<void> {
   const productId = productApiId(product);
-  for (const variant of product.variants) {
+  const variants = product.variants.map((variant) => {
     const stock: Record<string, number> = {};
     for (const size of variant.sizes) {
       stock[size.label] = Math.max(
@@ -1203,10 +1203,9 @@ export async function persistShopProductStock(
     }
     const variantId = Number(variant.numericId);
     if (Number.isFinite(variantId) && variantId > 0) {
-      await setShopVariantStock(variantId, stock);
-      continue;
+      return { id: variantId, stock };
     }
-    await upsertShopVariant(productId, {
+    return {
       slug: variant.id,
       color: variant.name,
       colorHex: variant.color,
@@ -1214,8 +1213,14 @@ export async function persistShopProductStock(
       priceTransfer: parseMoney(variant.transfer),
       images: variant.images,
       stock,
-    });
-  }
+    };
+  });
+  await authedJson(
+    "PUT",
+    `/api/admin/products/${productId}`,
+    { variants },
+    "No se pudo guardar el stock"
+  );
 }
 
 export type ShopListUser = ShopAuthUser & {
