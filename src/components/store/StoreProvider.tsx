@@ -72,6 +72,7 @@ import {
   loginShopUser,
   registerShopUser,
   clearApiToken,
+  SESSION_CLEARED_EVENT,
   saveAccountBag,
   updateShopProfile,
   addShopAddress,
@@ -308,13 +309,26 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [bagSynced, setBagSynced] = useState(false);
 
   useEffect(() => {
+    const onCleared = () => {
+      writeJson(STORAGE_KEYS.session, null);
+      setSession(null);
+    };
+    window.addEventListener(SESSION_CLEARED_EVENT, onCleared);
+    return () => window.removeEventListener(SESSION_CLEARED_EVENT, onCleared);
+  }, []);
+
+  useEffect(() => {
     const storedUsers = readJson<MockUser[] | null>(STORAGE_KEYS.users, null);
     const storedProducts = readJson<ShopProduct[] | null>(
       STORAGE_KEYS.products,
       null
     );
     const storedOrders = readJson<MockOrder[] | null>(STORAGE_KEYS.orders, null);
-    const storedSession = readJson<SessionUser | null>(STORAGE_KEYS.session, null);
+    // Con API, una sesión guardada sin token no puede operar contra el backend.
+    const savedSession = readJson<SessionUser | null>(STORAGE_KEYS.session, null);
+    const storedSession =
+      savedSession && getBackendUrl() && !hasApiAuth() ? null : savedSession;
+    if (savedSession && !storedSession) writeJson(STORAGE_KEYS.session, null);
     const storedRecent = readJson<string[]>(STORAGE_KEYS.recentlyViewed, []);
     const storedPromos = readJson<PromoCode[] | null>(STORAGE_KEYS.promos, null);
 
@@ -388,11 +402,13 @@ export function StoreProvider({ children }: { children: ReactNode }) {
             setSession(sessionNow);
             writeJson(STORAGE_KEYS.session, sessionNow);
           } catch {
-            // Token vencido o JWT_SECRET rotado: la sesión local ya no sirve.
-            clearApiToken();
-            writeJson(STORAGE_KEYS.session, null);
-            if (!cancelled) setSession(null);
-            sessionNow = null;
+            // fetchShopMe ya borró el token si el backend lo rechazó. Si sigue
+            // ahí, fue una caída o un reinicio del servidor: la sesión se mantiene.
+            if (!hasApiAuth()) {
+              writeJson(STORAGE_KEYS.session, null);
+              if (!cancelled) setSession(null);
+              sessionNow = null;
+            }
           }
         }
 

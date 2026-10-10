@@ -292,7 +292,7 @@ export async function fetchAdminProducts(): Promise<ShopProduct[] | null> {
       headers: { Authorization: `Bearer ${requireSessionToken()}` },
       cache: "no-store",
     });
-    if (res.status === 401 || res.status === 403) failExpiredSession();
+    if (res.status === 401 || res.status === 403) await failAuthResponse(res);
     if (!res.ok) return null;
     const data = (await res.json()) as ApiProduct[];
     if (!Array.isArray(data)) return null;
@@ -343,10 +343,21 @@ function requireSessionToken(): string {
   return token;
 }
 
-/** El backend rechazó el token: se descarta y se pide ingresar de nuevo. */
-function failExpiredSession(): never {
-  clearApiToken();
-  throw new Error(SESSION_EXPIRED);
+/**
+ * 401/403: sólo se cierra la sesión si el backend dice que el token no sirve.
+ * Un 403 por falta de permiso (FORBIDDEN) no tiene que desloguear a nadie.
+ */
+async function failAuthResponse(res: Response): Promise<never> {
+  const data = await res
+    .clone()
+    .json()
+    .catch(() => ({}) as { code?: string; message?: string });
+  const code = String(data.code || "");
+  if (DEAD_SESSION_CODES.has(code) || (res.status === 401 && !code)) {
+    clearApiToken();
+    throw new Error(SESSION_EXPIRED);
+  }
+  throw new Error(data.message || "No tenés permiso para hacer esto.");
 }
 
 export type ShopAuthUser = {
@@ -473,7 +484,9 @@ export async function fetchShopMe(): Promise<ShopAuthUser> {
     error.status = res.status;
     throw error;
   }
-  return data;
+  const { token: renewed, ...user } = data as ShopAuthUser & { token?: string };
+  if (renewed) localStorage.setItem(TOKEN_KEY, renewed);
+  return user;
 }
 
 export async function updateShopProfile(
@@ -904,9 +917,14 @@ export async function deleteShopPromo(code: string): Promise<void> {
   });
 }
 
+/** Se dispara cuando se descarta el token, para que la UI cierre la sesión. */
+export const SESSION_CLEARED_EVENT = "rastro:session-cleared";
+
 export function clearApiToken() {
   if (typeof window === "undefined") return;
+  if (!localStorage.getItem(TOKEN_KEY)) return;
   localStorage.removeItem(TOKEN_KEY);
+  window.dispatchEvent(new Event(SESSION_CLEARED_EVENT));
 }
 
 export function hasApiAuth(): boolean {
@@ -1048,7 +1066,7 @@ export async function uploadShopImages(files: File[]): Promise<string[]> {
     headers: { Authorization: `Bearer ${requireSessionToken()}` },
     body,
   });
-  if (res.status === 401 || res.status === 403) failExpiredSession();
+  if (res.status === 401 || res.status === 403) await failAuthResponse(res);
 
   const data = await res.json();
   if (!res.ok) {
@@ -1071,7 +1089,7 @@ export async function createShopProduct(
     },
     body: JSON.stringify(payload),
   });
-  if (res.status === 401 || res.status === 403) failExpiredSession();
+  if (res.status === 401 || res.status === 403) await failAuthResponse(res);
 
   const data = await res.json();
   if (!res.ok) {
@@ -1097,7 +1115,7 @@ async function authedJson(
     },
     body: JSON.stringify(payload),
   });
-  if (res.status === 401 || res.status === 403) failExpiredSession();
+  if (res.status === 401 || res.status === 403) await failAuthResponse(res);
 
   const data = await res.json();
   if (!res.ok) {
@@ -1140,7 +1158,7 @@ export async function deleteShopProduct(id: number): Promise<void> {
     method: "DELETE",
     headers: { Authorization: `Bearer ${requireSessionToken()}` },
   });
-  if (res.status === 401 || res.status === 403) failExpiredSession();
+  if (res.status === 401 || res.status === 403) await failAuthResponse(res);
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {
     throw new Error(

@@ -13,7 +13,8 @@ export function AdminGate({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!ready) return;
     if (!session) {
-      router.replace("/cuenta/login?next=/admin");
+      const back = `${window.location.pathname}${window.location.search}`;
+      router.replace(`/cuenta/login?next=${encodeURIComponent(back)}`);
       return;
     }
     if (session.role !== "admin" && session.role !== "staff") {
