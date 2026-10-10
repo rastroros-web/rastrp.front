@@ -33,6 +33,7 @@ import {
 } from "@/lib/mock/orderVentas";
 import { uid } from "@/lib/mock/money";
 import { readJson, writeJson } from "@/lib/mock/storage";
+import { useStore } from "@/components/store/StoreProvider";
 import {
   fetchBusinessBook,
   getBackendUrl,
@@ -71,6 +72,9 @@ type BusinessContextValue = {
 const BusinessContext = createContext<BusinessContextValue | null>(null);
 
 export function BusinessProvider({ children }: { children: ReactNode }) {
+  const { session } = useStore();
+  /** El libro contable vive en el backend y sólo un ADMIN puede leerlo o guardarlo. */
+  const remote = Boolean(getBackendUrl()) && session?.role === "admin";
   const [ready, setReady] = useState(false);
   const [data, setData] = useState<BusinessData>(() => emptyBusiness());
   /** Versión del libro en el servidor: la mandamos al guardar para que detecte copias viejas. */
@@ -101,12 +105,12 @@ export function BusinessProvider({ children }: { children: ReactNode }) {
     let cancelled = false;
 
     (async () => {
-      if (getBackendUrl()) {
+      if (remote) {
         try {
-          const remote = await fetchBusinessBook();
+          const book = await fetchBusinessBook();
           if (cancelled) return;
-          if (remote) {
-            applyRemote(remote);
+          if (book) {
+            applyRemote(book);
             setReady(true);
             return;
           }
@@ -130,12 +134,12 @@ export function BusinessProvider({ children }: { children: ReactNode }) {
     return () => {
       cancelled = true;
     };
-  }, [applyRemote]);
+  }, [applyRemote, remote]);
 
   useEffect(() => {
     if (!ready) return;
     writeJson(BUSINESS_KEY, data);
-    if (!getBackendUrl()) return;
+    if (!remote) return;
     if (JSON.stringify(data) === syncedRef.current) return;
     const timer = window.setTimeout(() => {
       saveBusinessBook(data, revRef.current)
@@ -148,14 +152,14 @@ export function BusinessProvider({ children }: { children: ReactNode }) {
         .catch(() => {});
     }, 700);
     return () => window.clearTimeout(timer);
-  }, [data, ready, applyRemote, markSynced]);
+  }, [data, ready, applyRemote, markSynced, remote]);
 
   useEffect(() => {
     const onVentas = (ev: Event) => {
       const detail = (ev as CustomEvent<{ ventas: VentaRow[] }>).detail;
       const incoming = detail?.ventas;
       if (!incoming?.length) {
-        if (getBackendUrl()) {
+        if (remote) {
           fetchBusinessBook()
             .then((remote) => {
               if (remote) applyRemote(remote);
@@ -186,7 +190,7 @@ export function BusinessProvider({ children }: { children: ReactNode }) {
       });
     };
     const onChanged = () => {
-      if (getBackendUrl()) {
+      if (remote) {
         const dirty =
           syncedRef.current != null &&
           JSON.stringify(dataRef.current) !== syncedRef.current;
@@ -212,7 +216,7 @@ export function BusinessProvider({ children }: { children: ReactNode }) {
       window.removeEventListener(BUSINESS_VENTAS_EVENT, onVentas);
       window.removeEventListener(BUSINESS_CHANGED_EVENT, onChanged);
     };
-  }, [applyRemote]);
+  }, [applyRemote, remote]);
 
   const patch = useCallback((fn: (prev: BusinessData) => BusinessData) => {
     setData((prev) => fn(prev));
