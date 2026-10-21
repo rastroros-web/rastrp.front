@@ -83,8 +83,9 @@ export function ProductDetail({
     [activeProduct, colorId]
   );
   const priced = useMemo(
-    () => pricedForMegaSale(variant.price, variant.transfer, activeProduct),
-    [variant.price, variant.transfer, activeProduct]
+    () =>
+      pricedForMegaSale(variant.price, variant.transfer, activeProduct, variant),
+    [variant, activeProduct]
   );
   const images = useMemo(() => {
     const list = stripSizeChartImages(

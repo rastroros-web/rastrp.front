@@ -11,7 +11,6 @@ import {
   categories,
   filterByCategory,
   flattenCatalog,
-  isMegaSale,
   productInGender,
   productMatchesQuery,
   storeCategoryRoutes,
@@ -202,7 +201,7 @@ export function CatalogGrid({
         if (!hasSize) return false;
       }
       if (category === "all") return true;
-      if (category === "sale") return isMegaSale(p);
+      if (category === "sale") return Boolean(p.megaSale);
       if (category === "sandalias") {
         return /sandalia|ojota|zueco/i.test(p.name);
       }

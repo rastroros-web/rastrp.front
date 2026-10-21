@@ -202,10 +202,64 @@ function variantStockMap(
   return stock;
 }
 
+function withVariantSales(product: ShopProduct): ShopProduct {
+  if (!product.megaSale) return product;
+  return {
+    ...product,
+    variants: product.variants.map((variant) =>
+      typeof variant.megaSale === "boolean"
+        ? variant
+        : {
+            ...variant,
+            megaSale: true,
+            megaSalePercent: product.megaSalePercent,
+            megaSaleStartsAt: product.megaSaleStartsAt,
+            megaSaleEndsAt: product.megaSaleEndsAt,
+          }
+    ),
+  };
+}
+
+function variantSaleError(variant: ColorVariant): string | null {
+  if (!variant.megaSale) return null;
+  const label = variant.name.trim() || "un color";
+  const percent = Math.floor(Number(variant.megaSalePercent));
+  if (!Number.isFinite(percent) || percent < 1 || percent > 90) {
+    return `Mega Sale de ${label} necesita un porcentaje entre 1 y 90.`;
+  }
+  if (
+    variant.megaSaleStartsAt &&
+    variant.megaSaleEndsAt &&
+    new Date(variant.megaSaleEndsAt) <= new Date(variant.megaSaleStartsAt)
+  ) {
+    return `La fecha de fin de ${label} tiene que ser posterior al inicio.`;
+  }
+  return null;
+}
+
+function productMegaFromVariants(variants: ColorVariant[]) {
+  const active = variants.find((variant) => variant.megaSale);
+  if (!active) {
+    return {
+      megaSale: false as const,
+      megaSalePercent: null,
+      megaSaleStartsAt: null,
+      megaSaleEndsAt: null,
+    };
+  }
+  return {
+    megaSale: true as const,
+    megaSalePercent: Number(active.megaSalePercent),
+    megaSaleStartsAt: active.megaSaleStartsAt || new Date().toISOString(),
+    megaSaleEndsAt: active.megaSaleEndsAt || null,
+  };
+}
+
 function variantApiPayload(
   variant: ColorVariant,
   opts: { includeZeros: boolean; slug?: boolean }
 ) {
+  const sale = variant.megaSale;
   return {
     ...(opts.slug ? { slug: variant.id } : {}),
     color: variant.name.trim(),
@@ -214,6 +268,12 @@ function variantApiPayload(
     priceTransfer: parseMoney(variant.transfer),
     images: toStoredImages(variant.images || [], variant.image),
     stock: variantStockMap(variant, { includeZeros: opts.includeZeros }),
+    megaSale: Boolean(sale),
+    megaSalePercent: sale ? Number(variant.megaSalePercent) : null,
+    megaSaleStartsAt: sale
+      ? variant.megaSaleStartsAt || new Date().toISOString()
+      : null,
+    megaSaleEndsAt: sale ? variant.megaSaleEndsAt || null : null,
   };
 }
 
@@ -231,7 +291,7 @@ export function ProductForm({
   const router = useRouter();
   const [product, setProduct] = useState<ShopProduct>(
     initial
-      ? fillEmptyVariantImages(structuredClone(initial))
+      ? withVariantSales(fillEmptyVariantImages(structuredClone(initial)))
       : emptyProduct()
   );
   const initialChart = chartStateFromDescription(initial?.description || "");
@@ -577,20 +637,12 @@ export function ProductForm({
         setError("Activá al menos un talle con stock");
         return;
       }
-      if (draft.megaSale) {
-        const percent = Math.floor(Number(draft.megaSalePercent));
-        if (!Number.isFinite(percent) || percent < 1 || percent > 90) {
-          setError("Mega Sale necesita un porcentaje entre 1 y 90.");
-          return;
-        }
-        if (
-          draft.megaSaleStartsAt &&
-          draft.megaSaleEndsAt &&
-          new Date(draft.megaSaleEndsAt) <= new Date(draft.megaSaleStartsAt)
-        ) {
-          setError("La fecha de fin tiene que ser posterior al inicio.");
-          return;
-        }
+      const saleError = draft.variants
+        .map(variantSaleError)
+        .find((message) => message);
+      if (saleError) {
+        setError(saleError);
+        return;
       }
 
       if (getBackendUrl()) {
@@ -603,16 +655,7 @@ export function ProductForm({
             genero,
             tipo: draft.category === "sandalias" ? "OTRO" : "ZAPATILLA",
             description: draft.description || undefined,
-            megaSale: Boolean(draft.megaSale),
-            megaSalePercent: draft.megaSale
-              ? Number(draft.megaSalePercent)
-              : null,
-            megaSaleStartsAt: draft.megaSale
-              ? draft.megaSaleStartsAt || new Date().toISOString()
-              : null,
-            megaSaleEndsAt: draft.megaSale
-              ? draft.megaSaleEndsAt || null
-              : null,
+            ...productMegaFromVariants(draft.variants),
             storeCategories: categoriesForBrand(brand, draft.storeCategories),
             tags: draft.tags,
             variants: draft.variants.map((variant) =>
@@ -646,20 +689,12 @@ export function ProductForm({
     }
 
     if (mode === "edit" && getBackendUrl() && draft.id) {
-      if (draft.megaSale) {
-        const percent = Math.floor(Number(draft.megaSalePercent));
-        if (!Number.isFinite(percent) || percent < 1 || percent > 90) {
-          setError("Mega Sale necesita un porcentaje entre 1 y 90.");
-          return;
-        }
-        if (
-          draft.megaSaleStartsAt &&
-          draft.megaSaleEndsAt &&
-          new Date(draft.megaSaleEndsAt) <= new Date(draft.megaSaleStartsAt)
-        ) {
-          setError("La fecha de fin tiene que ser posterior al inicio.");
-          return;
-        }
+      const saleError = draft.variants
+        .map(variantSaleError)
+        .find((message) => message);
+      if (saleError) {
+        setError(saleError);
+        return;
       }
       try {
         setSaving(true);
@@ -672,16 +707,7 @@ export function ProductForm({
           ...(draft.modelo ? { modelo: draft.modelo } : {}),
           tipo: draft.category === "sandalias" ? "OTRO" : "ZAPATILLA",
           description: draft.description || undefined,
-          megaSale: Boolean(draft.megaSale),
-          megaSalePercent: draft.megaSale
-            ? Number(draft.megaSalePercent)
-            : null,
-          megaSaleStartsAt: draft.megaSale
-            ? draft.megaSaleStartsAt || new Date().toISOString()
-            : null,
-          megaSaleEndsAt: draft.megaSale
-            ? draft.megaSaleEndsAt || null
-            : null,
+          ...productMegaFromVariants(draft.variants),
           storeCategories: categoriesForBrand(brand, draft.storeCategories),
           variants: draft.variants.map((variant) =>
             variantApiPayload(variant, { includeZeros: true, slug: true })
@@ -877,91 +903,6 @@ export function ProductForm({
           }
         />
 
-        <div className="space-y-3 md:col-span-2">
-          <label className="flex items-center gap-3 text-sm">
-            <input
-              type="checkbox"
-              checked={Boolean(product.megaSale)}
-              onChange={(e) =>
-                setProduct((p) => ({
-                  ...p,
-                  megaSale: e.target.checked,
-                  megaSaleStartsAt:
-                    e.target.checked && !p.megaSaleStartsAt
-                      ? new Date().toISOString()
-                      : p.megaSaleStartsAt,
-                }))
-              }
-              className="size-4 accent-[#222222]"
-            />
-            <span>
-              <span className="block text-[11px] font-semibold tracking-[0.14em] uppercase">
-                Mega Sale
-              </span>
-              <span className="text-xs text-soft">
-                Oferta con porcentaje y vigencia. Aparece en Mega Sale mientras esté activa.
-              </span>
-            </span>
-          </label>
-          {product.megaSale ? (
-            <div className="grid gap-3 sm:grid-cols-3">
-              <label className="block text-sm">
-                <span className="mb-1 block text-[11px] font-semibold tracking-[0.14em] uppercase">
-                  % de oferta
-                </span>
-                <input
-                  type="number"
-                  min={1}
-                  max={90}
-                  value={product.megaSalePercent ?? ""}
-                  onChange={(e) =>
-                    setProduct((p) => ({
-                      ...p,
-                      megaSalePercent: e.target.value
-                        ? Number(e.target.value)
-                        : null,
-                    }))
-                  }
-                  placeholder="20"
-                  className="w-full border border-black/10 bg-white px-3 py-2.5 outline-none focus:border-[#222222]"
-                />
-              </label>
-              <label className="block text-sm">
-                <span className="mb-1 block text-[11px] font-semibold tracking-[0.14em] uppercase">
-                  Desde
-                </span>
-                <input
-                  type="datetime-local"
-                  value={toLocalInput(product.megaSaleStartsAt)}
-                  onChange={(e) =>
-                    setProduct((p) => ({
-                      ...p,
-                      megaSaleStartsAt: fromLocalInput(e.target.value),
-                    }))
-                  }
-                  className="w-full border border-black/10 bg-white px-3 py-2.5 outline-none focus:border-[#222222]"
-                />
-              </label>
-              <label className="block text-sm">
-                <span className="mb-1 block text-[11px] font-semibold tracking-[0.14em] uppercase">
-                  Hasta
-                </span>
-                <input
-                  type="datetime-local"
-                  value={toLocalInput(product.megaSaleEndsAt)}
-                  onChange={(e) =>
-                    setProduct((p) => ({
-                      ...p,
-                      megaSaleEndsAt: fromLocalInput(e.target.value),
-                    }))
-                  }
-                  className="w-full border border-black/10 bg-white px-3 py-2.5 outline-none focus:border-[#222222]"
-                />
-              </label>
-            </div>
-          ) : null}
-        </div>
-
         <div className="md:col-span-2">
           <p className="mb-2 text-[11px] font-semibold tracking-[0.14em] uppercase">
             Colores de este producto
@@ -1095,6 +1036,107 @@ export function ProductForm({
             className="w-full border border-black/10 bg-[#f5f4f0] px-3 py-2.5 text-soft"
           />
         </label>
+
+        <div className="space-y-3 md:col-span-2">
+          <label className="flex items-center gap-3 text-sm">
+            <input
+              type="checkbox"
+              checked={Boolean(v.megaSale)}
+              onChange={(e) => {
+                const on = e.target.checked;
+                setProduct((prev) => {
+                  const variants = [...prev.variants];
+                  const i = Math.min(variantIndex, variants.length - 1);
+                  const current = variants[i];
+                  variants[i] = {
+                    ...current,
+                    megaSale: on,
+                    megaSaleStartsAt:
+                      on && !current.megaSaleStartsAt
+                        ? new Date().toISOString()
+                        : current.megaSaleStartsAt,
+                  };
+                  return { ...prev, variants };
+                });
+              }}
+              className="size-4 accent-[#222222]"
+            />
+            <span>
+              <span className="block text-[11px] font-semibold tracking-[0.14em] uppercase">
+                Mega Sale de este color
+              </span>
+              <span className="text-xs text-soft">
+                Solo baja el precio de {v.name.trim() || "este color"}. El resto queda igual.
+              </span>
+            </span>
+          </label>
+          {v.megaSale ? (
+            <div className="grid gap-3 sm:grid-cols-3">
+              <label className="block text-sm">
+                <span className="mb-1 block text-[11px] font-semibold tracking-[0.14em] uppercase">
+                  % de oferta
+                </span>
+                <input
+                  type="number"
+                  min={1}
+                  max={90}
+                  value={v.megaSalePercent ?? ""}
+                  onChange={(e) => {
+                    const megaSalePercent = e.target.value
+                      ? Number(e.target.value)
+                      : null;
+                    setProduct((prev) => {
+                      const variants = [...prev.variants];
+                      const i = Math.min(variantIndex, variants.length - 1);
+                      variants[i] = { ...variants[i], megaSalePercent };
+                      return { ...prev, variants };
+                    });
+                  }}
+                  placeholder="20"
+                  className="w-full border border-black/10 bg-white px-3 py-2.5 outline-none focus:border-[#222222]"
+                />
+              </label>
+              <label className="block text-sm">
+                <span className="mb-1 block text-[11px] font-semibold tracking-[0.14em] uppercase">
+                  Desde
+                </span>
+                <input
+                  type="datetime-local"
+                  value={toLocalInput(v.megaSaleStartsAt)}
+                  onChange={(e) => {
+                    const megaSaleStartsAt = fromLocalInput(e.target.value);
+                    setProduct((prev) => {
+                      const variants = [...prev.variants];
+                      const i = Math.min(variantIndex, variants.length - 1);
+                      variants[i] = { ...variants[i], megaSaleStartsAt };
+                      return { ...prev, variants };
+                    });
+                  }}
+                  className="w-full border border-black/10 bg-white px-3 py-2.5 outline-none focus:border-[#222222]"
+                />
+              </label>
+              <label className="block text-sm">
+                <span className="mb-1 block text-[11px] font-semibold tracking-[0.14em] uppercase">
+                  Hasta
+                </span>
+                <input
+                  type="datetime-local"
+                  value={toLocalInput(v.megaSaleEndsAt)}
+                  onChange={(e) => {
+                    const megaSaleEndsAt = fromLocalInput(e.target.value);
+                    setProduct((prev) => {
+                      const variants = [...prev.variants];
+                      const i = Math.min(variantIndex, variants.length - 1);
+                      variants[i] = { ...variants[i], megaSaleEndsAt };
+                      return { ...prev, variants };
+                    });
+                  }}
+                  className="w-full border border-black/10 bg-white px-3 py-2.5 outline-none focus:border-[#222222]"
+                />
+              </label>
+            </div>
+          ) : null}
+        </div>
 
         <div className="md:col-span-2 space-y-3">
           <div>

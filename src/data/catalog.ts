@@ -33,6 +33,11 @@ export type ColorVariant = {
   salePercent?: number;
   /** Precio tachado / antes de oferta */
   compareAtPrice?: string;
+  /** Mega Sale de este color. Si es false, no hereda la del producto. */
+  megaSale?: boolean;
+  megaSalePercent?: number | null;
+  megaSaleStartsAt?: string | null;
+  megaSaleEndsAt?: string | null;
 };
 
 export type CatalogProduct = {
@@ -217,9 +222,22 @@ export function pricedForMegaSale(
     megaSaleEndsAt?: string | null;
     tags?: string[];
     storeCategories?: string[];
+  },
+  variant?: {
+    megaSale?: boolean;
+    megaSalePercent?: number | null;
+    megaSaleStartsAt?: string | null;
+    megaSaleEndsAt?: string | null;
   }
 ) {
-  const percent = megaSalePercentOf(product);
+  const subject =
+    variant && typeof variant.megaSale === "boolean" ? variant : product;
+  const percent =
+    variant && typeof variant.megaSale === "boolean"
+      ? isMegaSale(subject)
+        ? megaSalePercentOf(subject)
+        : 0
+      : megaSalePercentOf(product);
   const original = parseMoney(listPrice);
   const transfer = transferFromPrice(listPrice);
   if (!percent || original <= 0) {
@@ -241,7 +259,11 @@ export function pricedForMegaSale(
     price,
     transfer,
     installments: installmentFromPrice(price),
-    until: megaSaleUntilLabel(product.megaSaleEndsAt),
+    until: megaSaleUntilLabel(
+      variant && typeof variant.megaSale === "boolean"
+        ? variant.megaSaleEndsAt
+        : product.megaSaleEndsAt
+    ),
   };
 }
 
@@ -356,7 +378,7 @@ export function toProductCard(
   variant = product.variants[0]
 ): ProductCardModel {
   const chosen = variant ?? product.variants[0];
-  const priced = pricedForMegaSale(chosen.price, chosen.transfer, product);
+  const priced = pricedForMegaSale(chosen.price, chosen.transfer, product, chosen);
   return {
     slug: product.slug,
     variantId: chosen.id,
@@ -487,7 +509,7 @@ export function filterByCategory(
   }
 
   if (key === "mega-sale" || key === "sale") {
-    return flattenCatalog(source.filter(isMegaSale));
+    return flattenCatalog(source).filter((card) => card.megaSale);
   }
 
   if (key === "liquidacion" || key === "liquidación") {

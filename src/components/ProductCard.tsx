@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Heart } from "lucide-react";
 import { useStore } from "@/components/store/StoreProvider";
 import type { ProductCardModel } from "@/data/catalog";
-import { isMegaSale, megaSalePercentOf, pricedForMegaSale, variantCover } from "@/data/catalog";
+import { pricedForMegaSale, variantCover } from "@/data/catalog";
 import { resolveMediaUrl } from "@/lib/api/backend";
 
 export type Product = ProductCardModel;
@@ -23,13 +23,12 @@ export function ProductCard({
   const live = catalogReady ? getProduct(product.slug) : undefined;
   const variant = live?.variants.find((v) => v.id === product.variantId);
   const salePercent = variant?.salePercent;
-  const source = live ?? product;
-  const megaSale = isMegaSale(source);
-  const megaPercent = megaSalePercentOf(source);
   const priced =
     live && variant
-      ? pricedForMegaSale(variant.price, variant.transfer, live)
+      ? pricedForMegaSale(variant.price, variant.transfer, live, variant)
       : null;
+  const megaSale = priced ? priced.active : Boolean(product.megaSale);
+  const megaPercent = priced ? priced.percent : product.megaSalePercent;
   const displayPrice = priced?.price ?? product.price;
   const displayTransfer = priced?.transfer ?? product.transfer;
   const displayInstallments = priced?.installments ?? product.installments;

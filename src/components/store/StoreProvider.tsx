@@ -124,7 +124,12 @@ function withLiveCartPrices(item: CartItem, products: ShopProduct[]): CartItem {
   const product = products.find((p) => p.slug === item.productSlug);
   const variant = product?.variants.find((v) => v.id === item.variantId);
   if (!product || !variant) return item;
-  const priced = pricedForMegaSale(variant.price, variant.transfer, product);
+  const priced = pricedForMegaSale(
+    variant.price,
+    variant.transfer,
+    product,
+    variant
+  );
   if (!priced.active) return item;
   return {
     ...item,

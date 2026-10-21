@@ -48,6 +48,10 @@ type ApiVariant = {
   priceTransfer: string | number;
   compareAtPrice?: string | number | null;
   salePercent?: number | null;
+  megaSale?: boolean;
+  megaSalePercent?: number | null;
+  megaSaleStartsAt?: string | null;
+  megaSaleEndsAt?: string | null;
   installments?: number | null;
   images: string[];
   stocks?: ApiStock[];
@@ -136,6 +140,14 @@ function mapVariant(v: ApiVariant): ColorVariant {
     installmentsLabel: installmentLabelFromPrice(price),
     sizes: sizesFromStocks(v.stocks),
     salePercent: v.salePercent ?? undefined,
+    ...(v.megaSale == null
+      ? {}
+      : {
+          megaSale: Boolean(v.megaSale),
+          megaSalePercent: v.megaSalePercent ?? null,
+          megaSaleStartsAt: v.megaSaleStartsAt ?? null,
+          megaSaleEndsAt: v.megaSaleEndsAt ?? null,
+        }),
     compareAtPrice:
       v.compareAtPrice != null ? money(v.compareAtPrice) : undefined,
   };
@@ -325,6 +337,10 @@ export type CreateProductPayload = {
     priceTransfer: number;
     images?: string[];
     stock?: Record<string, number>;
+    megaSale?: boolean;
+    megaSalePercent?: number | null;
+    megaSaleStartsAt?: string | null;
+    megaSaleEndsAt?: string | null;
   }>;
 };
 
