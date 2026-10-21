@@ -130,6 +130,36 @@ function emptyVariant(): ColorVariant {
   };
 }
 
+const BRAND_CATEGORY_SLUGS = new Set([
+  "nike",
+  "adidas",
+  "vans",
+  "new-balance",
+  "converse",
+  "puma",
+  "rastro",
+]);
+
+/** La marca manda la categoría de tienda. No se arrastra la marca anterior. */
+function categoriesForBrand(brand: string, existing: string[] = []) {
+  const primary = slugify(brand);
+  const kept = existing.filter((category) => {
+    const root = category.split("/")[0];
+    if (!BRAND_CATEGORY_SLUGS.has(root)) return true;
+    return root === primary;
+  });
+  return Array.from(new Set([primary, ...kept].filter(Boolean)));
+}
+
+function withBrand(product: ShopProduct, brand: string): ShopProduct {
+  return {
+    ...product,
+    brand,
+    primaryCategory: slugify(brand),
+    storeCategories: categoriesForBrand(brand, product.storeCategories),
+  };
+}
+
 const emptyProduct = (): ShopProduct => ({
   slug: "",
   name: "",
@@ -270,7 +300,7 @@ export function ProductForm({
     const resolved =
       brandOptions.find((b) => b.toLowerCase() === name.toLowerCase()) ?? name;
     if (!exists) setExtraBrands((prev) => [...prev, name]);
-    setProduct((p) => ({ ...p, brand: resolved }));
+    setProduct((p) => withBrand(p, resolved));
     setNewBrand("");
     setAddingBrand(false);
   };
@@ -567,7 +597,6 @@ export function ProductForm({
         try {
           setSaving(true);
           const brand = draft.brand;
-          const primary = slugify(brand);
           await createShopProduct({
             brand,
             modelo,
@@ -584,9 +613,7 @@ export function ProductForm({
             megaSaleEndsAt: draft.megaSale
               ? draft.megaSaleEndsAt || null
               : null,
-            storeCategories: Array.from(
-              new Set([primary, ...(draft.storeCategories || [])])
-            ),
+            storeCategories: categoriesForBrand(brand, draft.storeCategories),
             tags: draft.tags,
             variants: draft.variants.map((variant) =>
               variantApiPayload(variant, { includeZeros: false })
@@ -640,7 +667,6 @@ export function ProductForm({
           throw new Error("Cada variante necesita un color");
         }
         const brand = draft.brand;
-        const primary = slugify(brand);
         const saved = await updateShopProduct(draft.id, {
           brand,
           ...(draft.modelo ? { modelo: draft.modelo } : {}),
@@ -656,9 +682,7 @@ export function ProductForm({
           megaSaleEndsAt: draft.megaSale
             ? draft.megaSaleEndsAt || null
             : null,
-          storeCategories: Array.from(
-            new Set([primary, ...(draft.storeCategories || [])])
-          ),
+          storeCategories: categoriesForBrand(brand, draft.storeCategories),
           variants: draft.variants.map((variant) =>
             variantApiPayload(variant, { includeZeros: true, slug: true })
           ),
@@ -699,9 +723,7 @@ export function ProductForm({
       name,
       slug,
       primaryCategory: primaryLocal,
-      storeCategories: Array.from(
-        new Set([primaryLocal, ...(draft.storeCategories || [])])
-      ),
+      storeCategories: categoriesForBrand(brandLocal, draft.storeCategories),
       variants: draft.variants.map((variant) => ({
         ...variant,
         id: variant.id || slugify(variant.name) || uid("var"),
@@ -790,7 +812,7 @@ export function ProductForm({
             options={brandOptions.map((b) => ({ value: b, label: b }))}
             onChange={(value) => {
               setAddingBrand(false);
-              setProduct((p) => ({ ...p, brand: value }));
+              setProduct((p) => withBrand(p, value));
             }}
           />
           {!addingBrand ? (
