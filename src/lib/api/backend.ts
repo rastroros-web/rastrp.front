@@ -1150,6 +1150,23 @@ export async function upsertShopVariant(
   return mapApiProduct(data as ApiProduct);
 }
 
+export async function deleteShopVariant(variantId: number): Promise<void> {
+  const base = getBackendUrl();
+  if (!base) throw new Error("Falta NEXT_PUBLIC_BACKEND_URL");
+
+  const res = await fetch(`${base}/api/admin/products/variants/${variantId}`, {
+    method: "DELETE",
+    headers: { Authorization: `Bearer ${requireSessionToken()}` },
+  });
+  if (res.status === 401 || res.status === 403) await failAuthResponse(res);
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new Error(
+      (data as { message?: string }).message || "No se pudo eliminar la variante"
+    );
+  }
+}
+
 export async function deleteShopProduct(id: number): Promise<void> {
   const base = getBackendUrl();
   if (!base) throw new Error("Falta NEXT_PUBLIC_BACKEND_URL");

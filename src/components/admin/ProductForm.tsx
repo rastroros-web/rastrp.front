@@ -21,6 +21,7 @@ import {
 } from "@/lib/productSizeChart";
 import {
   createShopProduct,
+  deleteShopVariant,
   getBackendUrl,
   invalidateShopProductsCache,
   resolveMediaUrl,
@@ -28,6 +29,7 @@ import {
   uploadShopImages,
 } from "@/lib/api/backend";
 import { FancySelect } from "@/components/ui/FancySelect";
+import { useAlert } from "@/components/ui/AlertProvider";
 import { readJson, writeJson } from "@/lib/mock/storage";
 
 const BASE_BRANDS = [
@@ -195,6 +197,7 @@ export function ProductForm({
   initialVariantId?: string;
 }) {
   const { saveProduct, products, reloadProducts } = useStore();
+  const { confirm } = useAlert();
   const router = useRouter();
   const [product, setProduct] = useState<ShopProduct>(
     initial
@@ -466,6 +469,51 @@ export function ProductForm({
       variants: [...prev.variants, next],
     }));
     setVariantIndex(product.variants.length);
+  };
+
+  const removeVariant = async () => {
+    if (product.variants.length <= 1) {
+      setError("El producto tiene que quedarse con al menos un color.");
+      return;
+    }
+    const current = product.variants[safeIndex];
+    const label = current?.name?.trim() || `Color ${safeIndex + 1}`;
+    const ok = await confirm({
+      eyebrow: "Variante",
+      title: `¿Eliminar ${label}?`,
+      message:
+        "Se borra este color, con sus fotos y su stock. El resto del producto queda igual.",
+      confirmLabel: "Eliminar",
+      cancelLabel: "Conservar",
+      tone: "danger",
+    });
+    if (!ok) return;
+
+    setError("");
+    const numericId = Number(current?.numericId);
+    const persisted =
+      mode === "edit" &&
+      Boolean(getBackendUrl()) &&
+      Number.isFinite(numericId) &&
+      numericId > 0;
+    if (persisted) {
+      try {
+        setSaving(true);
+        await deleteShopVariant(numericId);
+        invalidateShopProductsCache();
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "No se pudo eliminar");
+        return;
+      } finally {
+        setSaving(false);
+      }
+    }
+
+    setProduct((prev) => ({
+      ...prev,
+      variants: prev.variants.filter((_, i) => i !== safeIndex),
+    }));
+    setVariantIndex((index) => Math.max(0, Math.min(index, product.variants.length - 2)));
   };
 
   const onSubmit = async (e: React.FormEvent) => {
@@ -892,41 +940,47 @@ export function ProductForm({
           ) : null}
         </div>
 
-        {(mode === "create" || product.variants.length > 1) && (
-          <div className="md:col-span-2">
-            <p className="mb-2 text-[11px] font-semibold tracking-[0.14em] uppercase">
-              Colores de este producto
-            </p>
-            <p className="mb-2 text-xs text-soft">
-              Tocá uno para editar precio, fotos y talles de esa variante.
-            </p>
-            <div className="flex flex-wrap gap-2">
-              {product.variants.map((variant, i) => (
-                <button
-                  key={variant.id}
-                  type="button"
-                  onClick={() => setVariantIndex(i)}
-                  className={`chip-press border px-3 py-2 text-[11px] font-semibold tracking-[0.08em] uppercase ${
-                    i === safeIndex
-                      ? "border-[#222222] bg-[#222222] text-white"
-                      : "border-black/15 bg-white hover:border-neutral-900"
-                  }`}
-                >
-                  {variant.name || `Color ${i + 1}`}
-                </button>
-              ))}
-              {mode === "create" ? (
-                <button
-                  type="button"
-                  onClick={addVariant}
-                  className="chip-press border border-dashed border-black/25 px-3 py-2 text-[11px] font-semibold tracking-[0.08em] uppercase text-soft hover:border-[#222222] hover:text-[#222222]"
-                >
-                  ＋ Sumar variante
-                </button>
-              ) : null}
-            </div>
+        <div className="md:col-span-2">
+          <p className="mb-2 text-[11px] font-semibold tracking-[0.14em] uppercase">
+            Colores de este producto
+          </p>
+          <p className="mb-2 text-xs text-soft">
+            Tocá uno para editar precio, fotos y talles de esa variante.
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {product.variants.map((variant, i) => (
+              <button
+                key={variant.id}
+                type="button"
+                onClick={() => setVariantIndex(i)}
+                className={`chip-press border px-3 py-2 text-[11px] font-semibold tracking-[0.08em] uppercase ${
+                  i === safeIndex
+                    ? "border-[#222222] bg-[#222222] text-white"
+                    : "border-black/15 bg-white hover:border-neutral-900"
+                }`}
+              >
+                {variant.name || `Color ${i + 1}`}
+              </button>
+            ))}
+            <button
+              type="button"
+              onClick={addVariant}
+              className="chip-press border border-dashed border-black/25 px-3 py-2 text-[11px] font-semibold tracking-[0.08em] uppercase text-soft hover:border-[#222222] hover:text-[#222222]"
+            >
+              ＋ Sumar variante
+            </button>
+            {product.variants.length > 1 ? (
+              <button
+                type="button"
+                onClick={removeVariant}
+                disabled={saving}
+                className="chip-press border border-red-200 px-3 py-2 text-[11px] font-semibold tracking-[0.08em] text-red-600 uppercase hover:border-red-600 disabled:opacity-40"
+              >
+                Eliminar este color
+              </button>
+            ) : null}
           </div>
-        )}
+        </div>
 
         <div className="block text-sm">
           <FancySelect
