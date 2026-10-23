@@ -76,6 +76,8 @@ export type SelectedShippingRate = {
   carrier?: TrackingCarrier | string;
   /** Cotización del backend a la que pertenece esta tarifa. */
   quoteId?: string | null;
+  /** Pares con los que se cotizó; si el carrito cambia, la tarifa queda inválida. */
+  packages?: number;
 };
 
 export type CartShippingPref = {

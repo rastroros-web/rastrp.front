@@ -983,25 +983,20 @@ export function StoreProvider({ children }: { children: ReactNode }) {
                 next.postalCode !== prev.postalCode)
             ? null
             : prev.rate;
-      const deliveryDate =
-        zone === "rosario"
-          ? next.deliveryDate !== undefined
-            ? next.deliveryDate
-            : prev.deliveryDate
-          : "";
-      const deliverySlot =
-        zone === "rosario"
-          ? next.deliverySlot !== undefined
-            ? next.deliverySlot
-            : prev.deliverySlot
-          : "";
       const storeId =
         zone === "retiro"
           ? next.storeId !== undefined
             ? next.storeId
             : prev.storeId
           : "";
-      return { zone, postalCode, rate, deliveryDate, deliverySlot, storeId };
+      return {
+        zone,
+        postalCode,
+        rate,
+        deliveryDate: "",
+        deliverySlot: "",
+        storeId,
+      };
     });
   }, []);
 
@@ -1738,6 +1733,16 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     () => cart.reduce((s, i) => s + i.qty, 0),
     [cart]
   );
+
+  /** Si cambia la cantidad de pares, la cotización de interior ya no sirve. */
+  const prevCartCountForShipping = useRef(cartCount);
+  useEffect(() => {
+    if (prevCartCountForShipping.current === cartCount) return;
+    prevCartCountForShipping.current = cartCount;
+    setCartShippingState((prev) =>
+      prev.rate ? { ...prev, rate: null } : prev
+    );
+  }, [cartCount]);
   const pricedCart = useMemo(
     () => cart.map((item) => withLiveCartPrices(item, products)),
     [cart, products]

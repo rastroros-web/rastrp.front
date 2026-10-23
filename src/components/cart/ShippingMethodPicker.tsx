@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { Search } from "lucide-react";
 import { formatMoney } from "@/lib/mock/money";
@@ -112,6 +112,7 @@ export function ShippingMethodPicker({
   const [quote, setQuote] = useState<ShippingQuoteResult | null>(null);
   const [quotedCp, setQuotedCp] = useState("");
   const requestId = useRef(0);
+  const prevQty = useRef(qty);
 
   useEffect(() => {
     const cp = postalCode.replace(/\D/g, "").slice(0, 4);
@@ -123,42 +124,65 @@ export function ShippingMethodPicker({
     }
   }, [postalCode]);
 
-  const runQuote = async (raw: string) => {
-    const cp = raw.replace(/\D/g, "").slice(0, 4);
-    const currentCp = postalCode.replace(/\D/g, "").slice(0, 4);
-    if (cp !== currentCp) onPostalCodeChange(cp);
-    if (cp.length !== 4) {
-      setError("Ingresá un código postal de 4 dígitos.");
-      setQuote(null);
-      setQuotedCp("");
-      if (selectedRate) onSelectRate(null);
-      return;
-    }
-    const id = ++requestId.current;
-    setLoading(true);
-    setError("");
-    setQuote(null);
-    if (selectedRate) onSelectRate(null);
-    try {
-      const data = await quoteCorreoShipping(cp, qty);
-      if (id !== requestId.current) return;
-      setQuote(data);
-      setQuotedCp(cp);
-      if (selectedRateId) {
-        const next = data.rates.find((r) => r.id === selectedRateId) || null;
-        if (next) onSelectRate(withQuote(next, data));
+  const runQuote = useCallback(
+    async (raw: string, reselectId?: string | null) => {
+      const cp = raw.replace(/\D/g, "").slice(0, 4);
+      const currentCp = postalCode.replace(/\D/g, "").slice(0, 4);
+      if (cp !== currentCp) onPostalCodeChange(cp);
+      if (cp.length !== 4) {
+        setError("Ingresá un código postal de 4 dígitos.");
+        setQuote(null);
+        setQuotedCp("");
+        onSelectRate(null);
+        return;
       }
-    } catch (err) {
-      if (id !== requestId.current) return;
+      const keepId = reselectId ?? selectedRateId ?? null;
+      const id = ++requestId.current;
+      setLoading(true);
+      setError("");
       setQuote(null);
-      setQuotedCp("");
-      setError(
-        err instanceof Error ? err.message : "No se pudo cotizar el envío."
-      );
-    } finally {
-      if (id === requestId.current) setLoading(false);
-    }
-  };
+      onSelectRate(null);
+      try {
+        const data = await quoteCorreoShipping(cp, qty);
+        if (id !== requestId.current) return;
+        setQuote(data);
+        setQuotedCp(cp);
+        if (keepId) {
+          const next = data.rates.find((r) => r.id === keepId) || null;
+          if (next) {
+            onSelectRate({
+              ...withQuote(next, data)!,
+              packages: qty,
+            });
+          }
+        }
+      } catch (err) {
+        if (id !== requestId.current) return;
+        setQuote(null);
+        setQuotedCp("");
+        setError(
+          err instanceof Error ? err.message : "No se pudo cotizar el envío."
+        );
+      } finally {
+        if (id === requestId.current) setLoading(false);
+      }
+    },
+    [postalCode, onPostalCodeChange, onSelectRate, qty, selectedRateId]
+  );
+
+  /** Al sumar/sacar pares, invalidar y volver a cotizar con la cantidad nueva. */
+  useEffect(() => {
+    if (prevQty.current === qty) return;
+    const previousId = selectedRateId;
+    prevQty.current = qty;
+    setQuote(null);
+    setQuotedCp("");
+    setError("");
+    onSelectRate(null);
+    const cp = postalCode.replace(/\D/g, "").slice(0, 4);
+    if (cp.length === 4) void runQuote(cp, previousId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- solo al cambiar qty
+  }, [qty]);
 
   return (
     <div className={className || undefined}>
@@ -225,7 +249,12 @@ export function ShippingMethodPicker({
                       <button
                         key={rate.id}
                         type="button"
-                        onClick={() => onSelectRate(withQuote(rate, quote))}
+                        onClick={() =>
+                          onSelectRate({
+                            ...withQuote(rate, quote)!,
+                            packages: qty,
+                          })
+                        }
                         className={`chip-press flex w-full items-baseline justify-between gap-3 border px-3 py-2.5 text-left ${
                           active
                             ? "border-[#222222] bg-[#222222] text-white"

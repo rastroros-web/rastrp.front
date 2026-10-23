@@ -34,11 +34,10 @@ export default function EnviosPage() {
           ],
         },
         {
-          title: "Rosario y alrededores — envío en el día",
+          title: "Rosario y alrededores",
           body: [
-            "Si pedís antes de las 12 pm el pedido llega en el día (días hábiles).",
             "Zonas habituales: Rosario, Funes, Roldán, Fisherton, Granadero Baigorria, Pérez, Villa Gobernador Gálvez y alrededores.",
-            "Te confirmamos franja horaria por Instagram o WhatsApp al preparar el pedido.",
+            "Una vez aprobado el pago, nos vamos a comunicar con vos, para pactar el día y horario de entrega.",
           ],
         },
         {

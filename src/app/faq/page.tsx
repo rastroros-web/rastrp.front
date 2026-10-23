@@ -28,7 +28,7 @@ export default function FaqPage() {
         {
           title: "¿Cuánto tarda el envío?",
           body: [
-            "Rosario y alrededores: si pedís antes de las 12 pm, el pedido llega en el día.",
+            "Rosario y alrededores: una vez aprobado el pago, nos vamos a comunicar con vos, para pactar el día y horario de entrega.",
             "Interior: 3 a 7 días hábiles según destino.",
             "El tiempo de entrega no considera feriados.",
             "También podés retirar en puntos de retiro sin costo de domicilio.",

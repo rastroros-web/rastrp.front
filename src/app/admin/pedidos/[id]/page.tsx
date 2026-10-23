@@ -184,9 +184,9 @@ export default function AdminOrderDetailPage({
                 <dt className="text-soft">Email envío</dt>
                 <dd className="break-all text-right">{d.email}</dd>
               </div>
-              {d.sameDayEligible && (
-                <p className="pt-1 text-xs font-semibold text-[#16a34a]">
-                  Elegible envío en el día
+              {d.zone === "rosario" && (
+                <p className="pt-1 text-xs text-soft">
+                  Una vez aprobado el pago, nos vamos a comunicar con vos, para pactar el día y horario de entrega
                 </p>
               )}
               {d.notes && (

@@ -548,7 +548,7 @@ export function ProductDetail({
                 Envío a todo el país
               </Link>
               {" · "}
-              Rosario: si pedís antes de las 12 pm, llega en el día
+              Rosario: una vez aprobado el pago, nos vamos a comunicar con vos, para pactar el día y horario de entrega
             </li>
             <li>
               <Link

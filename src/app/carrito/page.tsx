@@ -54,13 +54,6 @@ export default function CartPage() {
     [cartShipping.zone, setCartShipping]
   );
 
-  const onRosarioChange = useCallback(
-    (next: { deliveryDate?: string; deliverySlot?: string }) => {
-      setCartShipping(next);
-    },
-    [setCartShipping]
-  );
-
   const handleRemove = (id: string) => {
     if (leaving[id]) return;
     setLeaving((prev) => ({ ...prev, [id]: true }));
@@ -81,21 +74,28 @@ export default function CartPage() {
 
   const freeShipping = isFreeShipping(cartTransferTotal);
 
+  const interiorRate =
+    cartShipping.zone === "interior" &&
+    cartShipping.rate &&
+    cartShipping.rate.packages === cartCount
+      ? cartShipping.rate
+      : null;
+
   const shippingCost =
     cartShipping.zone === "interior"
-      ? cartShipping.rate
+      ? interiorRate
         ? freeShipping
           ? 0
-          : cartShipping.rate.price
+          : interiorRate.price
         : null
       : localQuote.cost;
 
   const shippingLabel =
     cartShipping.zone === "interior"
-      ? cartShipping.rate
+      ? interiorRate
         ? `${freeShipping ? "Envío gratis · " : ""}${
-            cartShipping.rate.carrier === "andreani" ? "Andreani" : "Correo Argentino"
-          } · ${cartShipping.rate.name}${
+            interiorRate.carrier === "andreani" ? "Andreani" : "Correo Argentino"
+          } · ${interiorRate.name}${
             cartCount > 1 ? ` · ${cartCount} pares` : ""
           }`
         : "Elegí una opción"
@@ -233,12 +233,7 @@ export default function CartPage() {
                     }`}
                     aria-hidden={cartShipping.zone !== "rosario"}
                   >
-                    <RosarioDeliveryFields
-                      date={cartShipping.deliveryDate}
-                      slot={cartShipping.deliverySlot}
-                      enabled={cartShipping.zone === "rosario"}
-                      onChange={onRosarioChange}
-                    />
+                    <RosarioDeliveryFields />
                   </div>
                   <div
                     className={`col-start-1 row-start-1 ${
@@ -251,12 +246,18 @@ export default function CartPage() {
                     <ShippingMethodPicker
                       postalCode={cartShipping.postalCode}
                       packages={cartCount}
-                      selectedRateId={cartShipping.rate?.id}
-                      selectedRate={cartShipping.rate}
+                      selectedRateId={interiorRate?.id}
+                      selectedRate={interiorRate}
                       onPostalCodeChange={(cp) =>
                         setCartShipping({ postalCode: cp })
                       }
-                      onSelectRate={(rate) => setCartShipping({ rate })}
+                      onSelectRate={(rate) =>
+                        setCartShipping({
+                          rate: rate
+                            ? { ...rate, packages: cartCount }
+                            : null,
+                        })
+                      }
                     />
                   </div>
                   <div
@@ -358,34 +359,16 @@ export default function CartPage() {
               <div className="mt-6 grid">
                 <div
                   className={`col-start-1 row-start-1 ${
-                    cartShipping.zone === "interior" && !cartShipping.rate
+                    cartShipping.zone === "interior" && !interiorRate
                       ? "relative z-10"
                       : "invisible pointer-events-none"
                   }`}
                   aria-hidden={
-                    !(cartShipping.zone === "interior" && !cartShipping.rate)
+                    !(cartShipping.zone === "interior" && !interiorRate)
                   }
                 >
                   <p className="py-3 text-center text-xs text-soft">
                     Elegí Correo Argentino o Andreani para continuar.
-                  </p>
-                </div>
-                <div
-                  className={`col-start-1 row-start-1 ${
-                    cartShipping.zone === "rosario" &&
-                    (!cartShipping.deliveryDate || !cartShipping.deliverySlot)
-                      ? "relative z-10"
-                      : "invisible pointer-events-none"
-                  }`}
-                  aria-hidden={
-                    !(
-                      cartShipping.zone === "rosario" &&
-                      (!cartShipping.deliveryDate || !cartShipping.deliverySlot)
-                    )
-                  }
-                >
-                  <p className="py-3 text-center text-xs text-soft">
-                    Indicá día y horario de entrega para continuar.
                   </p>
                 </div>
                 <div
@@ -404,19 +387,13 @@ export default function CartPage() {
                 </div>
                 <div
                   className={`col-start-1 row-start-1 ${
-                    (cartShipping.zone === "interior" && !cartShipping.rate) ||
-                    (cartShipping.zone === "rosario" &&
-                      (!cartShipping.deliveryDate ||
-                        !cartShipping.deliverySlot)) ||
+                    (cartShipping.zone === "interior" && !interiorRate) ||
                     (cartShipping.zone === "retiro" && !cartShipping.storeId)
                       ? "invisible pointer-events-none"
                       : "relative z-10"
                   }`}
                   aria-hidden={
-                    (cartShipping.zone === "interior" && !cartShipping.rate) ||
-                    (cartShipping.zone === "rosario" &&
-                      (!cartShipping.deliveryDate ||
-                        !cartShipping.deliverySlot)) ||
+                    (cartShipping.zone === "interior" && !interiorRate) ||
                     (cartShipping.zone === "retiro" && !cartShipping.storeId)
                   }
                 >
@@ -456,14 +433,9 @@ export default function CartPage() {
                   : `${shippingLabel} · cupones en checkout`}
               </p>
             </div>
-            {cartShipping.zone === "interior" && !cartShipping.rate ? (
+            {cartShipping.zone === "interior" && !interiorRate ? (
               <span className="shrink-0 px-3 text-right text-[11px] text-soft">
                 Elegí envío
-              </span>
-            ) : cartShipping.zone === "rosario" &&
-              (!cartShipping.deliveryDate || !cartShipping.deliverySlot) ? (
-              <span className="shrink-0 px-3 text-right text-[11px] text-soft">
-                Día y horario
               </span>
             ) : cartShipping.zone === "retiro" && !cartShipping.storeId ? (
               <span className="shrink-0 px-3 text-right text-[11px] text-soft">

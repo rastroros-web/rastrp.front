@@ -138,11 +138,7 @@ export function isWishlistEntry(
 
 function shippingFilled(shipping: CartShippingPref): boolean {
   return Boolean(
-    shipping.rate ||
-      shipping.deliveryDate ||
-      shipping.deliverySlot ||
-      shipping.postalCode ||
-      shipping.storeId
+    shipping.rate || shipping.postalCode || shipping.storeId
   );
 }
 

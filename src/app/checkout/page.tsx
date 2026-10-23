@@ -19,10 +19,9 @@ import {
 import {
   HOLIDAYS_NOTE,
   isFreeShipping,
-  isRosarioSameDayWindow,
   quoteShipping,
 } from "@/lib/mock/shipping";
-import { RosarioDeliveryFields, slotLabel } from "@/components/cart/RosarioDeliveryFields";
+import { RosarioDeliveryFields } from "@/components/cart/RosarioDeliveryFields";
 import { ShippingMethodPicker } from "@/components/cart/ShippingMethodPicker";
 import { FancySelect } from "@/components/ui/FancySelect";
 import {
@@ -86,10 +85,6 @@ function addressFromFields(input: {
   };
 }
 
-function isSameDayWindow() {
-  return isRosarioSameDayWindow();
-}
-
 function toTrackingCarrier(carrier?: string): TrackingCarrier {
   return carrier === "andreani" ? "andreani" : "correo_argentino";
 }
@@ -101,15 +96,7 @@ function formatShippingAddress(details: ShippingDetails) {
   const floor = details.floor ? `, ${details.floor}` : "";
   const base = `${details.street} ${details.number}${floor}, ${details.city}, ${details.province} (CP ${details.postalCode})`;
   if (details.zone === "rosario") {
-    const when =
-      details.deliveryDate || details.deliverySlot
-        ? ` · Entrega ${details.deliveryDate ?? ""}${
-            details.deliverySlot ? ` ${slotLabel(details.deliverySlot)}` : ""
-          }`
-        : "";
-    return details.sameDayEligible
-      ? `${base} · Envío en el día (pedido antes de las 12 pm)${when}`
-      : `${base} · Rosario y alrededores${when}`;
+    return `${base} · Rosario y alrededores · Una vez aprobado el pago, nos vamos a comunicar con vos, para pactar el día y horario de entrega`;
   }
   const ship =
     details.shippingRateName
@@ -192,11 +179,6 @@ export default function CheckoutPage() {
 
   const closePromoToast = useCallback(() => setPromoToast(null), []);
 
-  const sameDayEligible = useMemo(
-    () => zone === "rosario" && isSameDayWindow(),
-    [zone]
-  );
-
   const merchandise = useMemo(
     () => (discountedPayment ? cartTransferTotal : cartSubtotal),
     [discountedPayment, cartTransferTotal, cartSubtotal]
@@ -270,21 +252,28 @@ export default function CheckoutPage() {
     }
   }, [merchandise, promoCode, session?.id, orders, promos]);
 
+  const interiorRate =
+    zone === "interior" &&
+    cartShipping.rate &&
+    cartShipping.rate.packages === cartCount
+      ? cartShipping.rate
+      : null;
+
   const shippingQuote = useMemo(() => {
     const free = isFreeShipping(merchandise);
     if (zone === "interior") {
-      if (cartShipping.rate) {
+      if (interiorRate) {
         const carrier =
-          cartShipping.rate.carrier === "andreani"
+          interiorRate.carrier === "andreani"
             ? "Andreani"
             : "Correo Argentino";
         return {
           zone,
-          label: `${free ? "Envío gratis · " : ""}${carrier} · ${cartShipping.rate.name}${
+          label: `${free ? "Envío gratis · " : ""}${carrier} · ${interiorRate.name}${
             cartCount > 1 ? ` · ${cartCount} pares` : ""
           }`,
-          cost: free ? 0 : cartShipping.rate.price,
-          eta: `${cartShipping.rate.daysMin} a ${cartShipping.rate.daysMax} días hábiles desde Rosario. ${HOLIDAYS_NOTE}`,
+          cost: free ? 0 : interiorRate.price,
+          eta: `${interiorRate.daysMin} a ${interiorRate.daysMax} días hábiles desde Rosario. ${HOLIDAYS_NOTE}`,
         };
       }
       return {
@@ -295,18 +284,13 @@ export default function CheckoutPage() {
       };
     }
     return quoteShipping(zone, merchandise);
-  }, [zone, merchandise, cartShipping.rate, cartCount]);
+  }, [zone, merchandise, interiorRate, cartCount]);
 
   const shippingCost = shippingQuote.cost;
 
   const total = Math.max(0, merchandise - discount + shippingCost);
   const canConfirm =
-    !submitting &&
-    !(zone === "interior" && !cartShipping.rate) &&
-    !(
-      zone === "rosario" &&
-      (!cartShipping.deliveryDate || !cartShipping.deliverySlot)
-    );
+    !submitting && !(zone === "interior" && !interiorRate);
 
   const selectedStore = getStore(storeId);
 
@@ -457,9 +441,10 @@ export default function CheckoutPage() {
             </section>
           )}
 
-          {done.shippingDetails?.sameDayEligible && (
-            <p className="mt-4 text-center text-sm font-medium text-[#16a34a]">
-              Envío en el día a Rosario / alrededores (pedido antes de las 12 pm).
+          {done.shippingDetails?.zone === "rosario" && (
+            <p className="mt-4 text-center text-sm text-soft">
+              Una vez aprobado el pago, nos vamos a comunicar con vos, para
+              pactar el día y horario de entrega.
             </p>
           )}
 
@@ -515,15 +500,6 @@ export default function CheckoutPage() {
             e.preventDefault();
             setError("");
 
-            if (zone === "rosario") {
-              if (!cartShipping.deliveryDate || !cartShipping.deliverySlot) {
-                setError(
-                  "Para envíos en Rosario indicá día y horario disponibles para la entrega."
-                );
-                return;
-              }
-            }
-
             if (zone === "interior") {
               if (!dni.trim() || !postalCode.trim() || !province.trim()) {
                 setError(
@@ -531,7 +507,7 @@ export default function CheckoutPage() {
                 );
                 return;
               }
-              if (!cartShipping.rate) {
+              if (!interiorRate) {
                 setError("Elegí una opción de envío: Correo Argentino o Andreani.");
                 return;
               }
@@ -592,24 +568,19 @@ export default function CheckoutPage() {
                 zone === "retiro" ? "2000" : postalCode.trim(),
               dni: zone === "interior" ? dni.trim() : undefined,
               notes: notes.trim() || undefined,
-              sameDayEligible: zone === "rosario" ? sameDayEligible : false,
-              deliveryDate:
-                zone === "rosario" ? cartShipping.deliveryDate : undefined,
-              deliverySlot:
-                zone === "rosario" ? cartShipping.deliverySlot : undefined,
               storeId: store?.id,
               storeName: store?.name,
               shippingRateId:
-                zone === "interior" ? cartShipping.rate?.id : undefined,
+                zone === "interior" ? interiorRate?.id : undefined,
               shippingQuoteId:
                 zone === "interior"
-                  ? cartShipping.rate?.quoteId ?? undefined
+                  ? interiorRate?.quoteId ?? undefined
                   : undefined,
               shippingRateName:
-                zone === "interior" ? cartShipping.rate?.name : undefined,
+                zone === "interior" ? interiorRate?.name : undefined,
               shippingCarrier:
                 zone === "interior"
-                  ? toTrackingCarrier(cartShipping.rate?.carrier)
+                  ? toTrackingCarrier(interiorRate?.carrier)
                   : "rastro",
             };
 
@@ -765,57 +736,27 @@ export default function CheckoutPage() {
               )}
 
               {zone === "rosario" ? (
-                <div
-                  className={`mt-4 border px-4 py-3 text-sm ${
-                    sameDayEligible
-                      ? "border-[#16a34a]/30 bg-[#16a34a]/5 text-[#166534]"
-                      : "border-black/10 bg-[#f5f4f0] text-soft"
-                  }`}
-                >
-                  {sameDayEligible ? (
-                    <>
-                      <p className="font-semibold">Envío en el día disponible</p>
-                      <p className="mt-1">
-                        Pediste antes de las 12 pm. El pedido llega hoy a Rosario
-                        y alrededores.
-                      </p>
-                    </>
-                  ) : (
-                    <>
-                      <p className="font-semibold text-[#222222]">
-                        Envío en el día: pedí antes de las 12 pm
-                      </p>
-                      <p className="mt-1">
-                        Fuera de esa franja (o fin de semana), el pedido sale el
-                        siguiente día hábil.
-                      </p>
-                    </>
-                  )}
+                <div className="mt-4">
+                  <RosarioDeliveryFields />
                   <Link
                     href="/envios"
                     className="mt-2 inline-block text-[11px] font-semibold uppercase underline"
                   >
                     Ver política de envíos
                   </Link>
-                  <RosarioDeliveryFields
-                    className="mt-4"
-                    date={cartShipping.deliveryDate}
-                    slot={cartShipping.deliverySlot}
-                    onChange={(next) => setCartShipping(next)}
-                  />
                 </div>
               ) : zone === "interior" ? (
                 <div className="mt-4 border border-black/10 bg-[#f5f4f0] px-4 py-3 text-sm text-soft">
-                  {cartShipping.rate ? (
+                  {interiorRate ? (
                     <>
                       <p className="font-semibold text-[#222222]">
                         Envío al interior · CP {postalCode}
                       </p>
                       <p className="mt-1">
-                        Ya elegiste {cartShipping.rate.carrier === "andreani"
+                        Ya elegiste {interiorRate.carrier === "andreani"
                           ? "Andreani"
                           : "Correo Argentino"}{" "}
-                        · {cartShipping.rate.name}. Completá tus datos de
+                        · {interiorRate.name}. Completá tus datos de
                         entrega abajo.
                       </p>
                     </>
@@ -835,12 +776,18 @@ export default function CheckoutPage() {
                     className="mt-4"
                     postalCode={postalCode}
                     packages={cartCount}
-                    selectedRateId={cartShipping.rate?.id}
-                    selectedRate={cartShipping.rate}
+                    selectedRateId={interiorRate?.id}
+                    selectedRate={interiorRate}
                     onPostalCodeChange={(cp) =>
                       setCartShipping({ postalCode: cp })
                     }
-                    onSelectRate={(rate) => setCartShipping({ rate })}
+                    onSelectRate={(rate) =>
+                      setCartShipping({
+                        rate: rate
+                          ? { ...rate, packages: cartCount }
+                          : null,
+                      })
+                    }
                   />
                 </div>
               ) : null}
@@ -1064,7 +1011,7 @@ export default function CheckoutPage() {
                         ? "Ej: retiro a la tarde, otro nombre…"
                         : zone === "interior"
                           ? "Ej: timbre roto, dejar en portería…"
-                          : "Ej: portero eléctrico, horario preferido…"
+                          : "Ej: portero eléctrico, referencias…"
                     }
                   />
                 </label>
@@ -1281,7 +1228,7 @@ export default function CheckoutPage() {
               <div className="flex justify-between">
                 <span className="text-soft">{shippingQuote.label}</span>
                 <span>
-                  {zone === "interior" && !cartShipping.rate
+                  {zone === "interior" && !interiorRate
                     ? "—"
                     : shippingCost === 0
                       ? "Gratis"

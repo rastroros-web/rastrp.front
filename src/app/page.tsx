@@ -39,7 +39,9 @@ const collectionBanners = banners.slice(7, 10);
 
 /** Banners promo / colección → rutas de catálogo */
 const promoLinks = ["/productos", "/productos", "/mujer"] as const;
+const promoAlts = ["Promo 1", "Promo 2", "Talles mujer"] as const;
 const collectionLinks = ["/hombre", "/samba", "/nike"] as const;
+const collectionAlts = ["Talles hombres", "Samba importadas", "Nike importadas"] as const;
 
 const reviews = [
   {
@@ -86,7 +88,7 @@ export default function Home() {
                 <PixelTransition
                   firstContent={
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={src} alt={`Promo ${i + 1}`} className="h-full w-full object-contain" />
+                    <img src={src} alt={promoAlts[i] ?? `Promo ${i + 1}`} className="h-full w-full object-contain" />
                   }
                   secondContent={
                     <div className="flex h-full w-full items-center justify-center bg-[#222222] text-center">
@@ -123,7 +125,7 @@ export default function Home() {
                 Envíos
               </h3>
               <p className="mt-2 text-xs font-semibold tracking-[0.14em] text-soft uppercase">
-                Rosario en el día · a todo el país
+                Rosario · a todo el país
               </p>
             </FadeContent>
             <FadeContent blur duration={900} delay={0.3}>
@@ -158,7 +160,7 @@ export default function Home() {
                 >
                   <Image
                     src={src}
-                    alt={`Colección Rastro ${i + 1}`}
+                    alt={collectionAlts[i] ?? `Colección Rastro ${i + 1}`}
                     fill
                     className="object-contain [backface-visibility:hidden]"
                     sizes="(max-width: 768px) 100vw, 33vw"

@@ -64,7 +64,9 @@ function trackingMessage(order: {
         ? "Estamos esperando tu transferencia. Mandanos el comprobante por WhatsApp; cuando acredite, el pedido pasa a pagado."
         : "Tu pedido está pendiente de pago con Mercado Pago. Completá el cobro para confirmarlo.";
     case "pagado":
-      return "Pago confirmado. En breve armamos tu pedido para despachar.";
+      return zone === "rosario"
+        ? "Pago confirmado. Nos vamos a comunicar con vos, para pactar el día y horario de entrega."
+        : "Pago confirmado. En breve armamos tu pedido para despachar.";
     case "preparando":
       return postal
         ? "Estamos preparando tu pedido. El código de seguimiento aparece cuando se despache."
@@ -74,7 +76,7 @@ function trackingMessage(order: {
       if (postal) {
         return "Tu pedido ya salió. El tracking se carga en cuanto el correo lo informe.";
       }
-      return "Tu pedido ya salió. Te llega a Rosario en el horario coordinado.";
+      return "Tu pedido ya salió. Te llega a Rosario en el día y horario pactados.";
     case "entregado":
       return "Pedido entregado. Si necesitás ayuda, escribinos por WhatsApp.";
     default:

@@ -228,7 +228,6 @@ export function seedOrders(): MockOrder[] {
         province: "Santa Fe",
         postalCode: "2000",
         dni: "35111222",
-        sameDayEligible: true,
       },
       trackingCarrier: "andreani",
       trackingCode: "360000098765432",
