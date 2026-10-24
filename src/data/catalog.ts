@@ -239,25 +239,25 @@ export function pricedForMegaSale(
         : 0
       : megaSalePercentOf(product);
   const original = parseMoney(listPrice);
-  const transfer = transferFromPrice(listPrice);
   if (!percent || original <= 0) {
     return {
       active: false,
       percent: 0,
       original: listPrice,
       price: listPrice,
-      transfer,
+      transfer: transferPrice || transferFromPrice(listPrice),
       installments: installmentFromPrice(listPrice),
       until: null as string | null,
     };
   }
+  /** Precio web con Mega Sale; el 25% OFF transferencia se calcula sobre ese precio. */
   const price = formatMoney(original * (1 - percent / 100));
   return {
     active: true,
     percent,
     original: formatMoney(original),
     price,
-    transfer,
+    transfer: transferFromPrice(price),
     installments: installmentFromPrice(price),
     until: megaSaleUntilLabel(
       variant && typeof variant.megaSale === "boolean"
