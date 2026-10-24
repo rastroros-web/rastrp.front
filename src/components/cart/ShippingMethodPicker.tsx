@@ -23,7 +23,10 @@ function ratesFor(quote: ShippingQuoteResult, carrierId: string) {
 }
 
 /** La tarifa viaja junto al id de su cotización: el backend cobra a partir de ese par. */
-type QuotedRate = ShippingRate & { quoteId?: string | null };
+type QuotedRate = ShippingRate & {
+  quoteId?: string | null;
+  packages?: number;
+};
 
 function withQuote(
   rate: ShippingRate | null,
