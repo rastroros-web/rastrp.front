@@ -26,14 +26,24 @@ function ratesFor(quote: ShippingQuoteResult, carrierId: string) {
 type QuotedRate = ShippingRate & {
   quoteId?: string | null;
   packages?: number;
+  postalCode?: string;
+  expiresAt?: string | null;
 };
 
 function withQuote(
   rate: ShippingRate | null,
-  quote: ShippingQuoteResult | null
+  quote: ShippingQuoteResult | null,
+  packages: number,
+  postalCode: string
 ): QuotedRate | null {
   if (!rate) return null;
-  return { ...rate, quoteId: quote?.quoteId ?? null };
+  return {
+    ...rate,
+    quoteId: quote?.quoteId ?? null,
+    packages,
+    postalCode: postalCode.replace(/\D/g, "").slice(0, 4),
+    expiresAt: quote?.expiresAt ?? null,
+  };
 }
 
 function carrierLabel(carrier?: string) {
@@ -153,10 +163,7 @@ export function ShippingMethodPicker({
         if (keepId) {
           const next = data.rates.find((r) => r.id === keepId) || null;
           if (next) {
-            onSelectRate({
-              ...withQuote(next, data)!,
-              packages: qty,
-            });
+            onSelectRate(withQuote(next, data, qty, cp));
           }
         }
       } catch (err) {
@@ -253,10 +260,9 @@ export function ShippingMethodPicker({
                         key={rate.id}
                         type="button"
                         onClick={() =>
-                          onSelectRate({
-                            ...withQuote(rate, quote)!,
-                            packages: qty,
-                          })
+                          onSelectRate(
+                            withQuote(rate, quote, qty, quotedCp || draft)
+                          )
                         }
                         className={`chip-press flex w-full items-baseline justify-between gap-3 border px-3 py-2.5 text-left ${
                           active

@@ -37,6 +37,20 @@ export function getSizeStock(
   return size ? sizeQty(size) : 0;
 }
 
+/** Stock vigente de una línea del carrito. `missing` si el producto, color o talle ya no está en el catálogo. */
+export function cartLineAvailability(
+  item: { productSlug: string; variantId: string; size: string },
+  products: ShopProduct[]
+): { available: number; missing: boolean } {
+  const product = products.find((p) => p.slug === item.productSlug);
+  if (!product || product.active === false) return { available: 0, missing: true };
+  const variant = product.variants.find((v) => v.id === item.variantId);
+  if (!variant) return { available: 0, missing: true };
+  const size = variant.sizes.find((s) => s.label === item.size);
+  if (!size) return { available: 0, missing: true };
+  return { available: sizeQty(size), missing: false };
+}
+
 export function stockLabelFromSizes(
   sizes: { inStock?: boolean; stock?: number }[]
 ): { tone: "ok" | "low" | "out"; text: string } | null {

@@ -19,6 +19,7 @@ import {
 import {
   HOLIDAYS_NOTE,
   isFreeShipping,
+  isInteriorRateValid,
   quoteShipping,
 } from "@/lib/mock/shipping";
 import { RosarioDeliveryFields } from "@/components/cart/RosarioDeliveryFields";
@@ -122,6 +123,7 @@ export default function CheckoutPage() {
     cartShipping,
     setCartShipping,
     cartCount,
+    revalidateCartPrices,
   } = useStore();
   const { config: transferBank } = useTransferBank();
   const [selectedPayment, setPaymentMethod] =
@@ -155,6 +157,7 @@ export default function CheckoutPage() {
   );
   const [done, setDone] = useState<MockOrder | null>(null);
   const [error, setError] = useState("");
+  const [priceNotice, setPriceNotice] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const idempotencyKeyRef = useRef(newCheckoutIdempotencyKey());
 
@@ -252,15 +255,20 @@ export default function CheckoutPage() {
     }
   }, [merchandise, promoCode, session?.id, orders, promos]);
 
+  const freeShippingCheckout = isFreeShipping(merchandise);
+
   const interiorRate =
     zone === "interior" &&
-    cartShipping.rate &&
-    cartShipping.rate.packages === cartCount
+    isInteriorRateValid(cartShipping.rate, {
+      packages: cartCount,
+      postalCode,
+      ignoreExpiry: freeShippingCheckout,
+    })
       ? cartShipping.rate
       : null;
 
   const shippingQuote = useMemo(() => {
-    const free = isFreeShipping(merchandise);
+    const free = freeShippingCheckout;
     if (zone === "interior") {
       if (interiorRate) {
         const carrier =
@@ -284,7 +292,7 @@ export default function CheckoutPage() {
       };
     }
     return quoteShipping(zone, merchandise);
-  }, [zone, merchandise, interiorRate, cartCount]);
+  }, [zone, merchandise, interiorRate, cartCount, freeShippingCheckout]);
 
   const shippingCost = shippingQuote.cost;
 
@@ -345,6 +353,15 @@ export default function CheckoutPage() {
       }
     }
   }, [zone, postalCode, setCartShipping]);
+
+  const priceCheckedRef = useRef(false);
+  useEffect(() => {
+    if (!ready || cart.length === 0 || priceCheckedRef.current) return;
+    priceCheckedRef.current = true;
+    revalidateCartPrices().then((result) => {
+      if (result.changed && result.message) setPriceNotice(result.message);
+    });
+  }, [ready, cart.length, revalidateCartPrices]);
 
   useEffect(() => {
     if (!done) return;
@@ -493,6 +510,11 @@ export default function CheckoutPage() {
         <p className="mt-2 text-sm text-soft">
           Completá tus datos y elegí envío o retiro.
         </p>
+        {priceNotice ? (
+          <p className="mt-4 border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-950">
+            {priceNotice}
+          </p>
+        ) : null}
 
         <form
           className="mt-6 grid gap-6 lg:mt-8 lg:grid-cols-[1fr_320px] lg:gap-8"
@@ -504,6 +526,19 @@ export default function CheckoutPage() {
               if (!dni.trim() || !postalCode.trim() || !province.trim()) {
                 setError(
                   "Para envíos fuera de Rosario completá DNI, provincia y código postal."
+                );
+                return;
+              }
+              if (
+                !isInteriorRateValid(cartShipping.rate, {
+                  packages: cartCount,
+                  postalCode,
+                  ignoreExpiry: freeShippingCheckout,
+                })
+              ) {
+                setCartShipping({ rate: null });
+                setError(
+                  "La cotización del envío venció o ya no corresponde a este carrito. Volvé a calcular el envío."
                 );
                 return;
               }
@@ -612,15 +647,29 @@ export default function CheckoutPage() {
             });
             setSubmitting(false);
             if (!result.ok) {
-              if (/Ya tenés cuenta/i.test(result.error || "")) {
+              const message = result.error || "No se pudo confirmar el pedido.";
+              if (/Ya tenés cuenta/i.test(message)) {
                 setNeedPassword(true);
               }
-              if (
-                /Idempotency-Key ya se usó/i.test(result.error || "")
-              ) {
+              if (/Idempotency-Key ya se usó/i.test(message)) {
                 idempotencyKeyRef.current = newCheckoutIdempotencyKey();
               }
-              setError(result.error || "No se pudo confirmar el pedido.");
+              if (/cotización|Volvé a calcular el envío/i.test(message)) {
+                setCartShipping({ rate: null });
+              }
+              if (
+                /stock suficiente|No hay stock|Actualizamos el precio|oferta ya no está vigente|cambiaron en el catálogo|no tiene stock|no tienen stock|ya no está disponible|ya no están disponibles|Ajustamos la cantidad|Ajustamos las cantidades/i.test(
+                  message
+                )
+              ) {
+                try {
+                  await revalidateCartPrices();
+                } catch {
+                  /* el aviso abajo alcanza */
+                }
+                setPriceNotice(message);
+              }
+              setError(message);
               return;
             }
 
@@ -784,7 +833,11 @@ export default function CheckoutPage() {
                     onSelectRate={(rate) =>
                       setCartShipping({
                         rate: rate
-                          ? { ...rate, packages: cartCount }
+                          ? {
+                              ...rate,
+                              packages: rate.packages ?? cartCount,
+                              postalCode: rate.postalCode || postalCode,
+                            }
                           : null,
                       })
                     }
@@ -1165,6 +1218,11 @@ export default function CheckoutPage() {
             <h2 className="text-sm font-semibold uppercase tracking-wide">
               Resumen
             </h2>
+            {priceNotice ? (
+              <p className="mt-3 border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-950">
+                {priceNotice}
+              </p>
+            ) : null}
             <ul className="mt-4 space-y-2 text-sm">
               {cart.map((i) => (
                 <li key={i.id} className="flex justify-between gap-2">

@@ -2,6 +2,7 @@
 
 import { ShopImage as Image } from "@/components/ShopImage";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useCallback, useMemo, useState } from "react";
 import { RosarioDeliveryFields } from "@/components/cart/RosarioDeliveryFields";
 import { ShippingMethodPicker } from "@/components/cart/ShippingMethodPicker";
@@ -9,9 +10,42 @@ import { CartAddresses } from "@/components/cart/CartAddresses";
 import { ShopChrome } from "@/components/ShopChrome";
 import { useStore } from "@/components/store/StoreProvider";
 import { formatMoney } from "@/lib/mock/money";
-import { isFreeShipping, quoteShipping } from "@/lib/mock/shipping";
+import { cartLineAvailability } from "@/lib/mock/stock";
+import {
+  isFreeShipping,
+  isInteriorRateValid,
+  quoteShipping,
+} from "@/lib/mock/shipping";
 import { STORES } from "@/lib/mock/stores";
-import type { SavedAddress, ShippingZone } from "@/lib/mock/types";
+import type { SavedAddress, ShippingZone, ShopProduct } from "@/lib/mock/types";
+
+function CartStockNote({
+  item,
+  products,
+  ready,
+}: {
+  item: { productSlug: string; variantId: string; size: string; qty: number };
+  products: ShopProduct[];
+  ready: boolean;
+}) {
+  if (!ready) return null;
+  const stock = cartLineAvailability(item, products);
+  if (stock.available <= 0) {
+    return (
+      <p className="mt-1 text-xs font-medium text-red-600">
+        {stock.missing ? "Ya no está disponible" : "Sin stock"}
+      </p>
+    );
+  }
+  if (item.qty > stock.available) {
+    return (
+      <p className="mt-1 text-xs font-medium text-red-600">
+        Solo quedan {stock.available}
+      </p>
+    );
+  }
+  return null;
+}
 
 const ZONES: { id: ShippingZone; label: string }[] = [
   { id: "rosario", label: "Rosario" },
@@ -30,8 +64,14 @@ export default function CartPage() {
     cartShipping,
     setCartShipping,
     cartCount,
+    products,
+    catalogReady,
+    revalidateCartPrices,
   } = useStore();
+  const router = useRouter();
   const [leaving, setLeaving] = useState<Record<string, boolean>>({});
+  const [checkingPrices, setCheckingPrices] = useState(false);
+  const [priceNotice, setPriceNotice] = useState("");
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(
     null
   );
@@ -53,6 +93,29 @@ export default function CartPage() {
     },
     [cartShipping.zone, setCartShipping]
   );
+
+  const goToCheckout = async () => {
+    if (checkingPrices) return;
+    setCheckingPrices(true);
+    setPriceNotice("");
+    try {
+      const result = await revalidateCartPrices();
+      if (result.changed) {
+        setPriceNotice(
+          result.message ||
+            "Actualizamos los precios del carrito. Revisá el total antes de continuar."
+        );
+        return;
+      }
+      router.push("/checkout");
+    } catch {
+      setPriceNotice(
+        "No pudimos confirmar los precios del catálogo. Probá de nuevo en un momento."
+      );
+    } finally {
+      setCheckingPrices(false);
+    }
+  };
 
   const handleRemove = (id: string) => {
     if (leaving[id]) return;
@@ -76,8 +139,11 @@ export default function CartPage() {
 
   const interiorRate =
     cartShipping.zone === "interior" &&
-    cartShipping.rate &&
-    cartShipping.rate.packages === cartCount
+    isInteriorRateValid(cartShipping.rate, {
+      packages: cartCount,
+      postalCode: cartShipping.postalCode,
+      ignoreExpiry: freeShipping,
+    })
       ? cartShipping.rate
       : null;
 
@@ -115,6 +181,11 @@ export default function CartPage() {
             ? "Tu carrito está vacío"
             : `${cart.reduce((s, i) => s + i.qty, 0)} productos`}
         </p>
+        {priceNotice ? (
+          <p className="mt-4 border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-950">
+            {priceNotice}
+          </p>
+        ) : null}
 
         {cart.length === 0 ? (
           <div className="mt-10">
@@ -160,6 +231,11 @@ export default function CartPage() {
                     <p className="mt-1 text-xs text-soft">
                       {item.variantName} · talle {item.size}
                     </p>
+                    <CartStockNote
+                      item={item}
+                      products={products}
+                      ready={catalogReady}
+                    />
                     <p className="mt-2 text-sm font-semibold">{item.price}</p>
                     <p className="text-xs text-[#16a34a]">
                       {item.transfer} con transferencia
@@ -254,7 +330,12 @@ export default function CartPage() {
                       onSelectRate={(rate) =>
                         setCartShipping({
                           rate: rate
-                            ? { ...rate, packages: cartCount }
+                            ? {
+                                ...rate,
+                                packages: rate.packages ?? cartCount,
+                                postalCode:
+                                  rate.postalCode || cartShipping.postalCode,
+                              }
                             : null,
                         })
                       }
@@ -397,12 +478,14 @@ export default function CartPage() {
                     (cartShipping.zone === "retiro" && !cartShipping.storeId)
                   }
                 >
-                  <Link
-                    href="/checkout"
-                    className="btn-press flex w-full items-center justify-center bg-[#222222] px-4 py-3 text-[11px] font-semibold tracking-[0.14em] text-white uppercase hover:bg-black"
+                  <button
+                    type="button"
+                    onClick={goToCheckout}
+                    disabled={checkingPrices}
+                    className="btn-press flex w-full items-center justify-center bg-[#222222] px-4 py-3 text-[11px] font-semibold tracking-[0.14em] text-white uppercase hover:bg-black disabled:opacity-60"
                   >
-                    Ir al checkout
-                  </Link>
+                    {checkingPrices ? "Revisando…" : "Ir al checkout"}
+                  </button>
                 </div>
               </div>
               <Link
@@ -442,12 +525,14 @@ export default function CartPage() {
                 Elegí local
               </span>
             ) : (
-              <Link
-                href="/checkout"
-                className="btn-press shrink-0 bg-[#222222] px-5 py-3 text-[11px] font-semibold tracking-[0.12em] text-white uppercase"
+              <button
+                type="button"
+                onClick={goToCheckout}
+                disabled={checkingPrices}
+                className="btn-press shrink-0 bg-[#222222] px-5 py-3 text-[11px] font-semibold tracking-[0.12em] text-white uppercase disabled:opacity-60"
               >
-                Checkout
-              </Link>
+                {checkingPrices ? "Revisando…" : "Checkout"}
+              </button>
             )}
           </div>
         </div>

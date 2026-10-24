@@ -28,6 +28,7 @@ import { parseMoney, uid } from "@/lib/mock/money";
 import { calcPromoDiscount, SEED_PROMO_CODES, validatePromo, type PromoCode } from "@/lib/mock/promos";
 import { quoteShipping } from "@/lib/mock/shipping";
 import {
+  cartLineAvailability,
   getSizeStock,
   normalizeProductStock,
   sizeQty,
@@ -120,6 +121,11 @@ function remoteBagKey(bag: AccountBag): string {
   });
 }
 
+function moneyCents(value: string): number {
+  return Math.round(parseMoney(value) * 100);
+}
+
+/** Precio vigente del catálogo: con Mega Sale si sigue activa, o el precio de lista si ya terminó. */
 function withLiveCartPrices(item: CartItem, products: ShopProduct[]): CartItem {
   const product = products.find((p) => p.slug === item.productSlug);
   const variant = product?.variants.find((v) => v.id === item.variantId);
@@ -130,13 +136,82 @@ function withLiveCartPrices(item: CartItem, products: ShopProduct[]): CartItem {
     product,
     variant
   );
-  if (!priced.active) return item;
   return {
     ...item,
     price: priced.price,
     transfer: priced.transfer,
     listPrice: priced.price,
   };
+}
+
+function cartLinePriceChanged(a: CartItem, b: CartItem): boolean {
+  return (
+    moneyCents(a.price) !== moneyCents(b.price) ||
+    moneyCents(a.transfer) !== moneyCents(b.transfer)
+  );
+}
+
+function priceChangeMessage(before: CartItem[], after: CartItem[]): string {
+  const rows = after.flatMap((item, index) => {
+    const prev = before[index];
+    if (!prev || !cartLinePriceChanged(prev, item)) return [];
+    return [
+      {
+        name: item.productName,
+        up: moneyCents(item.price) > moneyCents(prev.price),
+      },
+    ];
+  });
+  const names = [...new Set(rows.map((row) => row.name).filter(Boolean))];
+  const label = names.length === 1 ? names[0] : names.join(", ");
+  const wentUp = rows.some((row) => row.up);
+  if (wentUp) {
+    return names.length === 1
+      ? `Actualizamos el precio de ${label}. La oferta ya no está vigente y el carrito volvió al precio del catálogo. Revisá el total antes de continuar.`
+      : `Actualizamos los precios de ${label}. Una oferta ya no está vigente y el carrito volvió al precio del catálogo. Revisá el total antes de continuar.`;
+  }
+  return names.length === 1
+    ? `Actualizamos el precio de ${label}. El valor del catálogo cambió. Revisá el total antes de continuar.`
+    : "Actualizamos los precios del carrito porque cambiaron en el catálogo. Revisá el total antes de continuar.";
+}
+
+function stockIssueMessage(
+  issues: {
+    name: string;
+    size: string;
+    available: number;
+    missing: boolean;
+  }[]
+): string {
+  const gone = issues.filter((issue) => issue.available <= 0);
+  const short = issues.filter((issue) => issue.available > 0);
+  const parts: string[] = [];
+  if (gone.length) {
+    const label = gone
+      .map((issue) => `${issue.name} talle ${issue.size}`)
+      .join(", ");
+    const unavailable = gone.every((issue) => issue.missing);
+    parts.push(
+      gone.length === 1
+        ? unavailable
+          ? `${label} ya no está disponible. Sacalo del carrito para continuar.`
+          : `${label} ya no tiene stock. Sacalo del carrito para continuar.`
+        : unavailable
+          ? `Estos productos ya no están disponibles: ${label}. Sacalos del carrito para continuar.`
+          : `Estos productos ya no tienen stock: ${label}. Sacalos del carrito para continuar.`
+    );
+  }
+  if (short.length) {
+    const label = short
+      .map((issue) => `${issue.name} talle ${issue.size} (quedan ${issue.available})`)
+      .join(", ");
+    parts.push(
+      short.length === 1
+        ? `Ajustamos la cantidad de ${label}. Revisá el carrito antes de continuar.`
+        : `Ajustamos las cantidades: ${label}. Revisá el carrito antes de continuar.`
+    );
+  }
+  return parts.join(" ");
 }
 
 /** Avisa al panel de gestión que el backend pudo haber cambiado la planilla. */
@@ -194,6 +269,12 @@ type StoreContextValue = {
   updateCartQty: (id: string, qty: number) => void;
   removeFromCart: (id: string) => void;
   clearCart: () => void;
+  /** Vuelve a leer el catálogo y compara precio y stock del carrito. */
+  revalidateCartPrices: () => Promise<{
+    changed: boolean;
+    message?: string;
+    items: CartItem[];
+  }>;
   toggleWishlist: (slug: string, variantId?: string | null) => void;
   isWishlisted: (slug: string, variantId?: string | null) => boolean;
   trackView: (slug: string) => void;
@@ -311,6 +392,13 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     useState<CartShippingPref>(EMPTY_SHIPPING);
   const bagOwnerRef = useRef(GUEST_BAG_ID);
   const lastRemoteBagKeyRef = useRef("");
+  const cartRef = useRef(cart);
+  const productsRef = useRef(products);
+  const displayedCartRef = useRef<CartItem[]>(cart);
+  const catalogReadyRef = useRef(false);
+  cartRef.current = cart;
+  productsRef.current = products;
+  catalogReadyRef.current = catalogReady;
   const [bagSynced, setBagSynced] = useState(false);
 
   useEffect(() => {
@@ -970,6 +1058,95 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   const clearCart = useCallback(() => setCart([]), []);
 
+  const revalidateCartPrices = useCallback(async () => {
+    const stored = cartRef.current;
+    const seenCatalog = productsRef.current;
+    const baselineReady = catalogReadyRef.current;
+    const onScreen = displayedCartRef.current;
+    const seen =
+      onScreen.length === stored.length
+        ? onScreen
+        : stored.map((item) => withLiveCartPrices(item, seenCatalog));
+
+    let catalog = seenCatalog;
+    if (getBackendUrl()) {
+      try {
+        const fromApi = await fetchShopProducts({ force: true });
+        if (fromApi?.length) {
+          catalog = fromApi.map((product) =>
+            fillEmptyVariantImages(normalizeProductStock(product))
+          );
+          productsRef.current = catalog;
+          setProducts(catalog);
+        }
+      } catch {
+        /* seguimos con el catálogo que ya está en memoria */
+      }
+    }
+
+    const priced = stored.map((item) => withLiveCartPrices(item, catalog));
+    const trustCatalog = baselineReady || catalog !== seenCatalog;
+    const stockIssues: {
+      name: string;
+      size: string;
+      available: number;
+      missing: boolean;
+    }[] = [];
+    const next = priced.map((item) => {
+      if (!trustCatalog) return item;
+      const stock = cartLineAvailability(item, catalog);
+      if (stock.available <= 0) {
+        stockIssues.push({
+          name: item.productName,
+          size: item.size,
+          available: 0,
+          missing: stock.missing,
+        });
+        return item;
+      }
+      if (item.qty > stock.available) {
+        stockIssues.push({
+          name: item.productName,
+          size: item.size,
+          available: stock.available,
+          missing: false,
+        });
+        return { ...item, qty: stock.available };
+      }
+      return item;
+    });
+    const pricesChanged =
+      baselineReady &&
+      next.some(
+        (item, index) => seen[index] && cartLinePriceChanged(seen[index], item)
+      );
+    const needsWrite = next.some((item, index) => {
+      const current = stored[index];
+      return (
+        !current ||
+        item.price !== current.price ||
+        item.transfer !== current.transfer ||
+        item.listPrice !== current.listPrice ||
+        item.qty !== current.qty
+      );
+    });
+    if (needsWrite) {
+      cartRef.current = next;
+      setCart(next);
+    }
+
+    const messages = [
+      pricesChanged ? priceChangeMessage(seen, next) : "",
+      stockIssues.length ? stockIssueMessage(stockIssues) : "",
+    ].filter(Boolean);
+    if (!messages.length) return { changed: false as const, items: next };
+    return {
+      changed: true as const,
+      message: messages.join(" "),
+      items: next,
+    };
+  }, []);
+
   const setCartShipping = useCallback((next: Partial<CartShippingPref>) => {
     setCartShippingState((prev) => {
       const zone = (next.zone ?? prev.zone) as ShippingZone;
@@ -1051,15 +1228,26 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         password?: string;
       };
     }): Promise<PlaceOrderResult> => {
-      if (cart.length === 0) {
+      if (cartRef.current.length === 0) {
         return { ok: false, error: "El carrito está vacío." };
       }
+
+      const priceCheck = await revalidateCartPrices();
+      if (priceCheck.changed) {
+        return {
+          ok: false,
+          error:
+            priceCheck.message ||
+            "Los precios del carrito cambiaron. Revisá el total antes de pagar.",
+        };
+      }
+      const cartLines = priceCheck.items;
 
       if (hasApiAuth() || getBackendUrl()) {
         try {
           const order = await createShopOrder(
             {
-              items: cart.map((c) => ({
+              items: cartLines.map((c) => ({
                 productSlug: c.productSlug,
                 variantId: c.variantId,
                 size: c.size,
@@ -1096,13 +1284,18 @@ export function StoreProvider({ children }: { children: ReactNode }) {
             .catch(() => {});
           return { ok: true, order };
         } catch (err) {
-          return {
-            ok: false,
-            error:
-              err instanceof Error
-                ? err.message
-                : "No se pudo confirmar el pedido.",
-          };
+          const message =
+            err instanceof Error
+              ? err.message
+              : "No se pudo confirmar el pedido.";
+          if (/stock suficiente|No hay stock/i.test(message)) {
+            try {
+              await revalidateCartPrices();
+            } catch {
+              /* el mensaje del servidor alcanza */
+            }
+          }
+          return { ok: false, error: message };
         }
       }
 
@@ -1132,11 +1325,11 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         setSession(mockSession);
       }
 
-      const subtotal = cart.reduce(
+      const subtotal = cartLines.reduce(
         (s, i) => s + parseMoney(i.price) * i.qty,
         0
       );
-      const transferTotal = cart.reduce(
+      const transferTotal = cartLines.reduce(
         (s, i) => s + parseMoney(i.transfer) * i.qty,
         0
       );
@@ -1158,9 +1351,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       const discount =
         input.discount ?? calcPromoDiscount(promo, merchandise);
 
-      for (const item of cart) {
+      for (const item of cartLines) {
         const available = getSizeStock(
-          products.find((p) => p.slug === item.productSlug),
+          productsRef.current.find((p) => p.slug === item.productSlug),
           item.variantId,
           item.size
         );
@@ -1180,7 +1373,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
       setProducts((prev) =>
         prev.map((p) => {
-          const touches = cart.filter((c) => c.productSlug === p.slug);
+          const touches = cartLines.filter((c) => c.productSlug === p.slug);
           if (!touches.length) return p;
           return {
             ...p,
@@ -1205,7 +1398,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         userId: mockSession.id,
         userName: mockSession.name,
         userEmail: mockSession.email,
-        items: cart.map((c) => ({ ...c, id: uid("item") })),
+        items: cartLines.map((c) => ({ ...c, id: uid("item") })),
         subtotal,
         transferTotal,
         shipping,
@@ -1230,7 +1423,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       }
       return { ok: true, order };
     },
-    [session, cart, orders, promos, products]
+    [session, orders, promos, revalidateCartPrices]
   );
 
   const updateOrderStatus = useCallback(
@@ -1743,10 +1936,26 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       prev.rate ? { ...prev, rate: null } : prev
     );
   }, [cartCount]);
+
+  useEffect(() => {
+    if (!catalogReady) return;
+    setCart((prev) => {
+      let dirty = false;
+      const next = prev.map((item) => {
+        const live = withLiveCartPrices(item, products);
+        if (!cartLinePriceChanged(item, live)) return item;
+        dirty = true;
+        return live;
+      });
+      return dirty ? next : prev;
+    });
+  }, [catalogReady, products]);
+
   const pricedCart = useMemo(
     () => cart.map((item) => withLiveCartPrices(item, products)),
     [cart, products]
   );
+  displayedCartRef.current = pricedCart;
   const cartSubtotal = useMemo(
     () => pricedCart.reduce((s, i) => s + parseMoney(i.price) * i.qty, 0),
     [pricedCart]
@@ -1801,6 +2010,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       updateCartQty,
       removeFromCart,
       clearCart,
+      revalidateCartPrices,
       toggleWishlist,
       isWishlisted,
       trackView,
@@ -1849,6 +2059,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       updateCartQty,
       removeFromCart,
       clearCart,
+      revalidateCartPrices,
       toggleWishlist,
       isWishlisted,
       trackView,

@@ -78,6 +78,10 @@ export type SelectedShippingRate = {
   quoteId?: string | null;
   /** Pares con los que se cotizó; si el carrito cambia, la tarifa queda inválida. */
   packages?: number;
+  /** CP con el que se cotizó. */
+  postalCode?: string;
+  /** ISO de vencimiento de la cotización en el backend. */
+  expiresAt?: string | null;
 };
 
 export type CartShippingPref = {

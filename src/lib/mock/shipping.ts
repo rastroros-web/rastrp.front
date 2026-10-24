@@ -1,4 +1,4 @@
-import type { ShippingZone } from "@/lib/mock/types";
+import type { SelectedShippingRate, ShippingZone } from "@/lib/mock/types";
 
 export type ShippingQuote = {
   zone: ShippingZone;
@@ -14,6 +14,40 @@ export const HOLIDAYS_NOTE =
 
 export function isFreeShipping(merchandiseTotal: number) {
   return merchandiseTotal >= FREE_SHIPPING_FROM;
+}
+
+function normalizeCp(value: string | null | undefined): string {
+  return String(value || "").replace(/\D/g, "").slice(0, 4);
+}
+
+/** Cotización de interior todavía usable para este carrito/CP. */
+export function isInteriorRateValid(
+  rate: SelectedShippingRate | null | undefined,
+  options: {
+    packages: number;
+    postalCode: string;
+    now?: number;
+    /** Con envío gratis el backend no cobra la cotización; alcanza CP/pares. */
+    ignoreExpiry?: boolean;
+  }
+): rate is SelectedShippingRate {
+  if (!rate) return false;
+  const packages = Math.min(
+    30,
+    Math.max(1, Math.floor(Number(options.packages) || 1))
+  );
+  if (Number(rate.packages) !== packages) return false;
+  if (!rate.quoteId && !rate.id) return false;
+  const rateCp = normalizeCp(rate.postalCode);
+  const cartCp = normalizeCp(options.postalCode);
+  if (rateCp && cartCp && rateCp !== cartCp) return false;
+  if (!options.ignoreExpiry && rate.expiresAt) {
+    const ends = new Date(rate.expiresAt).getTime();
+    if (!Number.isFinite(ends) || ends <= (options.now ?? Date.now())) {
+      return false;
+    }
+  }
+  return true;
 }
 
 /** Costos mock de envío (ARS). Envío gratis desde $150.000 en Rosario e interior. */
