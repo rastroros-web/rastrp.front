@@ -6,7 +6,10 @@ import { use, useEffect, useState, type FormEvent } from "react";
 import { notFound } from "next/navigation";
 import { useStore } from "@/components/store/StoreProvider";
 import { formatMoney, parseMoney } from "@/lib/mock/money";
-import { paymentMethodLabel } from "@/lib/mock/orderLabels";
+import {
+  paymentMethodLabel,
+  paysDiscountedPrice,
+} from "@/lib/mock/orderLabels";
 import {
   carrierLabel,
   trackingUrl,
@@ -44,6 +47,7 @@ export default function AdminOrderDetailPage({
   const d = order.shippingDetails;
   const trackLink = trackingUrl(order.trackingCarrier, order.trackingCode);
   const itemsQty = order.items.reduce((s, i) => s + i.qty, 0);
+  const paysDiscounted = paysDiscountedPrice(order.paymentMethod);
 
   const saveTracking = (e: FormEvent) => {
     e.preventDefault();
@@ -299,8 +303,10 @@ export default function AdminOrderDetailPage({
           </h2>
         </div>
         {order.items.map((item) => {
-          const line = parseMoney(item.price) * item.qty;
-          const lineTransfer = parseMoney(item.transfer) * item.qty;
+          const unit = paysDiscounted
+            ? parseMoney(item.transfer)
+            : parseMoney(item.price);
+          const line = unit * item.qty;
           return (
             <div
               key={item.id}
@@ -329,11 +335,8 @@ export default function AdminOrderDetailPage({
               </div>
               <div className="shrink-0 text-right text-sm">
                 <p className="font-medium">{formatMoney(line)}</p>
-                <p className="text-xs text-[#16a34a]">
-                  {formatMoney(lineTransfer)} transf.
-                </p>
                 <p className="mt-1 text-xs text-soft">
-                  {item.price} × {item.qty}
+                  {unit} × {item.qty}
                 </p>
               </div>
             </div>
@@ -342,12 +345,12 @@ export default function AdminOrderDetailPage({
 
         <div className="space-y-1.5 border-t border-black/5 px-5 py-4 text-sm">
           <div className="flex justify-between">
-            <span className="text-soft">Subtotal lista</span>
-            <span>{formatMoney(order.subtotal)}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-soft">Total transferencia (25% OFF)</span>
-            <span>{formatMoney(order.transferTotal)}</span>
+            <span className="text-soft">Subtotal</span>
+            <span>
+              {formatMoney(
+                paysDiscounted ? order.transferTotal : order.subtotal
+              )}
+            </span>
           </div>
           {(order.discount ?? 0) > 0 && (
             <div className="flex justify-between text-[#16a34a]">
