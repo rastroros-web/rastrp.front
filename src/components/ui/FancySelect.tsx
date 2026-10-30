@@ -40,16 +40,17 @@ export function FancySelect({
 
   useEffect(() => {
     if (!open) return;
-    const onPointer = (e: MouseEvent) => {
+    const onPointer = (e: PointerEvent | MouseEvent) => {
       if (!rootRef.current?.contains(e.target as Node)) setOpen(false);
     };
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") setOpen(false);
     };
-    document.addEventListener("mousedown", onPointer);
+    // pointerdown cubre dedo + mouse; mousedown solo falla en varios móviles.
+    document.addEventListener("pointerdown", onPointer);
     document.addEventListener("keydown", onKey);
     return () => {
-      document.removeEventListener("mousedown", onPointer);
+      document.removeEventListener("pointerdown", onPointer);
       document.removeEventListener("keydown", onKey);
     };
   }, [open]);
@@ -83,7 +84,10 @@ export function FancySelect({
         }`;
 
   return (
-    <div ref={rootRef} className={`relative min-w-0 ${className}`}>
+    <div
+      ref={rootRef}
+      className={`relative min-w-0 ${open ? "z-[80]" : ""} ${className}`}
+    >
       {!hideLabel && label ? (
         <span className={labelClass}>
           {label}
@@ -119,7 +123,7 @@ export function FancySelect({
           id={listId}
           role="listbox"
           aria-label={label}
-          className="absolute inset-x-0 top-[calc(100%+4px)] z-40 max-h-56 overflow-auto border border-[#222222] bg-white py-1 shadow-[0_16px_40px_rgba(0,0,0,0.12)]"
+          className="absolute inset-x-0 top-[calc(100%+4px)] z-[80] max-h-56 overflow-auto border border-[#222222] bg-white py-1 shadow-[0_16px_40px_rgba(0,0,0,0.12)]"
         >
           {options.map((opt) => {
             const active = opt.value === value;
@@ -128,6 +132,10 @@ export function FancySelect({
                 <button
                   type="button"
                   className={optionClass(active)}
+                  onPointerDown={(e) => {
+                    // En mobile el pointerdown llega antes que el cierre por outside-click.
+                    e.stopPropagation();
+                  }}
                   onClick={() => {
                     onChange(opt.value);
                     setOpen(false);

@@ -193,7 +193,8 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
       </div>
 
       {/* —— Mobile bottom tabs —— */}
-      <nav className="fixed inset-x-0 bottom-0 z-30 flex overflow-x-auto border-t border-black/10 bg-white [scrollbar-width:none] md:hidden">
+      {/* z-20: debajo de FancySelect abierto (z-80) para no tapar estados/edición */}
+      <nav className="fixed inset-x-0 bottom-0 z-20 flex overflow-x-auto border-t border-black/10 bg-white pb-[env(safe-area-inset-bottom)] [scrollbar-width:none] md:hidden">
         {NAV.map((item) => {
           const active =
             item.href === "/admin"

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ImagePlus, Loader2, Star, X } from "lucide-react";
 import type { ColorVariant } from "@/data/catalog";
@@ -319,8 +319,18 @@ export function ProductForm({
   const [uploadError, setUploadError] = useState("");
   const [dragOver, setDragOver] = useState(false);
   const [dragIndex, setDragIndex] = useState<number | null>(null);
+  /** En touch, draggable HTML5 se come los taps (sacar foto / principal). */
+  const [canDragReorder, setCanDragReorder] = useState(false);
   const [urlOpen, setUrlOpen] = useState(false);
   const [urlDraft, setUrlDraft] = useState("");
+
+  useEffect(() => {
+    const mq = window.matchMedia("(hover: hover) and (pointer: fine)");
+    const sync = () => setCanDragReorder(mq.matches);
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
+  }, []);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const brandOptions = useMemo(() => {
@@ -1144,7 +1154,10 @@ export function ProductForm({
               Fotos de esta variante
             </p>
             <p className="mt-1 text-xs text-soft">
-              La primera es la principal. Arrastrá para reordenar.
+              La primera es la principal.
+              {canDragReorder
+                ? " Arrastrá para reordenar."
+                : " Tocá la estrella para hacer principal o la X para quitar."}
             </p>
           </div>
 
@@ -1164,18 +1177,25 @@ export function ProductForm({
             {galleryImages().map((src, index) => (
               <div
                 key={`${src}-${index}`}
-                draggable
-                onDragStart={() => setDragIndex(index)}
+                draggable={canDragReorder}
+                onDragStart={() => {
+                  if (canDragReorder) setDragIndex(index);
+                }}
                 onDragEnd={() => setDragIndex(null)}
                 onDragOver={(e) => {
+                  if (!canDragReorder) return;
                   e.preventDefault();
                 }}
                 onDrop={(e) => {
                   e.preventDefault();
-                  if (dragIndex != null) moveImage(dragIndex, index);
+                  if (canDragReorder && dragIndex != null) {
+                    moveImage(dragIndex, index);
+                  }
                   setDragIndex(null);
                 }}
-                className={`group relative aspect-[3/4] cursor-grab overflow-hidden border bg-[#f5f4f0] active:cursor-grabbing ${
+                className={`group relative aspect-[3/4] overflow-hidden border bg-[#f5f4f0] ${
+                  canDragReorder ? "cursor-grab active:cursor-grabbing" : ""
+                } ${
                   dragIndex === index
                     ? "border-[#222222] opacity-60"
                     : index === 0
@@ -1198,7 +1218,7 @@ export function ProductForm({
                   <button
                     type="button"
                     onClick={() => makePrincipal(index)}
-                    className="absolute bottom-1.5 left-1.5 hidden items-center gap-1 bg-white/95 px-1.5 py-0.5 text-[9px] font-semibold tracking-[0.08em] uppercase group-hover:flex"
+                    className="absolute bottom-1.5 left-1.5 flex items-center gap-1 bg-white/95 px-1.5 py-0.5 text-[9px] font-semibold tracking-[0.08em] uppercase md:hidden md:group-hover:flex"
                     title="Usar como principal"
                   >
                     <Star className="size-2.5" />
@@ -1208,7 +1228,7 @@ export function ProductForm({
                 <button
                   type="button"
                   onClick={() => removeImageSlot(index)}
-                  className="absolute top-1.5 right-1.5 flex size-6 items-center justify-center bg-white/95 text-[#222222] opacity-0 transition group-hover:opacity-100"
+                  className="absolute top-1.5 right-1.5 flex size-6 items-center justify-center bg-white/95 text-[#222222] opacity-100 transition md:opacity-0 md:group-hover:opacity-100"
                   aria-label="Quitar foto"
                 >
                   <X className="size-3.5" />

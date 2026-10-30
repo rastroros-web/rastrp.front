@@ -13,12 +13,26 @@ import {
   orderStatusOptions,
 } from "@/lib/admin/select-options";
 import { TransferBankSettings } from "@/components/admin/TransferBankSettings";
+import { useAlert } from "@/components/ui/AlertProvider";
 
 export default function AdminOrdersPage() {
   const { orders, updateOrderStatus, session } = useStore();
+  const { alert } = useAlert();
   const [q, setQ] = useState("");
   const [status, setStatus] = useState<"all" | OrderStatus>("all");
   const isAdmin = session?.role === "admin";
+
+  async function onStatusChange(id: string, next: OrderStatus) {
+    const result = await updateOrderStatus(id, next);
+    if (!result.ok) {
+      await alert({
+        eyebrow: "Pedidos",
+        title: "No se pudo cambiar el estado",
+        message: result.error,
+        tone: "danger",
+      });
+    }
+  }
 
   const filtered = useMemo(() => {
     const query = q.trim().toLowerCase();
@@ -120,7 +134,7 @@ export default function AdminOrdersPage() {
               value={o.status}
               options={orderStatusOptions}
               onChange={(value) =>
-                updateOrderStatus(o.id, value as OrderStatus)
+                void onStatusChange(o.id, value as OrderStatus)
               }
               className="mt-3"
             />
@@ -192,7 +206,7 @@ export default function AdminOrdersPage() {
                     value={o.status}
                     options={orderStatusOptions}
                     onChange={(value) =>
-                      updateOrderStatus(o.id, value as OrderStatus)
+                      void onStatusChange(o.id, value as OrderStatus)
                     }
                     hideLabel
                     className="min-w-[148px]"

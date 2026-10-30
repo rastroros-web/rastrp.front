@@ -20,6 +20,7 @@ import {
   orderStatusOptions,
   trackingCarrierOptions,
 } from "@/lib/admin/select-options";
+import { useAlert } from "@/components/ui/AlertProvider";
 
 export default function AdminOrderDetailPage({
   params,
@@ -28,6 +29,7 @@ export default function AdminOrderDetailPage({
 }) {
   const { id } = use(params);
   const { orders, updateOrderStatus, updateOrderTracking, ready } = useStore();
+  const { alert } = useAlert();
   const order = orders.find((o) => o.id === id);
 
   const [carrier, setCarrier] = useState<TrackingCarrier>("andreani");
@@ -85,9 +87,20 @@ export default function AdminOrderDetailPage({
             label="Estado"
             value={order.status}
             options={orderStatusOptions}
-            onChange={(value) =>
-              updateOrderStatus(order.id, value as OrderStatus)
-            }
+            onChange={async (value) => {
+              const result = await updateOrderStatus(
+                order.id,
+                value as OrderStatus
+              );
+              if (!result.ok) {
+                await alert({
+                  eyebrow: "Pedidos",
+                  title: "No se pudo cambiar el estado",
+                  message: result.error,
+                  tone: "danger",
+                });
+              }
+            }}
           />
         </div>
       </div>

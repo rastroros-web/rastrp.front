@@ -293,7 +293,10 @@ type StoreContextValue = {
       password?: string;
     };
   }) => Promise<PlaceOrderResult>;
-  updateOrderStatus: (id: string, status: OrderStatus) => Promise<void>;
+  updateOrderStatus: (
+    id: string,
+    status: OrderStatus
+  ) => Promise<{ ok: true } | { ok: false; error: string }>;
   cancelOrder: (
     id: string
   ) => Promise<{ ok: true; order: MockOrder } | { ok: false; error: string }>;
@@ -1427,7 +1430,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   );
 
   const updateOrderStatus = useCallback(
-    async (id: string, status: OrderStatus) => {
+    async (
+      id: string,
+      status: OrderStatus
+    ): Promise<{ ok: true } | { ok: false; error: string }> => {
       if (hasApiAuth()) {
         try {
           const updated = await updateShopOrder(id, { status });
@@ -1446,15 +1452,24 @@ export function StoreProvider({ children }: { children: ReactNode }) {
               .catch(() => {});
           }
           notifyBusinessChanged();
-        } catch {
-          /* el admin puede reintentar */
+          return { ok: true };
+        } catch (err) {
+          return {
+            ok: false,
+            error:
+              err instanceof Error
+                ? err.message
+                : "No se pudo actualizar el estado.",
+          };
         }
-        return;
       }
       const current = orders.find((o) => o.id === id);
       const updated = current
         ? { ...current, status, updatedAt: new Date().toISOString() }
         : null;
+      if (!updated) {
+        return { ok: false, error: "Pedido no encontrado." };
+      }
       setOrders((prev) =>
         prev.map((o) =>
           o.id === id
@@ -1462,7 +1477,6 @@ export function StoreProvider({ children }: { children: ReactNode }) {
             : o
         )
       );
-      if (!updated) return;
       try {
         if (orderCountsInLedger(status)) {
           appendVentasFromOrder(updated);
@@ -1473,6 +1487,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       } catch {
         /* noop */
       }
+      return { ok: true };
     },
     [orders, session]
   );
